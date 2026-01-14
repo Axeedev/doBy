@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.habitflow.presentation.navigation.NavigationRoot
+import com.example.habitflow.presentation.ui.theme.HabitFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -14,7 +15,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NavigationRoot()
+            HabitFlowTheme {
+
+                NavigationRoot()
+            }
         }
     }
 }

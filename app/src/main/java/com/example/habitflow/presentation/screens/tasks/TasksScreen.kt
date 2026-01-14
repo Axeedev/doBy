@@ -29,7 +29,7 @@ fun TasksScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp)
+            .padding(all = 50.dp)
     ) {
         Button(
             modifier = Modifier

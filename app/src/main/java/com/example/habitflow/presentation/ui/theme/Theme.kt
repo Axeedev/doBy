@@ -11,15 +11,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = blue300,
+    secondary = blue100,
+    tertiary = grey100,
+    background = grey350,
+    primaryContainer = white,
+    scrim = white,
+    onSecondaryContainer = pink50,
+    onPrimaryContainer = pink100,
+    onPrimaryFixed = grey200
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = blue300,
+    secondary = blue100,
+    tertiary = grey100,
+    background = grey350,
+    scrim = white,
+    onSecondaryContainer = pink50,
+    onPrimaryContainer = pink100,
+    primaryContainer = white,
+    onPrimaryFixed = grey200
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -40,10 +52,6 @@ fun HabitFlowTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
 
         darkTheme -> DarkColorScheme
         else -> LightColorScheme

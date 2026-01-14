@@ -4,5 +4,7 @@ enum class Category(val title: String) {
     DESIGN("Design"),
     CODING("Coding"),
     TESTING("Testing"),
-    MEETING("Meeting")
+//    MEETING("Meeting"),
+//    QUICK_CALL("Quick call"),
+//    BDE("BDE"),
 }

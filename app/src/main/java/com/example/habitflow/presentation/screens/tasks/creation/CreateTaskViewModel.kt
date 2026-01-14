@@ -28,22 +28,22 @@ class CreateTaskViewModel @Inject constructor(
             }
             is CreateTaskCommand.InputDescription -> {
                 _state.update {
-                    it.copy(date = command.description)
+                    it.copy(description = command.description)
                 }
             }
             is CreateTaskCommand.InputEndTime -> {
                 _state.update {
-                    it.copy(date = command.endTime)
+                    it.copy(endTime = command.endTime)
                 }
             }
             is CreateTaskCommand.InputStartTime -> {
                 _state.update {
-                    it.copy(date = command.startTime)
+                    it.copy(startTime = command.startTime)
                 }
             }
             is CreateTaskCommand.InputTitle -> {
                 _state.update {
-                    it.copy(date = command.title)
+                    it.copy(title = command.title)
                 }
             }
 
