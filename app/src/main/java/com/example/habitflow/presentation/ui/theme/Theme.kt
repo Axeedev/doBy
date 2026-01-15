@@ -19,7 +19,8 @@ private val DarkColorScheme = darkColorScheme(
     scrim = white,
     onSecondaryContainer = pink50,
     onPrimaryContainer = pink100,
-    onPrimaryFixed = grey200
+    onPrimaryFixed = grey200,
+    primaryFixedDim = blue900
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -31,6 +32,7 @@ private val LightColorScheme = lightColorScheme(
     onSecondaryContainer = pink50,
     onPrimaryContainer = pink100,
     primaryContainer = white,
+    primaryFixedDim = blue900,
     onPrimaryFixed = grey200
 
     /* Other default colors to override

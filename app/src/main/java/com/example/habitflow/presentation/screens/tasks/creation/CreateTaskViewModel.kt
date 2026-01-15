@@ -1,12 +1,16 @@
 package com.example.habitflow.presentation.screens.tasks.creation
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.habitflow.domain.entities.Task
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
 import com.example.habitflow.presentation.screens.tasks.Category
+import com.example.habitflow.presentation.utils.DateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,7 +27,7 @@ class CreateTaskViewModel @Inject constructor(
         when(command){
             is CreateTaskCommand.InputDate -> {
                 _state.update {
-                    it.copy(date = command.date)
+                    it.copy(date = DateFormatter.formatDate(command.date))
                 }
             }
             is CreateTaskCommand.InputDescription -> {
@@ -52,6 +56,22 @@ class CreateTaskViewModel @Inject constructor(
                     it.copy(category = command.category)
                 }
             }
+
+            CreateTaskCommand.AddTask -> {
+                viewModelScope.launch {
+                    val finalTask = _state.value
+                    addTaskUseCase(
+                        Task(
+                            title = finalTask.title,
+                            date = finalTask.date,
+                            note = finalTask.description,
+                            startTime = finalTask.startTime,
+                            endTime = finalTask.endTime,
+                            category = finalTask.category.title,
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -59,7 +79,7 @@ class CreateTaskViewModel @Inject constructor(
 
         data class InputTitle(val title: String) : CreateTaskCommand
 
-        data class InputDate(val date: String) : CreateTaskCommand
+        data class InputDate(val date: Long) : CreateTaskCommand
 
         data class InputStartTime(val startTime: String) : CreateTaskCommand
 
@@ -69,6 +89,6 @@ class CreateTaskViewModel @Inject constructor(
 
         data class ChangeCategory(val category: Category) : CreateTaskCommand
 
-
+        data object AddTask : CreateTaskCommand
     }
 }

@@ -11,12 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -25,17 +26,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -45,13 +53,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
 import com.example.habitflow.presentation.screens.tasks.Category
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTaskScreen(
     viewModel: CreateTaskViewModel = hiltViewModel(),
     onBackClick: () -> Unit
-){
+) {
 
     val state by viewModel.state.collectAsState()
 
@@ -68,7 +77,7 @@ fun CreateTaskScreen(
                         modifier = Modifier
                             .padding(start = 16.dp)
                             .clip(CircleShape)
-                            .clickable{
+                            .clickable {
                                 onBackClick()
                             },
                         painter = painterResource(R.drawable.ic_arrow_back),
@@ -84,11 +93,12 @@ fun CreateTaskScreen(
             )
         },
         containerColor = MaterialTheme.colorScheme.primary
-    ) {paddingValues ->
+    ) { paddingValues ->
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(top = paddingValues.calculateTopPadding())
-                .drawBehind{
+                .drawBehind {
                     drawCircle(
                         color = Color(0xFF4A3BCF),
                         center = Offset(x = this.size.width, y = 0f),
@@ -96,7 +106,7 @@ fun CreateTaskScreen(
                     )
                     drawCircle(
                         color = Color(0xFF4A3BCF),
-                        center = Offset(x = 0f, y = this.size.height/3)
+                        center = Offset(x = 0f, y = this.size.height / 3)
                     )
                 }
         ) {
@@ -110,7 +120,7 @@ fun CreateTaskScreen(
                 modifier = Modifier
                     .padding(horizontal = 8.dp),
                 value = state.title,
-                supportingText = "Code changes"
+                supportingText = "Add title",
             ) {
                 viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.InputTitle(it))
             }
@@ -129,13 +139,39 @@ fun CreateTaskScreen(
                 fontSize = 16.sp,
                 text = "Date"
             )
+            var isDatepickerOpened by remember { mutableStateOf(false) }
+            if (isDatepickerOpened) {
+                DatePickerModal(
+                    {
+                        it?.let {
+                            viewModel.processCommand(
+                                CreateTaskViewModel.CreateTaskCommand.InputDate(
+                                    it
+                                )
+                            )
+                        }
+                        isDatepickerOpened = false
+                    }) {
+                    isDatepickerOpened = false
+                }
+            }
+
             CreateTaskTextField(
                 modifier = Modifier
-                    .padding(horizontal = 8.dp),
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+                    .clickable {
+                        isDatepickerOpened = true
+                    },
                 value = state.date,
-                supportingText = "Oct 24, 2020"
+                readOnly = true,
+                supportingText = "Choose date",
+                enabled = false
             ) {
-                viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.InputDate(it))
+                viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.InputDate(
+                    it.toLong())
+                )
+
             }
             HorizontalDivider(
                 modifier = Modifier
@@ -145,7 +181,7 @@ fun CreateTaskScreen(
             )
             Spacer(Modifier.size(16.dp))
 
-            LazyColumn (
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
@@ -153,10 +189,32 @@ fun CreateTaskScreen(
             ) {
                 item {
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 24.dp)
                     ) {
-                        Column(modifier = Modifier.weight(1f)) {
+                        var isEndTimePickerEnabled by remember { mutableStateOf(false) }
+                        if (isEndTimePickerEnabled){
+                            TimePickerDial(
+                                onConfirm = {
+                                    viewModel.processCommand(
+                                        CreateTaskViewModel.CreateTaskCommand.InputStartTime(
+                                            it
+                                        )
+                                    )
+                                    isEndTimePickerEnabled = false
+
+                                }
+                            ) {
+                                isEndTimePickerEnabled = false
+                            }
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f)
+                                .clickable{
+                                    isEndTimePickerEnabled = true
+                                }
+                        ) {
                             Text(
                                 text = "Start Time",
                                 fontSize = 20.sp,
@@ -164,13 +222,34 @@ fun CreateTaskScreen(
                             )
                             Spacer(Modifier.size(12.dp))
                             Text(
-                                text = "01:22 pm",
+                                text = state.startTime,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.secondary
                             )
                         }
-                        Column(modifier = Modifier.weight(1f)) {
+                        var isStartTimePickerEnabled by remember { mutableStateOf(false) }
+                        if (isStartTimePickerEnabled){
+                            TimePickerDial(
+                                onConfirm = {
+                                    viewModel.processCommand(
+                                        CreateTaskViewModel.CreateTaskCommand.InputEndTime(
+                                            it
+                                        )
+                                    )
+                                    isStartTimePickerEnabled = false
+                                },
+                                onDismiss = {
+                                    isStartTimePickerEnabled = false
+                                }
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f)
+                                .clickable{
+                                    isStartTimePickerEnabled = true
+                                }
+                        ) {
                             Text(
                                 text = "End Time",
                                 fontSize = 20.sp,
@@ -178,7 +257,7 @@ fun CreateTaskScreen(
                             )
                             Spacer(Modifier.size(12.dp))
                             Text(
-                                text = "03:20 pm",
+                                text = state.endTime,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.secondary
@@ -234,7 +313,8 @@ fun CreateTaskScreen(
                         text = "Category"
                     )
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(horizontal = 24.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
@@ -273,7 +353,10 @@ fun CreateTaskScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                             .heightIn(min = 64.dp),
-                        onClick = {}
+                        onClick = {
+                            viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.AddTask)
+                            onBackClick()
+                        }
                     ) {
                         Text(
                             text = "Create Task",
@@ -291,16 +374,20 @@ fun CreateTaskScreen(
 fun CreateTaskTextField(
     modifier: Modifier = Modifier,
     value: String,
+    readOnly: Boolean = false,
+    enabled: Boolean = true,
     supportingText: String,
     onValueChange: (String) -> Unit
-){
+) {
     TextField(
         colors = TextFieldDefaults
             .colors(
                 unfocusedContainerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
             ),
         placeholder = {
             Text(
@@ -310,6 +397,8 @@ fun CreateTaskTextField(
                 text = supportingText
             )
         },
+        readOnly = readOnly,
+        enabled = enabled,
         textStyle = TextStyle(
             fontSize = 25.sp,
             fontWeight = FontWeight.Medium,
@@ -319,4 +408,67 @@ fun CreateTaskTextField(
         value = value,
         onValueChange = onValueChange
     )
+}
+
+@Composable
+fun DatePickerModal(
+    onDateSelected: (Long?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState()
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onDateSelected(datePickerState.selectedDateMillis)
+                onDismiss()
+            }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerDial(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val currentTime = Calendar.getInstance()
+
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
+        initialMinute = currentTime.get(Calendar.MINUTE),
+        is24Hour = true,
+    )
+
+    TimePickerDialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        confirmButton = {
+            Button(onClick = {
+                onConfirm("${timePickerState.hour}:${timePickerState.minute}")
+            }
+            ) {
+                Text("Confirm time")
+            }
+        },
+        title = {
+            Text(
+                text = "Choose time"
+            )
+        },
+    ){
+        TimePicker(state = timePickerState)
+    }
 }

@@ -9,7 +9,10 @@ fun Task.toTaskEntity(): TaskEntity{
         title = title ,
         date = date ,
         note = note ,
-        isCompleted = isCompleted
+        isCompleted = isCompleted,
+        category = category,
+        startTime = startTime,
+        endTime = endTime
     )
 }
 fun TaskEntity.toTask(): Task{
@@ -18,6 +21,9 @@ fun TaskEntity.toTask(): Task{
         title = title ,
         date = date ,
         note = note ,
+        category = category,
+        startTime = startTime,
+        endTime = endTime,
         isCompleted = isCompleted
     )
 }
