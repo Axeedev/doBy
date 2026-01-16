@@ -2,7 +2,7 @@ package com.example.habitflow.data.local.tasks
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.habitflow.presentation.Priority
+import com.example.habitflow.domain.entities.Priority
 
 @Entity(tableName = "Tasks")
 data class TaskEntity(
@@ -14,6 +14,6 @@ data class TaskEntity(
     val category: String,
     val startTime: String,
     val endTime: String,
-    val priority: Priority,
+    val priority: String,
     val isCompleted: Boolean
 )

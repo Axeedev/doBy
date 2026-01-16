@@ -1,7 +1,5 @@
 package com.example.habitflow.domain.entities
 
-import com.example.habitflow.presentation.Priority
-
 data class Task(
     val id: Int,
     val title: String,
@@ -9,7 +7,7 @@ data class Task(
     val note: String,
     val startTime: String,
     val endTime: String,
-    val category: String,
+    val category: TaskCategory,
     val priority: Priority,
     val isCompleted: Boolean = false
 )

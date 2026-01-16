@@ -2,7 +2,7 @@ package com.example.habitflow.domain.entities
 
 data class Goal(
     val id: Int,
-    val category: String,
+    val category: GoalCategory,
     val title: String,
     val description: String,
     val goalStartDate: String,

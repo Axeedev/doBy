@@ -1,4 +1,4 @@
-package com.example.habitflow.presentation.screens.tasks
+package com.example.habitflow.presentation.screens.tasks.all
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

@@ -52,8 +52,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
-import com.example.habitflow.presentation.Priority
-import com.example.habitflow.presentation.screens.tasks.TaskCategory
+import com.example.habitflow.domain.entities.Priority
+import com.example.habitflow.domain.entities.TaskCategory
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,7 +97,7 @@ fun CreateTaskScreen(
                             .clip(CircleShape)
                             .size(30.dp)
                             .clickable{
-                                viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.ChangePriority)
+                                viewModel.processCommand(CreateTaskCommand.ChangePriority)
                             },
                         painter = painterResource(
                             when(state.priority){
@@ -160,7 +160,7 @@ fun CreateTaskScreen(
                 value = state.title,
                 supportingText = "Add title",
             ) {
-                viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.InputTitle(it))
+                viewModel.processCommand(CreateTaskCommand.InputTitle(it))
             }
             HorizontalDivider(
                 modifier = Modifier
@@ -183,7 +183,7 @@ fun CreateTaskScreen(
                     {
                         it?.let {
                             viewModel.processCommand(
-                                CreateTaskViewModel.CreateTaskCommand.InputDate(
+                                CreateTaskCommand.InputDate(
                                     it
                                 )
                             )
@@ -206,7 +206,7 @@ fun CreateTaskScreen(
                 supportingText = "Choose date",
                 enabled = false
             ) {
-                viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.InputDate(
+                viewModel.processCommand(CreateTaskCommand.InputDate(
                     it.toLong())
                 )
 
@@ -236,7 +236,7 @@ fun CreateTaskScreen(
                             TimePickerDial(
                                 onConfirm = {
                                     viewModel.processCommand(
-                                        CreateTaskViewModel.CreateTaskCommand.InputStartTime(
+                                        CreateTaskCommand.InputStartTime(
                                             it
                                         )
                                     )
@@ -272,7 +272,7 @@ fun CreateTaskScreen(
                             TimePickerDial(
                                 onConfirm = {
                                     viewModel.processCommand(
-                                        CreateTaskViewModel.CreateTaskCommand.InputEndTime(
+                                        CreateTaskCommand.InputEndTime(
                                             it
                                         )
                                     )
@@ -338,7 +338,7 @@ fun CreateTaskScreen(
                         },
                         onValueChange = {
                             viewModel.processCommand(
-                                CreateTaskViewModel.CreateTaskCommand.InputDescription(
+                                CreateTaskCommand.InputDescription(
                                     it
                                 )
                             )
@@ -380,7 +380,7 @@ fun CreateTaskScreen(
                                 },
                                 onClick = {
                                     viewModel.processCommand(
-                                        CreateTaskViewModel.CreateTaskCommand.ChangeCategory(
+                                        CreateTaskCommand.ChangeCategory(
                                             category
                                         )
                                     )
@@ -395,7 +395,7 @@ fun CreateTaskScreen(
                             .heightIn(min = 64.dp),
                         enabled = state.isButtonEnabled,
                         onClick = {
-                            viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.AddTask)
+                            viewModel.processCommand(CreateTaskCommand.AddTask)
                             onBackClick()
                         }
                     ) {

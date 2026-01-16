@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Task
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
-import com.example.habitflow.presentation.Priority
-import com.example.habitflow.presentation.screens.tasks.TaskCategory
+import com.example.habitflow.domain.entities.Priority
+import com.example.habitflow.domain.entities.TaskCategory
 import com.example.habitflow.presentation.utils.DateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,7 +69,7 @@ class CreateTaskViewModel @Inject constructor(
                             note = finalTask.description,
                             startTime = finalTask.startTime,
                             endTime = finalTask.endTime,
-                            category = finalTask.taskCategory.title,
+                            category = finalTask.taskCategory,
                             priority = finalTask.priority
                         )
                     )
@@ -83,24 +83,5 @@ class CreateTaskViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    sealed interface CreateTaskCommand{
-
-        data class InputTitle(val title: String) : CreateTaskCommand
-
-        data class InputDate(val date: Long) : CreateTaskCommand
-
-        data class InputStartTime(val startTime: String) : CreateTaskCommand
-
-        data class InputEndTime(val endTime: String) : CreateTaskCommand
-
-        data class InputDescription(val description: String) : CreateTaskCommand
-
-        data class ChangeCategory(val taskCategory: TaskCategory) : CreateTaskCommand
-
-        data object ChangePriority : CreateTaskCommand
-
-        data object AddTask : CreateTaskCommand
     }
 }

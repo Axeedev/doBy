@@ -6,14 +6,14 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalScreen
-import com.example.habitflow.presentation.screens.goals.GoalsScreen
-import com.example.habitflow.presentation.screens.tasks.TasksScreen
+import com.example.habitflow.presentation.screens.goals.all.GoalsScreen
+import com.example.habitflow.presentation.screens.tasks.all.TasksScreen
 import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskScreen
 
 
 @Composable
 fun NavigationRoot() {
-    val backStack = rememberNavBackStack(Screen.Tasks)
+    val backStack = rememberNavBackStack(Screen.CreateGoal)
     NavDisplay(
         backStack = backStack,
         entryDecorators = listOf(
@@ -45,14 +45,18 @@ fun NavigationRoot() {
                     NavEntry(
                         key = key
                     ){
-                        GoalsScreen()
+                        GoalsScreen(){
+                            backStack.add(Screen.CreateGoal)
+                        }
                     }
                 }
                 is Screen.CreateGoal->{
                     NavEntry(
                         key = key
                     ){
-                        CreateGoalScreen()
+                        CreateGoalScreen(){
+                            backStack.removeLastOrNull()
+                        }
                     }
                 }
                 else -> {

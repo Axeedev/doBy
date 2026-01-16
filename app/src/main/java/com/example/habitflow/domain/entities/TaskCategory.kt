@@ -1,4 +1,4 @@
-package com.example.habitflow.presentation.screens.tasks
+package com.example.habitflow.domain.entities
 
 enum class TaskCategory(val title: String) {
     DESIGN("Design"),

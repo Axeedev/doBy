@@ -1,7 +1,7 @@
-package com.example.habitflow.presentation.screens.tasks
+package com.example.habitflow.presentation.screens.tasks.all
 
 import com.example.habitflow.domain.entities.Task
-import com.example.habitflow.presentation.Priority
+import com.example.habitflow.domain.entities.Priority
 
 data class TasksScreenState(
     val todayTasks: List<Task> = listOf(),

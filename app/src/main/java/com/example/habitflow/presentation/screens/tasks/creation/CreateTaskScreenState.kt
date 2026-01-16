@@ -1,7 +1,7 @@
 package com.example.habitflow.presentation.screens.tasks.creation
 
-import com.example.habitflow.presentation.Priority
-import com.example.habitflow.presentation.screens.tasks.TaskCategory
+import com.example.habitflow.domain.entities.Priority
+import com.example.habitflow.domain.entities.TaskCategory
 import com.example.habitflow.presentation.utils.DateFormatter
 
 data class CreateTaskScreenState(

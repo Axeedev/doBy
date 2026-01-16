@@ -20,7 +20,9 @@ private val DarkColorScheme = darkColorScheme(
     onSecondaryContainer = pink50,
     onPrimaryContainer = pink100,
     onPrimaryFixed = grey200,
-    primaryFixedDim = blue900
+    primaryFixedDim = blue900,
+    onPrimaryFixedVariant = grey400,
+    primaryFixed = black
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -33,7 +35,9 @@ private val LightColorScheme = lightColorScheme(
     onPrimaryContainer = pink100,
     primaryContainer = white,
     primaryFixedDim = blue900,
-    onPrimaryFixed = grey200
+    onPrimaryFixed = grey200,
+    onPrimaryFixedVariant = grey400,
+    primaryFixed = black
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

@@ -5,8 +5,11 @@ import com.example.habitflow.data.local.goals.GoalWithMilestoneEntity
 import com.example.habitflow.data.local.goals.MilestoneEntity
 import com.example.habitflow.data.local.tasks.TaskEntity
 import com.example.habitflow.domain.entities.Goal
+import com.example.habitflow.domain.entities.GoalCategory
 import com.example.habitflow.domain.entities.Milestone
+import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.domain.entities.TaskCategory
 
 fun Task.toTaskEntity(): TaskEntity{
     return TaskEntity(
@@ -15,10 +18,10 @@ fun Task.toTaskEntity(): TaskEntity{
         date = date ,
         note = note ,
         isCompleted = isCompleted,
-        category = category,
+        category = category.title,
         startTime = startTime,
         endTime = endTime,
-        priority = priority
+        priority = priority.name
     )
 }
 fun TaskEntity.toTask(): Task{
@@ -27,10 +30,10 @@ fun TaskEntity.toTask(): Task{
         title = title ,
         date = date ,
         note = note ,
-        category = category,
+        category = TaskCategory.valueOf(this.category.uppercase()),
         startTime = startTime,
         endTime = endTime,
-        priority = priority,
+        priority = Priority.valueOf(this.priority.uppercase()),
         isCompleted = isCompleted
     )
 }
@@ -48,7 +51,7 @@ fun Goal.toGoalEntity() : GoalEntity{
     return GoalEntity(
         id = id,
         title = title,
-        category = category,
+        category = category.title,
         startDate = goalStartDate,
         endDate = goalEndDate,
         description = description,
@@ -67,7 +70,7 @@ fun Milestone.toMilestoneEntity(goalId: Int) : MilestoneEntity{
 fun GoalWithMilestoneEntity.toGoal(): Goal {
     return Goal(
         id = goalEntity.id,
-        category = goalEntity.category,
+        category = GoalCategory.valueOf(goalEntity.category),
         title = goalEntity.title,
         description = goalEntity.description,
         goalStartDate = goalEntity.startDate,

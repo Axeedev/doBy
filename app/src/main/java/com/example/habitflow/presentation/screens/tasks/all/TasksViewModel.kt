@@ -1,11 +1,11 @@
-package com.example.habitflow.presentation.screens.tasks
+package com.example.habitflow.presentation.screens.tasks.all
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.DeleteTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
-import com.example.habitflow.presentation.Priority
+import com.example.habitflow.domain.entities.Priority
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -74,21 +74,6 @@ class TasksViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-
-    sealed interface TasksCommand {
-
-        data class InputTaskTitle(val taskTitle: String) : TasksCommand
-
-        data class InputTaskNote(val taskNote: String) : TasksCommand
-
-        data object ChangePriority : TasksCommand
-
-        data object AddTask : TasksCommand
-
-        data object DeleteTask : TasksCommand
-
     }
 
 }

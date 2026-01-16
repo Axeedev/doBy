@@ -46,7 +46,7 @@ class GoalRepositoryImpl @Inject constructor(
         return goalsDao.getGoalById(goalId).toGoal()
     }
 
-    override fun getGoals(query: String): Flow<List<Goal>> {
+    override fun getGoals(): Flow<List<Goal>> {
        return goalsDao.gelGoals().map { list ->
            list.map { it.toGoal() }
        }
