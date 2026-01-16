@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Task
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
-import com.example.habitflow.presentation.screens.tasks.Category
+import com.example.habitflow.presentation.Priority
+import com.example.habitflow.presentation.screens.tasks.TaskCategory
 import com.example.habitflow.presentation.utils.DateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,7 +54,7 @@ class CreateTaskViewModel @Inject constructor(
 
             is CreateTaskCommand.ChangeCategory -> {
                 _state.update {
-                    it.copy(category = command.category)
+                    it.copy(taskCategory = command.taskCategory)
                 }
             }
 
@@ -62,14 +63,23 @@ class CreateTaskViewModel @Inject constructor(
                     val finalTask = _state.value
                     addTaskUseCase(
                         Task(
+                            id = 0,
                             title = finalTask.title,
                             date = finalTask.date,
                             note = finalTask.description,
                             startTime = finalTask.startTime,
                             endTime = finalTask.endTime,
-                            category = finalTask.category.title,
+                            category = finalTask.taskCategory.title,
+                            priority = finalTask.priority
                         )
                     )
+                }
+            }
+            CreateTaskCommand.ChangePriority -> {
+                _state.update {
+                    val previousPriorityIndex = Priority.entries.indexOf(it.priority)
+                    val newPriority = Priority.entries[(previousPriorityIndex + 1) % Priority.entries.size]
+                    it.copy(priority = newPriority)
                 }
             }
         }
@@ -87,7 +97,9 @@ class CreateTaskViewModel @Inject constructor(
 
         data class InputDescription(val description: String) : CreateTaskCommand
 
-        data class ChangeCategory(val category: Category) : CreateTaskCommand
+        data class ChangeCategory(val taskCategory: TaskCategory) : CreateTaskCommand
+
+        data object ChangePriority : CreateTaskCommand
 
         data object AddTask : CreateTaskCommand
     }

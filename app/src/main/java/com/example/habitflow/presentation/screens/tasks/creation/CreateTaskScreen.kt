@@ -52,7 +52,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
-import com.example.habitflow.presentation.screens.tasks.Category
+import com.example.habitflow.presentation.Priority
+import com.example.habitflow.presentation.screens.tasks.TaskCategory
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,6 +89,43 @@ fun CreateTaskScreen(
                     Text(
                         fontWeight = FontWeight.SemiBold,
                         text = "Create a Task"
+                    )
+                },
+                actions = {
+                    Icon(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(30.dp)
+                            .clickable{
+                                viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.ChangePriority)
+                            },
+                        painter = painterResource(
+                            when(state.priority){
+                                Priority.REGULAR -> {
+                                    R.drawable.ic_priority_low
+                                }
+                                Priority.MIDDLE -> {
+                                    R.drawable.ic_priority_low
+                                }
+                                Priority.HIGH -> {
+                                    R.drawable.ic_priority_high
+                                }
+                                Priority.EXTRA_HIGH -> {
+                                    R.drawable.ic_priority_high
+                                }
+                            }
+                        ),
+                        tint = when(state.priority){
+                            Priority.REGULAR ->
+                                Color.White
+                            Priority.MIDDLE ->
+                                Color.Red
+                            Priority.HIGH ->
+                                Color.White
+                            Priority.EXTRA_HIGH ->
+                                Color.Red
+                        },
+                        contentDescription = "priority of the task"
                     )
                 }
             )
@@ -210,8 +248,9 @@ fun CreateTaskScreen(
                             }
                         }
                         Column(
-                            modifier = Modifier.weight(1f)
-                                .clickable{
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable {
                                     isEndTimePickerEnabled = true
                                 }
                         ) {
@@ -245,8 +284,9 @@ fun CreateTaskScreen(
                             )
                         }
                         Column(
-                            modifier = Modifier.weight(1f)
-                                .clickable{
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable {
                                     isStartTimePickerEnabled = true
                                 }
                         ) {
@@ -318,13 +358,13 @@ fun CreateTaskScreen(
                             .padding(horizontal = 24.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Category.entries.forEach { category ->
+                        TaskCategory.entries.forEach { category ->
                             FilterChip(
                                 modifier = Modifier
                                     .heightIn(min = 64.dp),
                                 shape = RoundedCornerShape(50),
                                 border = null,
-                                selected = state.category == category,
+                                selected = state.taskCategory == category,
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = MaterialTheme.colorScheme.primary,
                                     containerColor = MaterialTheme.colorScheme.onPrimaryFixed,
@@ -353,6 +393,7 @@ fun CreateTaskScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                             .heightIn(min = 64.dp),
+                        enabled = state.isButtonEnabled,
                         onClick = {
                             viewModel.processCommand(CreateTaskViewModel.CreateTaskCommand.AddTask)
                             onBackClick()

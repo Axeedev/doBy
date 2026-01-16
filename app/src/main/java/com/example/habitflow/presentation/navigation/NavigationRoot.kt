@@ -1,11 +1,12 @@
 package com.example.habitflow.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.example.habitflow.presentation.screens.goals.create.CreateGoalScreen
+import com.example.habitflow.presentation.screens.goals.GoalsScreen
 import com.example.habitflow.presentation.screens.tasks.TasksScreen
 import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskScreen
 
@@ -40,8 +41,23 @@ fun NavigationRoot() {
 
                     }
                 }
-
-                else -> throw RuntimeException("Invalid key")
+                is Screen.Goals ->{
+                    NavEntry(
+                        key = key
+                    ){
+                        GoalsScreen()
+                    }
+                }
+                is Screen.CreateGoal->{
+                    NavEntry(
+                        key = key
+                    ){
+                        CreateGoalScreen()
+                    }
+                }
+                else -> {
+                    throw RuntimeException("Invalid key")
+                }
             }
 
         }

@@ -12,4 +12,10 @@ sealed class Screen : NavKey{
     @Serializable
     data object Tasks : Screen()
 
+    @Serializable
+    data object Goals: Screen()
+
+    @Serializable
+    data object CreateGoal: Screen()
+
 }

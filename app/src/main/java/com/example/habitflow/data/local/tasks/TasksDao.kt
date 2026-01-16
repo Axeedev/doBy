@@ -26,7 +26,7 @@ interface TasksDao {
             WHERE id == :taskId
         """
     )
-    suspend fun changeTaskCompletedState(taskId: String)
+    suspend fun changeTaskCompletedState(taskId: Int)
 
     @Query(
         """
@@ -34,7 +34,7 @@ interface TasksDao {
             WHERE id == :taskId
         """
     )
-    suspend fun deleteTask(taskId: String)
+    suspend fun deleteTask(taskId: Int)
 
 
 }

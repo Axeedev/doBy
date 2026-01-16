@@ -24,7 +24,7 @@ class TaskRepositoryImpl @Inject constructor(
         tasksDao.addTask(task.toTaskEntity())
     }
 
-    override suspend fun deleteTask(taskId: String) {
+    override suspend fun deleteTask(taskId: Int) {
         tasksDao.deleteTask(taskId)
     }
 
@@ -32,7 +32,7 @@ class TaskRepositoryImpl @Inject constructor(
         tasksDao.addTask(task.toTaskEntity())
     }
 
-    override suspend fun changeTaskCompletedState(taskId: String) {
+    override suspend fun changeTaskCompletedState(taskId: Int) {
         tasksDao.changeTaskCompletedState(taskId)
     }
 }

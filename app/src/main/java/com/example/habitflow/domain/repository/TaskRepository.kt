@@ -9,10 +9,10 @@ interface TaskRepository {
 
     suspend fun addTask(task: Task)
 
-    suspend fun deleteTask(taskId: String)
+    suspend fun deleteTask(taskId: Int)
 
     suspend fun updateTask(task: Task)
 
-    suspend fun changeTaskCompletedState(taskId: String)
+    suspend fun changeTaskCompletedState(taskId: Int)
 
 }

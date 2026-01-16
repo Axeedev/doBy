@@ -40,23 +40,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.Task
 
-val items = buildList {
-    repeat(100) {
-        add(
-            Task(
-                id = it.toString(),
-                title = "Project 1",
-                note = "Frontend Development",
-                date = "October 20, 2020",
-                isCompleted = false,
-                startTime = "",
-                endTime = "",
-                category = ""
-            )
-        )
-    }
-}
-
 @Composable
 fun TasksScreen(
     tasksViewModel: TasksViewModel = hiltViewModel(),
@@ -99,19 +82,19 @@ fun TasksScreen(
             Spacer(Modifier.size(32.dp))
             Text(
                 modifier = Modifier
-                    .padding(start = 24.dp),
+                    .padding(start = 28.dp),
                 text = "Pinned",
                 color = MaterialTheme.colorScheme.secondary,
                 fontWeight = FontWeight.Medium,
-                fontSize = 26.sp
+                fontSize = 22.sp
             )
 
-            Spacer(Modifier.size(32.dp))
+            Spacer(Modifier.size(24.dp))
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(items = items, key = { it.id }) { task ->
+                items(items = state.todayTasks, key = { it.id }) { task ->
                     PinnedTaskCard(
                         task = task,
                         backgroundColor = MaterialTheme.colorScheme.primary
@@ -129,10 +112,10 @@ fun TasksScreen(
                         text = "Today",
                         color = MaterialTheme.colorScheme.secondary,
                         fontWeight = FontWeight.Medium,
-                        fontSize = 30.sp
+                        fontSize = 22.sp
                     )
                 }
-                items(items, key = { it.id }) {
+                items(state.todayTasks, key = { it.id }) {
                     TaskCard(task = it)
                 }
             }
@@ -190,11 +173,10 @@ fun PinnedTaskCard(
                 fontSize = 16.sp
             )
         }
-
         Spacer(Modifier.size(8.dp))
         Text(
             modifier = Modifier.padding(horizontal = 16.dp),
-            text = task.note,
+            text = task.title,
             maxLines = 3,
             fontWeight = FontWeight.SemiBold,
             overflow = TextOverflow.Ellipsis,

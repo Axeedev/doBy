@@ -1,11 +1,10 @@
 package com.example.habitflow.di
 
 import android.content.Context
-import androidx.room.Database
 import androidx.room.Room
-import androidx.room.RoomDatabase
+import com.example.habitflow.data.local.AppDatabase
+import com.example.habitflow.data.local.goals.GoalsDao
 import com.example.habitflow.data.local.tasks.TasksDao
-import com.example.habitflow.data.local.tasks.TasksDatabase
 import com.example.habitflow.data.remote.ApiService
 import com.example.habitflow.data.repository.GoalRepositoryImpl
 import com.example.habitflow.data.repository.TaskRepositoryImpl
@@ -95,10 +94,10 @@ interface AppModule {
         @Singleton
         fun provideDatabase(
             @ApplicationContext context: Context
-        ): TasksDatabase{
+        ): AppDatabase {
             return Room.databaseBuilder(
                 context = context,
-                klass = TasksDatabase::class.java,
+                klass = AppDatabase::class.java,
                 name = "TasksDatabase"
             ).fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
@@ -106,8 +105,14 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideDao(database: TasksDatabase) : TasksDao{
-            return database.tasksDao()
+        fun provideTasksDao(appDatabase: AppDatabase) : TasksDao{
+            return appDatabase.tasksDao()
+        }
+
+        @Provides
+        @Singleton
+        fun provideGoalsDao(appDatabase: AppDatabase): GoalsDao{
+            return appDatabase.goalsDao()
         }
     }
 }

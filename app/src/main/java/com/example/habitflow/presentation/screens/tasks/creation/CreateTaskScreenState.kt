@@ -1,13 +1,18 @@
 package com.example.habitflow.presentation.screens.tasks.creation
 
-import com.example.habitflow.presentation.screens.tasks.Category
-import java.util.Calendar
+import com.example.habitflow.presentation.Priority
+import com.example.habitflow.presentation.screens.tasks.TaskCategory
+import com.example.habitflow.presentation.utils.DateFormatter
 
 data class CreateTaskScreenState(
     val title: String = "",
     val date: String = "",
-    val startTime: String = "${Calendar.HOUR_OF_DAY}:${Calendar.MINUTE}",
-    val endTime: String = "${Calendar.HOUR_OF_DAY}:${Calendar.MINUTE}",
+    val startTime: String = DateFormatter.getLocalTime(),
+    val endTime: String = DateFormatter.getLocalTime(),
     val description: String = "",
-    val category: Category = Category.CODING
-)
+    val priority: Priority = Priority.REGULAR,
+    val taskCategory: TaskCategory = TaskCategory.CODING
+){
+    val isButtonEnabled
+        get() = title.isNotEmpty() && date.isNotEmpty()
+}
