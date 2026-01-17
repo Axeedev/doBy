@@ -39,7 +39,6 @@ fun TaskEntity.toTask(): Task{
 }
 
 fun MilestoneEntity.toMilestone() : Milestone{
-
     return Milestone(
         id,
         title
@@ -47,7 +46,7 @@ fun MilestoneEntity.toMilestone() : Milestone{
 
 }
 
-fun Goal.toGoalEntity() : GoalEntity{
+fun Goal.toGoalEntity(coverUri: String? = null) : GoalEntity{
     return GoalEntity(
         id = id,
         title = title,
@@ -55,10 +54,11 @@ fun Goal.toGoalEntity() : GoalEntity{
         startDate = goalStartDate,
         endDate = goalEndDate,
         description = description,
+        coverUri = coverUri
     )
 }
 
-fun Milestone.toMilestoneEntity(goalId: Int) : MilestoneEntity{
+fun Milestone.toMilestoneEntity(goalId: Long) : MilestoneEntity{
     return MilestoneEntity(
         id = id,
         title = title,
@@ -70,11 +70,12 @@ fun Milestone.toMilestoneEntity(goalId: Int) : MilestoneEntity{
 fun GoalWithMilestoneEntity.toGoal(): Goal {
     return Goal(
         id = goalEntity.id,
-        category = GoalCategory.valueOf(goalEntity.category),
+        category = GoalCategory.valueOf(goalEntity.category.uppercase()),
         title = goalEntity.title,
         description = goalEntity.description,
         goalStartDate = goalEntity.startDate,
         goalEndDate = goalEntity.endDate,
-        milestones = milestones.map { it.toMilestone() }
+        milestones = milestones.map { it.toMilestone() },
+        coverUri = goalEntity.coverUri
     )
 }

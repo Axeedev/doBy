@@ -13,7 +13,7 @@ import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskScree
 
 @Composable
 fun NavigationRoot() {
-    val backStack = rememberNavBackStack(Screen.CreateGoal)
+    val backStack = rememberNavBackStack(Screen.Goals)
     NavDisplay(
         backStack = backStack,
         entryDecorators = listOf(

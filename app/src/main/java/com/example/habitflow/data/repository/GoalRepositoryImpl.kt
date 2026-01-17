@@ -1,5 +1,6 @@
 package com.example.habitflow.data.repository
 
+import com.example.habitflow.data.local.InternalStorageManager
 import com.example.habitflow.data.local.goals.GoalsDao
 import com.example.habitflow.data.mappers.toGoal
 import com.example.habitflow.data.mappers.toGoalEntity
@@ -12,10 +13,19 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GoalRepositoryImpl @Inject constructor(
-    private val goalsDao: GoalsDao
+    private val goalsDao: GoalsDao,
+    private val internalStorageManager: InternalStorageManager
 ) : GoalRepository {
     override suspend fun addGoal(goal: Goal) {
-        goalsDao.addGoal(goal.toGoalEntity())
+        val internalPath  = goal.coverUri?.let {
+            internalStorageManager.addToInternal(goal.coverUri)
+        }
+        val goalId = goalsDao.addGoal(
+            goal.toGoalEntity(internalPath)
+        )
+        goalsDao.addMilestones(
+            goal.milestones.map { it.toMilestoneEntity(goalId) }
+        )
     }
 
     override suspend fun editGoal(goal: Goal) {
@@ -32,10 +42,6 @@ class GoalRepositoryImpl @Inject constructor(
 
     override suspend fun changeActiveGoalState(goalId: Int) {
         TODO("Not yet implemented")
-    }
-
-    override suspend fun addMilestones(milestones: List<Milestone>, goalId: Int) {
-        goalsDao.addMilestones(milestones.map { it.toMilestoneEntity(goalId) })
     }
 
     override suspend fun deleteMilestone(milestoneId: Int) {

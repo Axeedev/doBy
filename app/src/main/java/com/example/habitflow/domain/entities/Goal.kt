@@ -7,5 +7,6 @@ data class Goal(
     val description: String,
     val goalStartDate: String,
     val goalEndDate: String,
-    val milestones: List<Milestone>
+    val milestones: List<Milestone>,
+    val coverUri: String? = null
 )

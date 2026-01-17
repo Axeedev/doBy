@@ -13,5 +13,6 @@ data class GoalEntity(
     val category: String,
     val startDate: String,
     val endDate: String,
-    val description: String
+    val description: String,
+    val coverUri: String? = null
 )

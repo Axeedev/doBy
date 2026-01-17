@@ -16,8 +16,6 @@ interface GoalRepository {
 
     suspend fun changeActiveGoalState(goalId: Int)
 
-    suspend fun addMilestones(milestones: List<Milestone>, goalId: Int)
-
     suspend fun deleteMilestone(milestoneId: Int)
 
     suspend fun getGoalById(goalId: Int) : Goal

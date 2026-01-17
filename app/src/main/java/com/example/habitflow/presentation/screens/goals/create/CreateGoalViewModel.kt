@@ -3,8 +3,8 @@ package com.example.habitflow.presentation.screens.goals.create
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Goal
+import com.example.habitflow.domain.entities.Milestone
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
-import com.example.habitflow.presentation.screens.goals.all.CreateGoalCommand
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,6 +35,12 @@ class CreateGoalViewModel @Inject constructor(
                 }
             }
             CreateGoalCommand.ClickAddMilestone -> {
+                _state.update {previous ->
+                    val newList = previous.milestones.toMutableList().apply {
+                        add(Milestone(0, ""))
+                    }
+                    previous.copy(milestones = newList)
+                }
 
             }
             CreateGoalCommand.ClickCreateGoal -> {
@@ -47,7 +53,8 @@ class CreateGoalViewModel @Inject constructor(
                         description = currentState.description,
                         goalStartDate = "",
                         goalEndDate = currentState.endDate,
-                        milestones = currentState.milestones
+                        milestones = currentState.milestones,
+                        coverUri = currentState.coverUri?.toString()
                     )
                     addGoalUseCase(goal)
                 }
@@ -59,12 +66,41 @@ class CreateGoalViewModel @Inject constructor(
                 }
             }
             is CreateGoalCommand.InputMilestoneTitle -> {
+                _state.update {previous ->
+                    val milestoneToEdit = previous.milestones[command.index].copy(
+                        title = command.title
+                    )
+                    val newList = previous.milestones.mapIndexed { index, milestone ->
+                        if (index == command.index){
+                            milestoneToEdit
+                        }else{
+                            milestone
+                        }
+                    }
+                    previous.copy(milestones = newList)
 
+                }
             }
             is CreateGoalCommand.InputTitle -> {
                 _state.update { previous ->
                     previous.copy(title = command.title)
                 }
+            }
+
+            is CreateGoalCommand.RemoveMilestoneAt -> {
+                _state.update {previous ->
+                    val newList = previous.milestones.toMutableList()
+                    newList.removeAt(command.index)
+                    previous.copy(milestones = newList)
+
+                }
+            }
+
+            is CreateGoalCommand.AddPhoto -> {
+                _state.update { it.copy(coverUri = command.uri) }
+            }
+            CreateGoalCommand.ClickDeletePhoto -> {
+                _state.update { it.copy(coverUri = null) }
             }
         }
     }

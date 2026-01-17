@@ -2,6 +2,7 @@
 
 package com.example.habitflow.presentation.screens.goals.all
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,9 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -35,11 +36,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil3.compose.AsyncImage
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.Goal
 import com.example.habitflow.domain.entities.GoalCategory
@@ -84,8 +88,13 @@ fun GoalsScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onCreateButtonClick
+                onClick = onCreateButtonClick,
+                containerColor = MaterialTheme.colorScheme.primaryFixedDim,
+                contentColor = Color.White
             ) {
+                Icon(painter = painterResource(R.drawable.ic_add),
+                    contentDescription = "add goal")
+
             }
         },
         containerColor = Color(0xFFF3F4F6)
@@ -109,7 +118,7 @@ fun GoalsScreen(
                     color = MaterialTheme.colorScheme.onPrimaryFixedVariant
                 )
             }
-            items(items = items, key = { it.id }) { goal ->
+            items(items = state.goals, key = { it.id }) { goal ->
                 GoalCard(goal)
             }
         }
@@ -118,21 +127,37 @@ fun GoalsScreen(
 
 @Composable
 fun GoalCard(goal: Goal) {
-    Card(
-        colors = CardDefaults.cardColors(
+    ElevatedCard(
+        colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.onPrimary,
-        )
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp)
     ) {
+        Log.d("GoalCard", goal.toString())
+
+        goal.coverUri?.let { uri ->
+            AsyncImage(
+                modifier = Modifier
+                    .heightIn(min = 150.dp, max = 150.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp)),
+                model = uri.toUri(),
+                contentScale = ContentScale.FillWidth,
+                contentDescription = "cover image"
+            )
+        }
         Column(modifier = Modifier.padding(16.dp)) {
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ){
+
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFDCFCE7)),
+                        .background(Color(0xFFE6FFF6)),
                     contentAlignment = Alignment.Center,
 
                     ) {
