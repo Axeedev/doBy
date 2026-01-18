@@ -1,12 +1,11 @@
 package com.example.habitflow.presentation.screens.goals.create
 
-import androidx.compose.runtime.internal.composableLambdaInstance
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Goal
 import com.example.habitflow.domain.entities.Milestone
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
-import com.example.habitflow.presentation.utils.DateFormatter
+import com.example.habitflow.domain.usecases.goals.UpdateGoalUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,11 +14,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateGoalViewModel @Inject constructor(
-    private val addGoalUseCase: AddGoalUseCase
+open class CreateGoalViewModel @Inject constructor(
+    private val addGoalUseCase: AddGoalUseCase,
+    private val updateGoalUseCase: UpdateGoalUseCase
 ): ViewModel() {
 
-    private val _state = MutableStateFlow(CreateGoalScreenState())
+    protected val _state = MutableStateFlow(CreateGoalScreenState())
     val state
         get() = _state.asStateFlow()
 
@@ -33,7 +33,7 @@ class CreateGoalViewModel @Inject constructor(
             }
             is CreateGoalCommand.ChooseEndDate -> {
                 _state.update { previous ->
-                    previous.copy(endDate =command.endDate)
+                    previous.copy(endDate = command.endDate)
                 }
             }
             CreateGoalCommand.ClickAddMilestone -> {
@@ -43,7 +43,6 @@ class CreateGoalViewModel @Inject constructor(
                     }
                     previous.copy(milestones = newList)
                 }
-
             }
             CreateGoalCommand.ClickCreateGoal -> {
                 viewModelScope.launch {
@@ -60,7 +59,6 @@ class CreateGoalViewModel @Inject constructor(
                     )
                     addGoalUseCase(goal)
                 }
-
             }
             is CreateGoalCommand.InputDescription -> {
                 _state.update { previous ->
@@ -80,7 +78,6 @@ class CreateGoalViewModel @Inject constructor(
                         }
                     }
                     previous.copy(milestones = newList)
-
                 }
             }
             is CreateGoalCommand.InputTitle -> {
@@ -94,7 +91,6 @@ class CreateGoalViewModel @Inject constructor(
                     val newList = previous.milestones.toMutableList()
                     newList.removeAt(command.index)
                     previous.copy(milestones = newList)
-
                 }
             }
 
@@ -119,6 +115,24 @@ class CreateGoalViewModel @Inject constructor(
                         }else milestone
                     }
                     previous.copy(milestones = newList)
+                }
+            }
+
+            CreateGoalCommand.ClickUpdateGoal -> {
+
+                viewModelScope.launch {
+                    val currentState = _state.value
+                    val goal = Goal(
+                        id = currentState.goalId ?: 0,
+                        category = currentState.goalCategory,
+                        title = currentState.title,
+                        description = currentState.description,
+                        goalStartDate = currentState.startDate,
+                        goalEndDate = currentState.endDate,
+                        milestones = currentState.milestones,
+                        coverUri = currentState.coverUri?.toString()
+                    )
+                    updateGoalUseCase(goal)
                 }
             }
         }

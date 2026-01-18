@@ -20,6 +20,7 @@ interface GoalRepository {
 
     suspend fun getGoalById(goalId: Int) : Goal
 
+
     fun getGoals() : Flow<List<Goal>>
 
 }

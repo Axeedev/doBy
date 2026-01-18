@@ -18,11 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -33,8 +34,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,8 +54,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.Goal
-import com.example.habitflow.domain.entities.GoalCategory
-import com.example.habitflow.domain.entities.Milestone
 import com.example.habitflow.presentation.utils.DateFormatter
 
 
@@ -61,6 +64,9 @@ fun GoalsScreen(
     onCreateButtonClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    SideEffect {
+        Log.d("GoalsScreen", "recomposition")
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -110,7 +116,12 @@ fun GoalsScreen(
                 )
             }
             items(items = state.goals, key = { it.id }) { goal ->
-                GoalCard(goal){
+                GoalCard(
+                    goal = goal,
+                    onDeleteClick = {
+                        viewModel.processCommand(GoalsCommand.DeleteCommand(goal.id))
+                    }
+                ) {
                     onEditGoalClick(goal.id)
                 }
             }
@@ -121,6 +132,7 @@ fun GoalsScreen(
 @Composable
 fun GoalCard(
     goal: Goal,
+    onDeleteClick:() -> Unit,
     onGoalClick: () -> Unit
 ) {
     ElevatedCard(
@@ -199,16 +211,17 @@ fun GoalCard(
             )
             Spacer(modifier = Modifier.size(16.dp))
             if (goal.milestones.isNotEmpty()) {
+                val completed = goal.milestones.count { it.isCompleted }
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
                         Text(
-                            text = "Прогресс 35 %",
+                            text = "Progress ${(completed.toFloat()/goal.milestones.size.toFloat())*100} %",
                             color = MaterialTheme.colorScheme.onPrimaryFixedVariant
                         )
                         Text(
-                            text = "2 из 8 шагов",
+                            text = "$completed of ${goal.milestones.size} steps",
                             color = MaterialTheme.colorScheme.onPrimaryFixedVariant
                         )
                     }
@@ -244,15 +257,39 @@ fun GoalCard(
                         .padding(start = 8.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(MaterialTheme.colorScheme.background)
-                        .clickable{},
+                        .clickable {},
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        modifier = Modifier.padding(12.dp),
-                        painter = painterResource(R.drawable.ic_more_horiz),
-                        contentDescription = "more options"
-                    )
-
+                    var isExpanded by remember { mutableStateOf(false) }
+                    Box(
+                        Modifier
+                            .padding(12.dp)
+                    ) {
+                        Icon(
+                            modifier = Modifier.clickable {
+                                isExpanded = !isExpanded
+                            },
+                            painter = painterResource(R.drawable.ic_more_horiz),
+                            contentDescription = "more options"
+                        )
+                        DropdownMenu(
+                            expanded = isExpanded,
+                            onDismissRequest = { isExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Delete") },
+                                leadingIcon = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_delete),
+                                        contentDescription = "delete goal"
+                                    )
+                                },
+                                onClick = {
+                                    onDeleteClick()
+                                }
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.size(8.dp))

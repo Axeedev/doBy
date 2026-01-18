@@ -58,6 +58,7 @@ import coil3.compose.AsyncImage
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.GoalCategory
 import com.example.habitflow.domain.entities.Milestone
+import com.example.habitflow.presentation.screens.goals.OpenReason
 import com.example.habitflow.presentation.screens.tasks.creation.DatePickerModal
 import com.example.habitflow.presentation.utils.DateFormatter
 
@@ -65,6 +66,7 @@ import com.example.habitflow.presentation.utils.DateFormatter
 @Composable
 fun CreateGoalScreen(
     viewModel: CreateGoalViewModel = hiltViewModel(),
+    openReason: OpenReason = OpenReason.CREATE,
     onFinished: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -74,7 +76,14 @@ fun CreateGoalScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Новая цель"
+                        text = when(openReason){
+                            OpenReason.CREATE -> {
+                                "Новая Цель"
+                            }
+                            OpenReason.EDIT -> {
+                                state.title
+                            }
+                        }
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
@@ -177,8 +186,6 @@ fun CreateGoalScreen(
                     }
 
                 }
-
-
             }
 
             item {
@@ -200,7 +207,6 @@ fun CreateGoalScreen(
                     GoalCategory.entries.forEach { goalCategory ->
                         FilterChip(
                             selected = state.goalCategory == goalCategory,
-                            shape = RoundedCornerShape(20.dp),
                             border = null,
                             label = {
                                 Text(
@@ -214,7 +220,7 @@ fun CreateGoalScreen(
                                 )
                             },
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF06B6A4),
+                                selectedContainerColor = Color(0xFF10B981),
                                 selectedLabelColor = Color.White,
                                 disabledLabelColor = Color(0xFF065F54),
                                 disabledContainerColor = Color(0xFFE6FFFB),
@@ -299,7 +305,8 @@ fun CreateGoalScreen(
             }
             item {
                 Text(
-                    text = "Подцели (Шаги)"
+                    text = "Подцели (Шаги)",
+                    fontWeight = FontWeight.Bold
                 )
             }
             itemsIndexed(state.milestones) { index, milestone ->
@@ -327,8 +334,8 @@ fun CreateGoalScreen(
             item {
                 Button(
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color(0xFF06B6A4)
+                        containerColor = Color(0xFFE1F4EF),
+                        contentColor = Color(0xFF10B981)
                     ),
                     onClick = {
                         viewModel.processCommand(CreateGoalCommand.ClickAddMilestone)
@@ -340,7 +347,8 @@ fun CreateGoalScreen(
                     )
                     Spacer(Modifier.size(8.dp))
                     Text(
-                        text = "Добавить шаг"
+                        text = "Добавить шаг",
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -351,21 +359,37 @@ fun CreateGoalScreen(
             }
             item {
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     enabled = state.isSaveButtonEnabled,
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF06B6A4),
+                        containerColor = Color(0xFF10B981),
                         contentColor = Color.White
                     ),
                     onClick = {
-                        viewModel.processCommand(CreateGoalCommand.ClickCreateGoal)
+                        when(openReason){
+                            OpenReason.CREATE -> {
+                                viewModel.processCommand(CreateGoalCommand.ClickCreateGoal)
+                            }
+                            OpenReason.EDIT -> {
+                                viewModel.processCommand(CreateGoalCommand.ClickUpdateGoal)
+                            }
+                        }
+
                         onFinished()
                     }
                 ) {
                     Text(
                         modifier = Modifier.padding(vertical = 16.dp),
-                        text = "Создать цель",
+                        text = when(openReason){
+                            OpenReason.CREATE -> {
+                                "Создать цель"
+                            }
+                            OpenReason.EDIT -> {
+                                "Сохранить изменения"
+                            }
+                        },
                         fontSize = 18.sp
                     )
                 }
@@ -386,7 +410,7 @@ fun MilestoneCard(
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.onPrimary
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Row(
             modifier = Modifier

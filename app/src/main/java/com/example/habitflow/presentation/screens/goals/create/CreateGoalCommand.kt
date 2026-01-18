@@ -25,6 +25,8 @@ sealed interface CreateGoalCommand {
 
     data object ClickCreateGoal : CreateGoalCommand
 
+    data object ClickUpdateGoal : CreateGoalCommand
+
     data class AddPhoto(val uri: Uri) : CreateGoalCommand
 
     data object ClickDeletePhoto : CreateGoalCommand

@@ -6,6 +6,7 @@ import com.example.habitflow.domain.entities.Milestone
 
 
 data class CreateGoalScreenState(
+    val goalId: Int? = null,
     val title: String = "",
     val coverUri: Uri? = null,
     val goalCategory: GoalCategory = GoalCategory.SPORTS,

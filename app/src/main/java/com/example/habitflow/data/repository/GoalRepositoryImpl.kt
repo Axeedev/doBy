@@ -1,5 +1,6 @@
 package com.example.habitflow.data.repository
 
+import android.util.Log
 import com.example.habitflow.data.local.InternalStorageManager
 import com.example.habitflow.data.local.goals.GoalsDao
 import com.example.habitflow.data.mappers.toGoal
@@ -29,7 +30,9 @@ class GoalRepositoryImpl @Inject constructor(
     }
 
     override suspend fun editGoal(goal: Goal) {
-        goalsDao.addGoal(goal.toGoalEntity())
+        val id = goalsDao.addGoal(goal.toGoalEntity())
+        Log.d("editGoal", id.toString())
+        goalsDao.updateMilestones(goal.milestones.map { it.toMilestoneEntity(id)})
     }
 
     override suspend fun saveGoalAsDraft(goal: Goal) {

@@ -1,8 +1,10 @@
 package com.example.habitflow.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.habitflow.presentation.screens.goals.all.GoalsScreen
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalScreen
@@ -17,19 +19,20 @@ fun NavigationRoot() {
     NavDisplay(
         backStack = backStack,
         entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
         ),
         entryProvider = { key ->
             when (key) {
                 is Screen.Tasks -> {
                     NavEntry(
-                        key = key
+                        key = key,
                     ) {
-                        TasksScreen(){
+                        TasksScreen{
                             backStack.add(Screen.CreateTask)
                         }
                     }
                 }
-
                 is Screen.CreateTask -> {
                     NavEntry(
                         key = key
@@ -58,7 +61,7 @@ fun NavigationRoot() {
                         key = key
                     ){
                         CreateGoalScreen(){
-                            backStack.removeLastOrNull()
+                            backStack.removeLast()
                         }
                     }
                 }
