@@ -41,7 +41,8 @@ fun TaskEntity.toTask(): Task{
 fun MilestoneEntity.toMilestone() : Milestone{
     return Milestone(
         id,
-        title
+        title,
+        isCompleted
     )
 
 }
@@ -62,7 +63,8 @@ fun Milestone.toMilestoneEntity(goalId: Long) : MilestoneEntity{
     return MilestoneEntity(
         id = id,
         title = title,
-        goalId = goalId
+        goalId = goalId,
+        isCompleted = isCompleted
     )
 }
 

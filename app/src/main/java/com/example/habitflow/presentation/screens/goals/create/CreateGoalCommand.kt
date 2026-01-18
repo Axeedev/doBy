@@ -9,13 +9,17 @@ sealed interface CreateGoalCommand {
 
     data class ChangeGoalCategory(val category: GoalCategory) : CreateGoalCommand
 
-    data class ChooseEndDate(val endDate: String) : CreateGoalCommand
+    data class ChooseEndDate(val endDate: Long) : CreateGoalCommand
+
+    data class ChooseStartDate(val startDate: Long) : CreateGoalCommand
 
     data class InputDescription(val description: String) : CreateGoalCommand
 
     data object ClickAddMilestone : CreateGoalCommand
 
     data class InputMilestoneTitle(val title: String, val index: Int) : CreateGoalCommand
+
+    data class ChangeMilestoneCompletedStatusAt(val index: Int) : CreateGoalCommand
 
     data class RemoveMilestoneAt(val index: Int) : CreateGoalCommand
 

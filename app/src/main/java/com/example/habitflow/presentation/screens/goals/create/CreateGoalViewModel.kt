@@ -1,10 +1,12 @@
 package com.example.habitflow.presentation.screens.goals.create
 
+import androidx.compose.runtime.internal.composableLambdaInstance
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Goal
 import com.example.habitflow.domain.entities.Milestone
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
+import com.example.habitflow.presentation.utils.DateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,13 +33,13 @@ class CreateGoalViewModel @Inject constructor(
             }
             is CreateGoalCommand.ChooseEndDate -> {
                 _state.update { previous ->
-                    previous.copy(endDate = command.endDate)
+                    previous.copy(endDate =command.endDate)
                 }
             }
             CreateGoalCommand.ClickAddMilestone -> {
                 _state.update {previous ->
                     val newList = previous.milestones.toMutableList().apply {
-                        add(Milestone(0, ""))
+                        add(Milestone(0, "", false))
                     }
                     previous.copy(milestones = newList)
                 }
@@ -51,7 +53,7 @@ class CreateGoalViewModel @Inject constructor(
                         category = currentState.goalCategory,
                         title = currentState.title,
                         description = currentState.description,
-                        goalStartDate = "",
+                        goalStartDate = currentState.startDate,
                         goalEndDate = currentState.endDate,
                         milestones = currentState.milestones,
                         coverUri = currentState.coverUri?.toString()
@@ -101,6 +103,23 @@ class CreateGoalViewModel @Inject constructor(
             }
             CreateGoalCommand.ClickDeletePhoto -> {
                 _state.update { it.copy(coverUri = null) }
+            }
+
+            is CreateGoalCommand.ChooseStartDate -> {
+                _state.update { previous ->
+                    previous.copy(startDate = command.startDate)
+                }
+            }
+
+            is CreateGoalCommand.ChangeMilestoneCompletedStatusAt -> {
+                _state.update {previous ->
+                    val newList = previous.milestones.mapIndexed {index, milestone ->
+                        if (index == command.index){
+                            milestone.copy(isCompleted = !milestone.isCompleted)
+                        }else milestone
+                    }
+                    previous.copy(milestones = newList)
+                }
             }
         }
     }

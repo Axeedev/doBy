@@ -4,6 +4,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 object DateFormatter {
@@ -18,6 +19,12 @@ object DateFormatter {
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
             .format(formatter)
+    }
+
+    fun getLocalDate() : String{
+        return formatDate(
+            System.currentTimeMillis()
+        )
     }
 
     fun getLocalTime() : String{

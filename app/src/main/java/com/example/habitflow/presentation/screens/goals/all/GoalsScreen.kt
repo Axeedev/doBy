@@ -4,6 +4,7 @@ package com.example.habitflow.presentation.screens.goals.all
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,27 +51,13 @@ import com.example.habitflow.R
 import com.example.habitflow.domain.entities.Goal
 import com.example.habitflow.domain.entities.GoalCategory
 import com.example.habitflow.domain.entities.Milestone
-
-val items = buildList {
-    repeat(10) {
-        add(
-            Goal(
-                it,
-                category = GoalCategory.EDUCATION,
-                title = "Выучить испанский язык",
-                description = "Достичь уровня B2 к лету. Заниматься каждый день по 30 минут в приложении и с репетитором",
-                goalStartDate = "",
-                goalEndDate = "до 15 июня",
-                milestones = listOf(Milestone(0, "")),
-            )
-        )
-    }
-}
+import com.example.habitflow.presentation.utils.DateFormatter
 
 
 @Composable
 fun GoalsScreen(
     viewModel: GoalsViewModel = hiltViewModel(),
+    onEditGoalClick: (Int) -> Unit,
     onCreateButtonClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -92,8 +81,10 @@ fun GoalsScreen(
                 containerColor = MaterialTheme.colorScheme.primaryFixedDim,
                 contentColor = Color.White
             ) {
-                Icon(painter = painterResource(R.drawable.ic_add),
-                    contentDescription = "add goal")
+                Icon(
+                    painter = painterResource(R.drawable.ic_add),
+                    contentDescription = "add goal"
+                )
 
             }
         },
@@ -119,14 +110,19 @@ fun GoalsScreen(
                 )
             }
             items(items = state.goals, key = { it.id }) { goal ->
-                GoalCard(goal)
+                GoalCard(goal){
+                    onEditGoalClick(goal.id)
+                }
             }
         }
     }
 }
 
 @Composable
-fun GoalCard(goal: Goal) {
+fun GoalCard(
+    goal: Goal,
+    onGoalClick: () -> Unit
+) {
     ElevatedCard(
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.onPrimary,
@@ -147,17 +143,15 @@ fun GoalCard(goal: Goal) {
             )
         }
         Column(modifier = Modifier.padding(16.dp)) {
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
-            ){
-
+            ) {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFE6FFF6)),
+                        .background(Color(0xFFE6FFF6))
+                        .weight(1f),
                     contentAlignment = Alignment.Center,
 
                     ) {
@@ -178,11 +172,16 @@ fun GoalCard(goal: Goal) {
                         )
                     }
                 }
+
                 Icon(
-                    modifier = Modifier.clip(CircleShape),
-                    painter = painterResource(R.drawable.ic_more_horiz),
-                    tint = MaterialTheme.colorScheme.onPrimaryFixedVariant,
-                    contentDescription = "more"
+                    painter = painterResource(R.drawable.ic_calendar),
+                    contentDescription = "goal end date",
+                    tint = MaterialTheme.colorScheme.onPrimaryFixedVariant
+                )
+                Spacer(Modifier.size(8.dp))
+                Text(
+                    text = DateFormatter.formatDate(goal.goalEndDate),
+                    color = MaterialTheme.colorScheme.onPrimaryFixedVariant
                 )
             }
 
@@ -203,7 +202,7 @@ fun GoalCard(goal: Goal) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column() {
+                    Column {
                         Text(
                             text = "Прогресс 35 %",
                             color = MaterialTheme.colorScheme.onPrimaryFixedVariant
@@ -217,19 +216,46 @@ fun GoalCard(goal: Goal) {
                 Spacer(modifier = Modifier.size(16.dp))
             }
             Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_calendar),
-                    contentDescription = "goal end date",
-                    tint = MaterialTheme.colorScheme.onPrimaryFixedVariant
-                )
-                Spacer(Modifier.size(8.dp))
-                Text(
-                    text = goal.goalEndDate,
-                    color = MaterialTheme.colorScheme.onPrimaryFixedVariant
-                )
+                Button(
+                    modifier = Modifier
+                        .weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryFixedDim
+                    ),
+                    onClick = {
+                        onGoalClick()
+                    }
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(vertical = 4.dp),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        text = "Upgrade Progress"
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.background)
+                        .clickable{},
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        modifier = Modifier.padding(12.dp),
+                        painter = painterResource(R.drawable.ic_more_horiz),
+                        contentDescription = "more options"
+                    )
+
+                }
             }
+            Spacer(modifier = Modifier.size(8.dp))
         }
     }
 }

@@ -8,9 +8,9 @@ sealed interface CreateTaskCommand{
 
     data class InputDate(val date: Long) : CreateTaskCommand
 
-    data class InputStartTime(val startTime: String) : CreateTaskCommand
+    data class InputStartTime(val startTime: Long) : CreateTaskCommand
 
-    data class InputEndTime(val endTime: String) : CreateTaskCommand
+    data class InputEndTime(val endTime: Long) : CreateTaskCommand
 
     data class InputDescription(val description: String) : CreateTaskCommand
 

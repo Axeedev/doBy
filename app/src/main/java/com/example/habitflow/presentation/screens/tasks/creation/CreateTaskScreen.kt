@@ -1,5 +1,6 @@
 package com.example.habitflow.presentation.screens.tasks.creation
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -54,6 +55,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.TaskCategory
+import com.example.habitflow.presentation.utils.DateFormatter
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -205,12 +207,7 @@ fun CreateTaskScreen(
                 readOnly = true,
                 supportingText = "Choose date",
                 enabled = false
-            ) {
-                viewModel.processCommand(CreateTaskCommand.InputDate(
-                    it.toLong())
-                )
-
-            }
+            ) {}
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -261,7 +258,7 @@ fun CreateTaskScreen(
                             )
                             Spacer(Modifier.size(12.dp))
                             Text(
-                                text = state.startTime,
+                                text = DateFormatter.formatDate(state.startTime),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.secondary
@@ -297,7 +294,7 @@ fun CreateTaskScreen(
                             )
                             Spacer(Modifier.size(12.dp))
                             Text(
-                                text = state.endTime,
+                                text = DateFormatter.formatDate(state.endTime),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.secondary
@@ -481,7 +478,7 @@ fun DatePickerModal(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimePickerDial(
-    onConfirm: (String) -> Unit,
+    onConfirm: (Long) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val currentTime = Calendar.getInstance()
@@ -498,7 +495,7 @@ fun TimePickerDial(
         },
         confirmButton = {
             Button(onClick = {
-                onConfirm("${timePickerState.hour}:${timePickerState.minute}")
+                onConfirm(timePickerState.hour.toLong())
             }
             ) {
                 Text("Confirm time")

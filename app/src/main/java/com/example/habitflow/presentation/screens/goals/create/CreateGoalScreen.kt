@@ -22,13 +22,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -37,6 +41,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,6 +58,8 @@ import coil3.compose.AsyncImage
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.GoalCategory
 import com.example.habitflow.domain.entities.Milestone
+import com.example.habitflow.presentation.screens.tasks.creation.DatePickerModal
+import com.example.habitflow.presentation.utils.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,8 +69,7 @@ fun CreateGoalScreen(
 ) {
     val state by viewModel.state.collectAsState()
     Scaffold(
-        containerColor = Color.White,
-        contentColor = Color.Unspecified,
+        containerColor = Color(0xFFF8FAFC),
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -159,7 +167,7 @@ fun CreateGoalScreen(
                                 .clip(CircleShape)
                                 .align(Alignment.TopEnd)
                                 .padding(top = 16.dp, end = 16.dp)
-                                .clickable{
+                                .clickable {
                                     viewModel.processCommand(CreateGoalCommand.ClickDeletePhoto)
                                 },
                             painter = painterResource(R.drawable.ic_close),
@@ -216,28 +224,64 @@ fun CreateGoalScreen(
                 }
             }
             item {
+                var isStartDatePickerEnabled by remember{ mutableStateOf(false) }
+                var isEndDatePickerEnabled by remember{ mutableStateOf(false) }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     CreateGoalTextFieldWithTitle(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f),
                         fieldTitle = "Дата начала",
-                        value = state.endDate,
+                        readOnly = true,
+                        value = DateFormatter.formatDate(state.startDate),
+                        enabled = false,
+                        onTextFieldClick ={
+                            isStartDatePickerEnabled = true
+                        },
                         trailingIconId = R.drawable.ic_calendar_today,
                         placeholderText = "Начало",
                     ) {
-                        viewModel.processCommand(CreateGoalCommand.ChooseEndDate(it))
                     }
                     CreateGoalTextFieldWithTitle(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f),
                         fieldTitle = "Дата окончания",
-                        value = state.endDate,
+                        readOnly = true,
+                        enabled = false,
+                        value = DateFormatter.formatDate(state.endDate),
+                        onTextFieldClick = {
+                            isEndDatePickerEnabled = true
+                        },
                         placeholderText = "Окончание",
                         trailingIconId = R.drawable.ic_calendar
                     ) {
-                        viewModel.processCommand(CreateGoalCommand.ChooseEndDate(it))
+                    }
+                    if (isStartDatePickerEnabled){
+                        DatePickerModal(
+                            onDateSelected = {date ->
+                                date?.let {
+                                    viewModel.processCommand(CreateGoalCommand.ChooseStartDate(it))
+                                    isStartDatePickerEnabled = false
+                                }
+                            }
+                        ) {
+                            isStartDatePickerEnabled = false
+                        }
+                    }
+                    if (isEndDatePickerEnabled){
+                        DatePickerModal(
+                            onDateSelected = {date ->
+                                date?.let {
+                                    viewModel.processCommand(CreateGoalCommand.ChooseEndDate(it))
+                                    isEndDatePickerEnabled = false
+                                }
+                            }
+                        ) {
+                            isEndDatePickerEnabled = false
+                        }
                     }
                 }
             }
@@ -267,6 +311,9 @@ fun CreateGoalScreen(
                                 index
                             )
                         )
+                    },
+                    onRadioButtonClick = {
+                        viewModel.processCommand(CreateGoalCommand.ChangeMilestoneCompletedStatusAt(index))
                     }
                 ) {
                     viewModel.processCommand(
@@ -332,38 +379,61 @@ fun MilestoneCard(
     modifier: Modifier = Modifier,
     milestone: Milestone,
     onRemoveMilestoneClick: () -> Unit,
+    onRadioButtonClick: () -> Unit,
     onValueChange: (String) -> Unit
 ) {
-    TextField(
-        modifier = modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        trailingIcon = {
-            Icon(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .clickable {
-                        onRemoveMilestoneClick()
-                    },
-                painter = painterResource(R.drawable.ic_close),
-                contentDescription = "remove milestone"
-            )
-        },
-        value = milestone.title,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFE6FFF6),
-            unfocusedContainerColor = Color(0xFFE6FFF6),
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
+    ElevatedCard(
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.onPrimary
         ),
-        onValueChange = onValueChange,
-        placeholder = {
-            Text(
-                text = "Добавьте описание цели"
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButton(
+                modifier = Modifier
+                    .clip(CircleShape),
+                colors = RadioButtonDefaults.colors(),
+                selected = milestone.isCompleted,
+                onClick = {
+                    onRadioButtonClick()
+                }
+            )
+            TextField(
+                modifier = modifier
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                trailingIcon = {
+                    Icon(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable {
+                                onRemoveMilestoneClick()
+                            },
+                        painter = painterResource(R.drawable.ic_close),
+                        contentDescription = "remove milestone"
+                    )
+                },
+                value = milestone.title,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                ),
+                onValueChange = onValueChange,
+                placeholder = {
+                    Text(
+                        text = "Добавьте описание цели"
+                    )
+                }
+
             )
         }
-
-    )
+    }
 }
 
 @Composable
@@ -373,7 +443,10 @@ fun CreateGoalTextFieldWithTitle(
     fieldTitle: String,
     trailingIconId: Int? = null,
     minLines: Int = 1,
+    readOnly: Boolean = false,
+    enabled: Boolean = true,
     placeholderText: String,
+    onTextFieldClick: () -> Unit = {},
     onValueChange: (String) -> Unit,
 ) {
     Column(
@@ -386,20 +459,26 @@ fun CreateGoalTextFieldWithTitle(
         Spacer(Modifier.size(8.dp))
         TextField(
             modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .clickable { onTextFieldClick() }
                 .fillMaxWidth()
                 .border(
                     BorderStroke(1.dp, Color(0xFFEBEBEB)),
                     shape = RoundedCornerShape(12.dp)
                 ),
+            enabled = enabled,
             value = value,
+            readOnly = readOnly,
             minLines = minLines,
             shape = RoundedCornerShape(12.dp),
             onValueChange = onValueChange,
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
+                disabledContainerColor = Color.White,
+                disabledIndicatorColor = Color.White,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                unfocusedIndicatorColor = Color.White,
+                focusedIndicatorColor = Color.White,
             ),
             placeholder = {
                 Text(
@@ -414,7 +493,6 @@ fun CreateGoalTextFieldWithTitle(
                     )
                 }
             },
-
             )
     }
 }

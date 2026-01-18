@@ -5,8 +5,8 @@ data class Task(
     val title: String,
     val date: String,
     val note: String,
-    val startTime: String,
-    val endTime: String,
+    val startTime: Long,
+    val endTime: Long,
     val category: TaskCategory,
     val priority: Priority,
     val isCompleted: Boolean = false

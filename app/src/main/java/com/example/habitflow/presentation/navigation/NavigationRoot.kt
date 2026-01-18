@@ -3,10 +3,10 @@ package com.example.habitflow.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.example.habitflow.presentation.screens.goals.create.CreateGoalScreen
 import com.example.habitflow.presentation.screens.goals.all.GoalsScreen
+import com.example.habitflow.presentation.screens.goals.create.CreateGoalScreen
+import com.example.habitflow.presentation.screens.goals.edit.EditGoalScreen
 import com.example.habitflow.presentation.screens.tasks.all.TasksScreen
 import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskScreen
 
@@ -17,7 +17,6 @@ fun NavigationRoot() {
     NavDisplay(
         backStack = backStack,
         entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator()
         ),
         entryProvider = { key ->
             when (key) {
@@ -45,7 +44,11 @@ fun NavigationRoot() {
                     NavEntry(
                         key = key
                     ){
-                        GoalsScreen(){
+                        GoalsScreen(
+                            onEditGoalClick = {
+                                backStack.add(Screen.EditGoal(it))
+                            }
+                        ){
                             backStack.add(Screen.CreateGoal)
                         }
                     }
@@ -57,6 +60,17 @@ fun NavigationRoot() {
                         CreateGoalScreen(){
                             backStack.removeLastOrNull()
                         }
+                    }
+                }
+                is Screen.EditGoal ->{
+                    NavEntry(
+                        key = key
+                    ){
+                        EditGoalScreen(key.id){
+                            backStack.removeLastOrNull()
+                        }
+
+
                     }
                 }
                 else -> {

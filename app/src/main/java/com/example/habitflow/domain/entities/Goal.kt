@@ -5,8 +5,8 @@ data class Goal(
     val category: GoalCategory,
     val title: String,
     val description: String,
-    val goalStartDate: String,
-    val goalEndDate: String,
+    val goalStartDate: Long,
+    val goalEndDate: Long,
     val milestones: List<Milestone>,
     val coverUri: String? = null
 )

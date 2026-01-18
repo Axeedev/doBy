@@ -16,6 +16,9 @@ sealed class Screen : NavKey{
     data object Goals: Screen()
 
     @Serializable
+    data class EditGoal(val id: Int) : Screen()
+
+    @Serializable
     data object CreateGoal: Screen()
 
 }

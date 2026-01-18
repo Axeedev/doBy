@@ -19,5 +19,6 @@ data class MilestoneEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val title: String,
+    val isCompleted: Boolean,
     val goalId: Long
 )
