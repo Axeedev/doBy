@@ -30,7 +30,8 @@ class GoalRepositoryImpl @Inject constructor(
     }
 
     override suspend fun editGoal(goal: Goal) {
-        val id = goalsDao.addGoal(goal.toGoalEntity())
+        Log.d("editGoal", goal.toString())
+        val id = goalsDao.addGoal(goal.toGoalEntity(goal.coverUri))
         Log.d("editGoal", id.toString())
         goalsDao.updateMilestones(goal.milestones.map { it.toMilestoneEntity(id)})
     }

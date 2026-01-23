@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.habitflow.presentation.screens.goals.create
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -70,45 +73,20 @@ fun CreateGoalScreen(
     onFinished: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            viewModel.processCommand(CreateGoalCommand.AddPhoto(it))
+        }
+    }
     Scaffold(
         containerColor = Color(0xFFF8FAFC),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = when(openReason){
-                            OpenReason.CREATE -> {
-                                "Новая Цель"
-                            }
-                            OpenReason.EDIT -> {
-                                state.title
-                            }
-                        }
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                navigationIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable {
-                                onFinished()
-                            }
-                            .padding(start = 8.dp),
-                        painter = painterResource(R.drawable.ic_arrow_back),
-                        contentDescription = "go back"
-                    )
-                },
-                actions = {
-                    Icon(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable {}
-                            .padding(end = 16.dp),
-                        painter = painterResource(R.drawable.ic_more_horiz),
-                        contentDescription = "more options"
-                    )
-                }
+            CreateAndEditGoalScreenTopBar(
+                openReason = openReason,
+                title = state.title,
+                onFinished = onFinished
             )
         }
     ) { paddingValues ->
@@ -120,71 +98,14 @@ fun CreateGoalScreen(
             contentPadding = paddingValues
         ) {
 
-
             item {
-                val imagePicker = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.GetContent()
-                ) { uri ->
-                    uri?.let {
-                        viewModel.processCommand(CreateGoalCommand.AddPhoto(it))
+                Photo(
+                    coverUri = state.coverUri,
+                    onAddPhotoClick = {
+                        imagePicker.launch("image/*")
                     }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.Gray.copy(alpha = 0.5f))
-                        .heightIn(min = 200.dp)
-                        .clickable {
-                            imagePicker.launch("image/*")
-                        }
                 ) {
-                    if (state.coverUri == null) {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-
-                            Spacer(Modifier.size(8.dp))
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(Color.Gray.copy(alpha = 0.2f))
-                            ) {
-                                Icon(
-                                    modifier = Modifier
-                                        .padding(all = 8.dp),
-                                    painter = painterResource(R.drawable.ic_photo_camera),
-                                    contentDescription = "add picture"
-                                )
-                            }
-                            Text(
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                text = "Add cover photo",
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    } else {
-                        AsyncImage(
-                            model = state.coverUri,
-                            contentDescription = "cover of goal",
-                            contentScale = ContentScale.FillWidth
-                        )
-                        Icon(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .align(Alignment.TopEnd)
-                                .padding(top = 16.dp, end = 16.dp)
-                                .clickable {
-                                    viewModel.processCommand(CreateGoalCommand.ClickDeletePhoto)
-                                },
-                            painter = painterResource(R.drawable.ic_close),
-                            tint = Color.Black,
-                            contentDescription = "delete cover"
-                        )
-                    }
-
+                    viewModel.processCommand(CreateGoalCommand.ClickDeletePhoto)
                 }
             }
 
@@ -197,100 +118,32 @@ fun CreateGoalScreen(
                     viewModel.processCommand(CreateGoalCommand.InputTitle(it))
                 }
             }
+
             item {
                 Text(
                     text = "Категория",
                 )
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                FilterChips(
+                    stateGoalCategory = state.goalCategory
                 ) {
-                    GoalCategory.entries.forEach { goalCategory ->
-                        FilterChip(
-                            selected = state.goalCategory == goalCategory,
-                            border = null,
-                            label = {
-                                Text(
-                                    modifier = Modifier.padding(all = 8.dp),
-                                    text = goalCategory.title
-                                )
-                            },
-                            onClick = {
-                                viewModel.processCommand(
-                                    CreateGoalCommand.ChangeGoalCategory(goalCategory)
-                                )
-                            },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF10B981),
-                                selectedLabelColor = Color.White,
-                                disabledLabelColor = Color(0xFF065F54),
-                                disabledContainerColor = Color(0xFFE6FFFB),
-                            )
-                        )
-                    }
+                    viewModel.processCommand(
+                        CreateGoalCommand.ChangeGoalCategory(it)
+                    )
                 }
             }
+
             item {
-                var isStartDatePickerEnabled by remember{ mutableStateOf(false) }
-                var isEndDatePickerEnabled by remember{ mutableStateOf(false) }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                DatePickerFields(
+                    startDate = state.startDate,
+                    endDate = state.endDate,
+                    onStartDatePick = {
+                        viewModel.processCommand(CreateGoalCommand.ChooseStartDate(it))
+                    }
                 ) {
-                    CreateGoalTextFieldWithTitle(
-                        modifier = Modifier
-                            .weight(1f),
-                        fieldTitle = "Дата начала",
-                        readOnly = true,
-                        value = DateFormatter.formatDate(state.startDate),
-                        enabled = false,
-                        onTextFieldClick ={
-                            isStartDatePickerEnabled = true
-                        },
-                        trailingIconId = R.drawable.ic_calendar_today,
-                        placeholderText = "Начало",
-                    ) {
-                    }
-                    CreateGoalTextFieldWithTitle(
-                        modifier = Modifier
-                            .weight(1f),
-                        fieldTitle = "Дата окончания",
-                        readOnly = true,
-                        enabled = false,
-                        value = DateFormatter.formatDate(state.endDate),
-                        onTextFieldClick = {
-                            isEndDatePickerEnabled = true
-                        },
-                        placeholderText = "Окончание",
-                        trailingIconId = R.drawable.ic_calendar
-                    ) {
-                    }
-                    if (isStartDatePickerEnabled){
-                        DatePickerModal(
-                            onDateSelected = {date ->
-                                date?.let {
-                                    viewModel.processCommand(CreateGoalCommand.ChooseStartDate(it))
-                                    isStartDatePickerEnabled = false
-                                }
-                            }
-                        ) {
-                            isStartDatePickerEnabled = false
-                        }
-                    }
-                    if (isEndDatePickerEnabled){
-                        DatePickerModal(
-                            onDateSelected = {date ->
-                                date?.let {
-                                    viewModel.processCommand(CreateGoalCommand.ChooseEndDate(it))
-                                    isEndDatePickerEnabled = false
-                                }
-                            }
-                        ) {
-                            isEndDatePickerEnabled = false
-                        }
-                    }
+                    viewModel.processCommand(CreateGoalCommand.ChooseEndDate(it))
                 }
             }
+
             item {
                 CreateGoalTextFieldWithTitle(
                     fieldTitle = "Описание",
@@ -303,12 +156,14 @@ fun CreateGoalScreen(
                     )
                 }
             }
+
             item {
                 Text(
                     text = "Подцели (Шаги)",
                     fontWeight = FontWeight.Bold
                 )
             }
+
             itemsIndexed(state.milestones) { index, milestone ->
                 MilestoneCard(
                     milestone = milestone,
@@ -320,7 +175,11 @@ fun CreateGoalScreen(
                         )
                     },
                     onRadioButtonClick = {
-                        viewModel.processCommand(CreateGoalCommand.ChangeMilestoneCompletedStatusAt(index))
+                        viewModel.processCommand(
+                            CreateGoalCommand.ChangeMilestoneCompletedStatusAt(
+                                index
+                            )
+                        )
                     }
                 ) {
                     viewModel.processCommand(
@@ -331,25 +190,10 @@ fun CreateGoalScreen(
                     )
                 }
             }
+
             item {
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE1F4EF),
-                        contentColor = Color(0xFF10B981)
-                    ),
-                    onClick = {
-                        viewModel.processCommand(CreateGoalCommand.ClickAddMilestone)
-                    }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_add),
-                        contentDescription = "add milestone"
-                    )
-                    Spacer(Modifier.size(8.dp))
-                    Text(
-                        text = "Добавить шаг",
-                        fontWeight = FontWeight.SemiBold
-                    )
+                AddMilestoneButton{
+                    viewModel.processCommand(CreateGoalCommand.ClickAddMilestone)
                 }
             }
             item {
@@ -357,41 +201,30 @@ fun CreateGoalScreen(
                     color = Color(0xFFB4C0C2)
                 )
             }
+
             item {
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    enabled = state.isSaveButtonEnabled,
-                    shape = RoundedCornerShape(20.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF10B981),
-                        contentColor = Color.White
-                    ),
-                    onClick = {
-                        when(openReason){
-                            OpenReason.CREATE -> {
-                                viewModel.processCommand(CreateGoalCommand.ClickCreateGoal)
-                            }
-                            OpenReason.EDIT -> {
-                                viewModel.processCommand(CreateGoalCommand.ClickUpdateGoal)
-                            }
+                CreateOrEditButton(
+                    isSaveButtonEnabled = state.isSaveButtonEnabled,
+                    text = when (openReason) {
+                        OpenReason.CREATE -> {
+                            "Создать цель"
                         }
 
-                        onFinished()
-                    }
+                        OpenReason.EDIT -> {
+                            "Сохранить изменения"
+                        }
+                    },
                 ) {
-                    Text(
-                        modifier = Modifier.padding(vertical = 16.dp),
-                        text = when(openReason){
-                            OpenReason.CREATE -> {
-                                "Создать цель"
-                            }
-                            OpenReason.EDIT -> {
-                                "Сохранить изменения"
-                            }
-                        },
-                        fontSize = 18.sp
-                    )
+                    when (openReason) {
+                        OpenReason.CREATE -> {
+                            viewModel.processCommand(CreateGoalCommand.ClickCreateGoal)
+                        }
+
+                        OpenReason.EDIT -> {
+                            viewModel.processCommand(CreateGoalCommand.ClickUpdateGoal)
+                        }
+                    }
+                    onFinished()
                 }
             }
         }
@@ -517,6 +350,320 @@ fun CreateGoalTextFieldWithTitle(
                     )
                 }
             },
-            )
+        )
     }
+}
+
+@Composable
+fun CreateAndEditGoalScreenTopBar(
+    modifier: Modifier = Modifier,
+    openReason: OpenReason,
+    title: String,
+    onFinished: () -> Unit
+) {
+    CenterAlignedTopAppBar(
+        modifier = modifier,
+        title = {
+            Text(
+                text = when (openReason) {
+                    OpenReason.CREATE -> {
+                        "Новая Цель"
+                    }
+
+                    OpenReason.EDIT -> {
+                        title
+                    }
+                }
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+        navigationIcon = {
+            Icon(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable {
+                        onFinished()
+                    }
+                    .padding(start = 8.dp),
+                painter = painterResource(R.drawable.ic_arrow_back),
+                contentDescription = "go back"
+            )
+        },
+        actions = {
+            Icon(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable {}
+                    .padding(end = 16.dp),
+                painter = painterResource(R.drawable.ic_more_horiz),
+                contentDescription = "more options"
+            )
+        }
+    )
+}
+
+@Composable
+fun Photo(
+    modifier: Modifier = Modifier,
+    coverUri: Uri?,
+    onAddPhotoClick: () -> Unit,
+    onDeleteImageClick: () -> Unit,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.Gray.copy(alpha = 0.5f))
+            .heightIn(min = 200.dp)
+            .clickable {
+                onAddPhotoClick()
+            }
+    ) {
+        if (coverUri == null) {
+            Column(
+                modifier = Modifier.align(Alignment.Center),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Spacer(Modifier.size(8.dp))
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color.Gray.copy(alpha = 0.2f))
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(all = 8.dp),
+                        painter = painterResource(R.drawable.ic_photo_camera),
+                        contentDescription = "add picture"
+                    )
+                }
+                Text(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    text = "Add cover photo",
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        } else {
+            AsyncImage(
+                model = coverUri,
+                contentDescription = "cover of goal",
+                contentScale = ContentScale.FillWidth
+            )
+            Icon(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .align(Alignment.TopEnd)
+                    .padding(top = 16.dp, end = 16.dp)
+                    .clickable {
+                        onDeleteImageClick()
+                    },
+                painter = painterResource(R.drawable.ic_close),
+                tint = Color.Black,
+                contentDescription = "delete cover"
+            )
+        }
+
+    }
+}
+
+@Composable
+fun FilterChips(
+    modifier: Modifier = Modifier,
+    stateGoalCategory: GoalCategory,
+    onChipClick: (GoalCategory) -> Unit,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        GoalCategory.entries.forEach { goalCategory ->
+            FilterChip(
+                selected = stateGoalCategory == goalCategory,
+                border = null,
+                label = {
+                    Text(
+                        modifier = Modifier.padding(all = 8.dp),
+                        text = goalCategory.title
+                    )
+                },
+                onClick = {
+                    onChipClick(goalCategory)
+                },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = Color(0xFF10B981),
+                    selectedLabelColor = Color.White,
+                    disabledLabelColor = Color(0xFF065F54),
+                    disabledContainerColor = Color(0xFFE6FFFB),
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun DatePickerFields(
+    modifier: Modifier = Modifier,
+    startDate: Long,
+    endDate: Long,
+    onStartDatePick: (Long) -> Unit,
+    onEndDatePick: (Long) -> Unit,
+) {
+    var isStartDatePickerEnabled by remember { mutableStateOf(false) }
+    var isEndDatePickerEnabled by remember { mutableStateOf(false) }
+    Row(
+        modifier = modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        CreateGoalTextFieldWithTitle(
+            modifier = Modifier
+                .weight(1f),
+            fieldTitle = "Дата начала",
+            readOnly = true,
+            value = DateFormatter.formatDate(startDate),
+            enabled = false,
+            onTextFieldClick = {
+                isStartDatePickerEnabled = true
+            },
+            trailingIconId = R.drawable.ic_calendar_today,
+            placeholderText = "Начало",
+        ) {
+        }
+        CreateGoalTextFieldWithTitle(
+            modifier = Modifier
+                .weight(1f),
+            fieldTitle = "Дата окончания",
+            readOnly = true,
+            enabled = false,
+            value = DateFormatter.formatDate(endDate),
+            onTextFieldClick = {
+                isEndDatePickerEnabled = true
+            },
+            placeholderText = "Окончание",
+            trailingIconId = R.drawable.ic_calendar
+        ) {
+        }
+        if (isStartDatePickerEnabled) {
+            DatePickerModal(
+                onDateSelected = { date ->
+                    date?.let {
+                        onStartDatePick(it)
+                        isStartDatePickerEnabled = false
+                    }
+                }
+            ) {
+                isStartDatePickerEnabled = false
+            }
+        }
+        if (isEndDatePickerEnabled) {
+            DatePickerModal(
+                onDateSelected = { date ->
+                    date?.let {
+                        onEndDatePick(it)
+                        isEndDatePickerEnabled = false
+                    }
+                }
+            ) {
+                isEndDatePickerEnabled = false
+            }
+        }
+    }
+}
+
+@Composable
+fun AddMilestoneButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+){
+    Button(
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFE1F4EF),
+            contentColor = Color(0xFF10B981)
+        ),
+        onClick = {
+            onClick()
+        }
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_add),
+            contentDescription = "add milestone"
+        )
+        Spacer(Modifier.size(8.dp))
+        Text(
+            text = "Добавить шаг",
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
+fun CreateOrEditButton(
+    modifier: Modifier = Modifier,
+    isSaveButtonEnabled : Boolean,
+    text: String,
+    onClick: () -> Unit
+
+){
+    Button(
+        modifier = modifier
+            .fillMaxWidth(),
+        enabled = isSaveButtonEnabled,
+        shape = RoundedCornerShape(20.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF10B981),
+            contentColor = Color.White
+        ),
+        onClick = {
+            onClick()
+        }
+    ) {
+        Text(
+            modifier = Modifier.padding(vertical = 16.dp),
+            text = text,
+            fontSize = 18.sp
+        )
+    }
+}
+
+@Composable
+fun MyTextField(
+    modifier: Modifier = Modifier,
+    placeholderText: String,
+    leadingIconId: Int
+){
+    TextField(
+        modifier = modifier,
+//        modifier = Modifier
+//            .clip(RoundedCornerShape(12.dp))
+//            .clickable {}
+//            .fillMaxWidth()
+//            .border(
+//                BorderStroke(1.dp, Color(0xFFEBEBEB)),
+//                shape = RoundedCornerShape(12.dp)
+//            ),
+        shape = RoundedCornerShape(12.dp),
+        onValueChange = {},
+        value = "",
+        colors = TextFieldDefaults.colors(
+            disabledContainerColor = Color.White,
+            disabledIndicatorColor = Color.White,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White,
+            unfocusedIndicatorColor = Color.White,
+            focusedIndicatorColor = Color.White,
+        ),
+        placeholder = {
+            Text(
+                text = placeholderText
+            )
+        },
+        leadingIcon = {
+            Icon(
+                painter = painterResource(leadingIconId),
+                contentDescription = "set time"
+            )
+        }
+    )
 }

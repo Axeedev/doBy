@@ -6,6 +6,9 @@ import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.DeleteTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
 import com.example.habitflow.domain.entities.Priority
+import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskCommand
+import com.example.habitflow.presentation.utils.DateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,42 +38,57 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-    fun processCommand(command: TasksCommand) {
-        when (command) {
+    fun processCommand(command: TasksCommand){
+        when(command){
+            is TasksCommand.InputDate -> {
+                _state.update {
+                    it.copy(date = DateFormatter.formatDate(command.date))
+                }
+            }
+            is TasksCommand.InputDescription -> {
+                _state.update {
+                    it.copy(description = command.description)
+                }
+            }
+            is TasksCommand.InputDeadline -> {
+                _state.update {
+                    it.copy(remindAtMinutesOfDay = command.deadline)
+                }
+            }
+            is TasksCommand.InputTitle -> {
+                _state.update {
+                    it.copy(title = command.title)
+                }
+            }
+
+            is TasksCommand.ChangeCategory -> {
+                _state.update {
+                    it.copy(goalCategory = command.taskCategory)
+                }
+            }
+
             TasksCommand.AddTask -> {
-                _state.value.currentTask?.let { task ->
-                    viewModelScope.launch {
-                        addTaskUseCase(task)
-                    }
+                viewModelScope.launch {
+                    val finalTask = _state.value
+                    val remind = if (finalTask.remindAtMinutesOfDay != null){
+                        finalTask.remindAtMinutesOfDay.hours * 60 + finalTask.remindAtMinutesOfDay.minutes
+                    }else null
+                    addTaskUseCase(
+                        Task(
+                            id = 0,
+                            title = finalTask.title,
+                            date = finalTask.date,
+                            note = finalTask.description,
+                            remindAtMinutesOfDay = remind,
+                            category = finalTask.goalCategory,
+                            priority = finalTask.priority
+                        )
+                    )
                 }
             }
-
-            TasksCommand.ChangePriority -> {
-                _state.update { previousState ->
-                    val previousPriority = previousState.taskPriority
-                    val newPriorityIndex =
-                        (Priority.entries.indexOf(previousPriority) + 1) % Priority.entries.size
-                    previousState.copy(taskPriority = Priority.entries[newPriorityIndex])
-                }
-            }
-
-            is TasksCommand.InputTaskNote -> {
-                _state.update { previousState ->
-                    previousState.copy(taskNote = command.taskNote)
-                }
-            }
-
-            is TasksCommand.InputTaskTitle -> {
-                _state.update { previousState ->
-                    previousState.copy(taskTitle = command.taskTitle)
-                }
-            }
-
-            TasksCommand.DeleteTask -> {
-                _state.value.currentTask?.let { task ->
-                    viewModelScope.launch {
-                        deleteTaskUseCase(task.id)
-                    }
+            is TasksCommand.ChangePriority -> {
+                _state.update {
+                    it.copy(priority = command.priority)
                 }
             }
         }

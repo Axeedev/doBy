@@ -1,5 +1,6 @@
 package com.example.habitflow.presentation.screens.goals.create
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Goal
@@ -119,7 +120,6 @@ open class CreateGoalViewModel @Inject constructor(
             }
 
             CreateGoalCommand.ClickUpdateGoal -> {
-
                 viewModelScope.launch {
                     val currentState = _state.value
                     val goal = Goal(
@@ -132,6 +132,7 @@ open class CreateGoalViewModel @Inject constructor(
                         milestones = currentState.milestones,
                         coverUri = currentState.coverUri?.toString()
                     )
+                    Log.d("CreateGoalViewModel", goal.toString())
                     updateGoalUseCase(goal)
                 }
             }

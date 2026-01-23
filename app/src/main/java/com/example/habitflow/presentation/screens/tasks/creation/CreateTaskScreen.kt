@@ -1,6 +1,10 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.habitflow.presentation.screens.tasks.creation
 
-import android.os.Build
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,7 +59,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.TaskCategory
-import com.example.habitflow.presentation.utils.DateFormatter
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,71 +68,18 @@ fun CreateTaskScreen(
     onBackClick: () -> Unit
 ) {
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {
+
+        }
+    )
     val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    titleContentColor = MaterialTheme.colorScheme.scrim,
-                    navigationIconContentColor = MaterialTheme.colorScheme.scrim
-                ),
-                navigationIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                onBackClick()
-                            },
-                        painter = painterResource(R.drawable.ic_arrow_back),
-                        contentDescription = "Go back"
-                    )
-                },
-                title = {
-                    Text(
-                        fontWeight = FontWeight.SemiBold,
-                        text = "Create a Task"
-                    )
-                },
-                actions = {
-                    Icon(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .size(30.dp)
-                            .clickable{
-                                viewModel.processCommand(CreateTaskCommand.ChangePriority)
-                            },
-                        painter = painterResource(
-                            when(state.priority){
-                                Priority.REGULAR -> {
-                                    R.drawable.ic_priority_low
-                                }
-                                Priority.MIDDLE -> {
-                                    R.drawable.ic_priority_low
-                                }
-                                Priority.HIGH -> {
-                                    R.drawable.ic_priority_high
-                                }
-                                Priority.EXTRA_HIGH -> {
-                                    R.drawable.ic_priority_high
-                                }
-                            }
-                        ),
-                        tint = when(state.priority){
-                            Priority.REGULAR ->
-                                Color.White
-                            Priority.MIDDLE ->
-                                Color.Red
-                            Priority.HIGH ->
-                                Color.White
-                            Priority.EXTRA_HIGH ->
-                                Color.Red
-                        },
-                        contentDescription = "priority of the task"
-                    )
-                }
+            CreateTaskTopBar(
+                onBackClick = onBackClick
             )
         },
         containerColor = MaterialTheme.colorScheme.primary
@@ -180,6 +130,7 @@ fun CreateTaskScreen(
                 text = "Date"
             )
             var isDatepickerOpened by remember { mutableStateOf(false) }
+            Log.d("isDatepickerOpened", isDatepickerOpened.toString())
             if (isDatepickerOpened) {
                 DatePickerModal(
                     {
@@ -233,7 +184,7 @@ fun CreateTaskScreen(
                             TimePickerDial(
                                 onConfirm = {
                                     viewModel.processCommand(
-                                        CreateTaskCommand.InputStartTime(
+                                        CreateTaskCommand.InputDeadline(
                                             it
                                         )
                                     )
@@ -252,49 +203,14 @@ fun CreateTaskScreen(
                                 }
                         ) {
                             Text(
-                                text = "Start Time",
+                                text = "Deadline",
                                 fontSize = 20.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                             Spacer(Modifier.size(12.dp))
                             Text(
-                                text = DateFormatter.formatDate(state.startTime),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-                        var isStartTimePickerEnabled by remember { mutableStateOf(false) }
-                        if (isStartTimePickerEnabled){
-                            TimePickerDial(
-                                onConfirm = {
-                                    viewModel.processCommand(
-                                        CreateTaskCommand.InputEndTime(
-                                            it
-                                        )
-                                    )
-                                    isStartTimePickerEnabled = false
-                                },
-                                onDismiss = {
-                                    isStartTimePickerEnabled = false
-                                }
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable {
-                                    isStartTimePickerEnabled = true
-                                }
-                        ) {
-                            Text(
-                                text = "End Time",
-                                fontSize = 20.sp,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                            Spacer(Modifier.size(12.dp))
-                            Text(
-                                text = DateFormatter.formatDate(state.endTime),
+                                text = "AAA",
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.secondary
@@ -308,6 +224,7 @@ fun CreateTaskScreen(
                     Text(
                         modifier = Modifier.padding(horizontal = 24.dp),
                         text = "Description",
+                        fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                     TextField(
@@ -376,6 +293,7 @@ fun CreateTaskScreen(
                                     )
                                 },
                                 onClick = {
+
                                     viewModel.processCommand(
                                         CreateTaskCommand.ChangeCategory(
                                             category
@@ -385,6 +303,49 @@ fun CreateTaskScreen(
                             )
                         }
                     }
+                }
+                item {
+                    Text(
+                        text = "Priority level"
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Priority.entries.forEach { priority ->
+                            FilterChip(
+                                modifier = Modifier
+                                    .heightIn(min = 64.dp),
+                                shape = RoundedCornerShape(50),
+                                border = null,
+                                selected = state.priority == priority,
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    containerColor = MaterialTheme.colorScheme.onPrimaryFixed,
+                                    selectedLabelColor = MaterialTheme.colorScheme.primaryContainer,
+                                    labelColor = MaterialTheme.colorScheme.secondary,
+
+                                    ),
+                                label = {
+                                    Text(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        text = priority.title
+                                    )
+                                },
+                                onClick = {
+                                    viewModel.processCommand(
+                                        CreateTaskCommand.ChangePriority(
+                                            priority
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+                item {
                     Button(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -392,6 +353,9 @@ fun CreateTaskScreen(
                             .heightIn(min = 64.dp),
                         enabled = state.isButtonEnabled,
                         onClick = {
+                            permissionLauncher.launch(
+                                android.Manifest.permission.POST_NOTIFICATIONS
+                            )
                             viewModel.processCommand(CreateTaskCommand.AddTask)
                             onBackClick()
                         }
@@ -430,7 +394,6 @@ fun CreateTaskTextField(
         placeholder = {
             Text(
                 fontSize = 25.sp,
-                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.scrim,
                 text = supportingText
             )
@@ -478,7 +441,7 @@ fun DatePickerModal(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimePickerDial(
-    onConfirm: (Long) -> Unit,
+    onConfirm: (TimeEntity) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val currentTime = Calendar.getInstance()
@@ -495,7 +458,10 @@ fun TimePickerDial(
         },
         confirmButton = {
             Button(onClick = {
-                onConfirm(timePickerState.hour.toLong())
+                onConfirm(
+                    TimeEntity(timePickerState.hour, timePickerState.minute
+                    )
+                )
             }
             ) {
                 Text("Confirm time")
@@ -509,4 +475,36 @@ fun TimePickerDial(
     ){
         TimePicker(state = timePickerState)
     }
+}
+@Composable
+fun CreateTaskTopBar(
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit
+){
+    CenterAlignedTopAppBar(
+        modifier = modifier,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent,
+            titleContentColor = MaterialTheme.colorScheme.scrim,
+            navigationIconContentColor = MaterialTheme.colorScheme.scrim
+        ),
+        navigationIcon = {
+            Icon(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        onBackClick()
+                    },
+                painter = painterResource(R.drawable.ic_arrow_back),
+                contentDescription = "Go back"
+            )
+        },
+        title = {
+            Text(
+                fontWeight = FontWeight.SemiBold,
+                text = "Create a Task"
+            )
+        },
+    )
 }

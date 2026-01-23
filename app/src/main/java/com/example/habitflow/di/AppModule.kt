@@ -1,8 +1,12 @@
 package com.example.habitflow.di
 
+import android.app.AlarmManager
+import android.app.NotificationManager
 import android.content.Context
+import androidx.core.content.getSystemService
 import androidx.room.Room
 import com.example.habitflow.data.local.AppDatabase
+import com.example.habitflow.data.local.NotificationsProvider
 import com.example.habitflow.data.local.goals.GoalsDao
 import com.example.habitflow.data.local.tasks.TasksDao
 import com.example.habitflow.data.remote.ApiService
@@ -113,6 +117,30 @@ interface AppModule {
         @Singleton
         fun provideGoalsDao(appDatabase: AppDatabase): GoalsDao{
             return appDatabase.goalsDao()
+        }
+
+        @Provides
+        @Singleton
+        fun provideAlarmManager(@ApplicationContext context: Context): AlarmManager? {
+            return context.getSystemService<AlarmManager>()
+        }
+
+        @Provides
+        @Singleton
+        fun provideNotificationManager(@ApplicationContext context: Context): NotificationManager? {
+            return context.getSystemService<NotificationManager>()
+        }
+
+        @Provides
+        @Singleton
+        fun provideNotificationsProvider(
+            @ApplicationContext context: Context,
+            notificationManager: NotificationManager?
+        ) : NotificationsProvider{
+            return NotificationsProvider(
+                context,
+                notificationManager
+            )
         }
     }
 }

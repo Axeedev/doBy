@@ -19,8 +19,7 @@ fun Task.toTaskEntity(): TaskEntity{
         note = note ,
         isCompleted = isCompleted,
         category = category.title,
-        startTime = startTime,
-        endTime = endTime,
+        remindAtMinutesOfDay = remindAtMinutesOfDay,
         priority = priority.name
     )
 }
@@ -30,9 +29,8 @@ fun TaskEntity.toTask(): Task{
         title = title ,
         date = date ,
         note = note ,
-        category = TaskCategory.valueOf(this.category.uppercase()),
-        startTime = startTime,
-        endTime = endTime,
+        category = GoalCategory.valueOf(this.category.uppercase()),
+        remindAtMinutesOfDay = remindAtMinutesOfDay,
         priority = Priority.valueOf(this.priority.uppercase()),
         isCompleted = isCompleted
     )
@@ -44,7 +42,6 @@ fun MilestoneEntity.toMilestone() : Milestone{
         title,
         isCompleted
     )
-
 }
 
 fun Goal.toGoalEntity(coverUri: String? = null) : GoalEntity{

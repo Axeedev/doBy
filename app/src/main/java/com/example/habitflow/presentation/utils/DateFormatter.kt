@@ -4,7 +4,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
 object DateFormatter {
@@ -26,6 +25,11 @@ object DateFormatter {
             System.currentTimeMillis()
         )
     }
+
+    fun getCurrentTimeMinutes(): Int{
+        return calendar.get(Calendar.HOUR_OF_DAY) * 60 + Calendar.MINUTE
+    }
+
 
     fun getLocalTime() : String{
         return String.format(

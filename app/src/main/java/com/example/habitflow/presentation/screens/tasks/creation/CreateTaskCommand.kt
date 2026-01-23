@@ -1,5 +1,6 @@
 package com.example.habitflow.presentation.screens.tasks.creation
 
+import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.TaskCategory
 
 sealed interface CreateTaskCommand{
@@ -8,15 +9,13 @@ sealed interface CreateTaskCommand{
 
     data class InputDate(val date: Long) : CreateTaskCommand
 
-    data class InputStartTime(val startTime: Long) : CreateTaskCommand
-
-    data class InputEndTime(val endTime: Long) : CreateTaskCommand
+    data class InputDeadline(val deadline: TimeEntity) : CreateTaskCommand
 
     data class InputDescription(val description: String) : CreateTaskCommand
 
     data class ChangeCategory(val taskCategory: TaskCategory) : CreateTaskCommand
 
-    data object ChangePriority : CreateTaskCommand
+    data class ChangePriority(val priority: Priority) : CreateTaskCommand
 
     data object AddTask : CreateTaskCommand
 }

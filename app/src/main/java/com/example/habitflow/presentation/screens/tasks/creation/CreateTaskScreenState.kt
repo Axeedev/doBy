@@ -2,14 +2,14 @@ package com.example.habitflow.presentation.screens.tasks.creation
 
 import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.TaskCategory
+import com.example.habitflow.presentation.utils.DateFormatter
 
 data class CreateTaskScreenState(
     val title: String = "",
     val date: String = "",
-    val startTime: Long = System.currentTimeMillis(),
-    val endTime: Long = System.currentTimeMillis(),
+    val remindAtMinutesOfDay: TimeEntity? = null,
     val description: String = "",
-    val priority: Priority = Priority.REGULAR,
+    val priority: Priority = Priority.LOW,
     val taskCategory: TaskCategory = TaskCategory.CODING
 ){
     val isButtonEnabled

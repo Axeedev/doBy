@@ -1,5 +1,5 @@
 package com.example.habitflow.domain.entities
 
-enum class Priority {
-    REGULAR, MIDDLE, HIGH, EXTRA_HIGH
+enum class Priority(val title: String){
+    LOW("Low"), MIDDLE("Middle"), HIGH("High")
 }

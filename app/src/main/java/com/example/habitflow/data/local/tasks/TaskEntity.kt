@@ -12,8 +12,7 @@ data class TaskEntity(
     val date: String,
     val note: String,
     val category: String,
-    val startTime: Long,
-    val endTime: Long,
+    val remindAtMinutesOfDay: Int? = null,
     val priority: String,
     val isCompleted: Boolean
 )

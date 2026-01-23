@@ -5,9 +5,8 @@ data class Task(
     val title: String,
     val date: String,
     val note: String,
-    val startTime: Long,
-    val endTime: Long,
-    val category: TaskCategory,
+    val category: GoalCategory,
     val priority: Priority,
+    val remindAtMinutesOfDay: Int? = null,
     val isCompleted: Boolean = false
 )

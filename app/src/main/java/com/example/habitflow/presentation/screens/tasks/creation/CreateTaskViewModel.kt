@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Task
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
-import com.example.habitflow.domain.entities.Priority
-import com.example.habitflow.domain.entities.TaskCategory
 import com.example.habitflow.presentation.utils.DateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,14 +34,9 @@ class CreateTaskViewModel @Inject constructor(
                     it.copy(description = command.description)
                 }
             }
-            is CreateTaskCommand.InputEndTime -> {
+            is CreateTaskCommand.InputDeadline -> {
                 _state.update {
-                    it.copy(endTime = command.endTime)
-                }
-            }
-            is CreateTaskCommand.InputStartTime -> {
-                _state.update {
-                    it.copy(startTime = command.startTime)
+                    it.copy(remindAtMinutesOfDay = command.deadline)
                 }
             }
             is CreateTaskCommand.InputTitle -> {
@@ -61,25 +54,15 @@ class CreateTaskViewModel @Inject constructor(
             CreateTaskCommand.AddTask -> {
                 viewModelScope.launch {
                     val finalTask = _state.value
-                    addTaskUseCase(
-                        Task(
-                            id = 0,
-                            title = finalTask.title,
-                            date = finalTask.date,
-                            note = finalTask.description,
-                            startTime = finalTask.startTime,
-                            endTime = finalTask.endTime,
-                            category = finalTask.taskCategory,
-                            priority = finalTask.priority
-                        )
-                    )
+                    val remind = if (finalTask.remindAtMinutesOfDay != null){
+                        finalTask.remindAtMinutesOfDay.hours * 60 + finalTask.remindAtMinutesOfDay.minutes
+                    }else null
+
                 }
             }
-            CreateTaskCommand.ChangePriority -> {
+            is CreateTaskCommand.ChangePriority -> {
                 _state.update {
-                    val previousPriorityIndex = Priority.entries.indexOf(it.priority)
-                    val newPriority = Priority.entries[(previousPriorityIndex + 1) % Priority.entries.size]
-                    it.copy(priority = newPriority)
+                    it.copy(priority = command.priority)
                 }
             }
         }

@@ -16,14 +16,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,19 +45,105 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.presentation.screens.goals.create.CreateGoalTextFieldWithTitle
+import com.example.habitflow.presentation.screens.goals.create.CreateOrEditButton
+import com.example.habitflow.presentation.screens.goals.create.FilterChips
+import com.example.habitflow.presentation.screens.goals.create.MyTextField
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(
     tasksViewModel: TasksViewModel = hiltViewModel(),
     onAddTaskClick: () -> Unit
 ) {
     val state by tasksViewModel.state.collectAsState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showBottomSheet = false
+            },
+            sheetState = sheetState
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .weight(1f),
+                        text = "Create new task"
+                    )
+                    Icon(
+                        painterResource(R.drawable.ic_archive),
+                        contentDescription = "Archive task"
+                    )
+                }
+                CreateGoalTextFieldWithTitle(
+                    value = state.title,
+                    fieldTitle = "Task name",
+                    placeholderText = "Например: полить цветы",
+                    onValueChange = {
+                        tasksViewModel.processCommand(TasksCommand.InputTitle(it))
+                    }
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    MyTextField(
+                        modifier = Modifier
+                            .weight(1f),
+                        leadingIconId = R.drawable.ic_calendar_today,
+                        placeholderText = "Select date"
+                    )
+                    MyTextField(
+                        modifier = Modifier
+                            .weight(1f),
+                        leadingIconId = R.drawable.ic_calendar,
+                        placeholderText = "Set time"
+                    )
+
+                }
+
+                CreateGoalTextFieldWithTitle(
+                    value = state.description,
+                    fieldTitle = "Description",
+                    placeholderText = "Add task details",
+                    minLines = 4
+                ) {
+                    tasksViewModel.processCommand(TasksCommand.InputDescription(it))
+                }
+                Text(
+                    text = "Category"
+                )
+                FilterChips(
+                    stateGoalCategory = state.goalCategory
+                ) {
+                    tasksViewModel.processCommand(TasksCommand.ChangeCategory(it))
+                }
+                CreateOrEditButton(
+                    isSaveButtonEnabled = true,
+                    text = "Create task"
+                ) { }
+            }
+        }
+    }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    onAddTaskClick()
+                    showBottomSheet = true
                 }
             ) { }
         }
@@ -253,6 +345,6 @@ fun TaskCard(
             }
 
         }
-
     }
 }
+

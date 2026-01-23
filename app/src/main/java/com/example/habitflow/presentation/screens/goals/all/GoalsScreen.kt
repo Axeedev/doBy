@@ -34,7 +34,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -64,9 +63,6 @@ fun GoalsScreen(
     onCreateButtonClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    SideEffect {
-        Log.d("GoalsScreen", "recomposition")
-    }
     Scaffold(
         topBar = {
             TopAppBar(

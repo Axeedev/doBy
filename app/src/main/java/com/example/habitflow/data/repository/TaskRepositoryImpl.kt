@@ -1,5 +1,6 @@
 package com.example.habitflow.data.repository
 
+import com.example.habitflow.data.AlarmScheduler
 import com.example.habitflow.data.local.tasks.TasksDao
 import com.example.habitflow.data.mappers.toTask
 import com.example.habitflow.data.mappers.toTaskEntity
@@ -10,7 +11,8 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(
-    private val tasksDao: TasksDao
+    private val tasksDao: TasksDao,
+    private val alarmScheduler: AlarmScheduler
 ) : TaskRepository {
     override fun getTasks(): Flow<List<Task>> {
         return tasksDao.getTasks().map {list ->
@@ -22,6 +24,7 @@ class TaskRepositoryImpl @Inject constructor(
 
     override suspend fun addTask(task: Task) {
         tasksDao.addTask(task.toTaskEntity())
+        alarmScheduler.scheduleNextAlarm()
     }
 
     override suspend fun deleteTask(taskId: Int) {

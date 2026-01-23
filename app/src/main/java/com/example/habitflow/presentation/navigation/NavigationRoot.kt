@@ -15,7 +15,7 @@ import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskScree
 
 @Composable
 fun NavigationRoot() {
-    val backStack = rememberNavBackStack(Screen.Goals)
+    val backStack = rememberNavBackStack(Screen.Tasks)
     NavDisplay(
         backStack = backStack,
         entryDecorators = listOf(
@@ -37,7 +37,7 @@ fun NavigationRoot() {
                     NavEntry(
                         key = key
                     ) {
-                        CreateTaskScreen(){
+                        CreateTaskScreen{
                             backStack.removeLastOrNull()
                         }
 
@@ -61,7 +61,7 @@ fun NavigationRoot() {
                         key = key
                     ){
                         CreateGoalScreen(){
-                            backStack.removeLast()
+                            backStack.removeLastOrNull()
                         }
                     }
                 }
@@ -72,15 +72,12 @@ fun NavigationRoot() {
                         EditGoalScreen(key.id){
                             backStack.removeLastOrNull()
                         }
-
-
                     }
                 }
                 else -> {
                     throw RuntimeException("Invalid key")
                 }
             }
-
         }
     )
 }
