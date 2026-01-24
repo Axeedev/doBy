@@ -462,6 +462,7 @@ fun TimePickerDial(
                     TimeEntity(timePickerState.hour, timePickerState.minute
                     )
                 )
+                onDismiss()
             }
             ) {
                 Text("Confirm time")

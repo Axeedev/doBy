@@ -2,8 +2,6 @@ package com.example.habitflow.presentation.screens.tasks.all
 
 import com.example.habitflow.domain.entities.GoalCategory
 import com.example.habitflow.domain.entities.Priority
-import com.example.habitflow.domain.entities.TaskCategory
-import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskCommand
 import com.example.habitflow.presentation.screens.tasks.creation.TimeEntity
 
 

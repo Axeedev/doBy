@@ -1,10 +1,13 @@
 package com.example.habitflow.presentation.utils
 
+import androidx.collection.mutableIntIntMapOf
+import com.example.habitflow.presentation.screens.tasks.creation.TimeEntity
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.min
 
 object DateFormatter {
 
@@ -30,6 +33,14 @@ object DateFormatter {
         return calendar.get(Calendar.HOUR_OF_DAY) * 60 + Calendar.MINUTE
     }
 
+    fun TimeEntity.formatTime() : String{
+        return String.format(
+            Locale.getDefault(),
+            "%02d:%02d",
+            hours,
+            minutes
+        )
+    }
 
     fun getLocalTime() : String{
         return String.format(

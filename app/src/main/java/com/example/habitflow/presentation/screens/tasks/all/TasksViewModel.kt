@@ -2,13 +2,9 @@ package com.example.habitflow.presentation.screens.tasks.all
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
-import com.example.habitflow.domain.usecases.tasks.DeleteTaskUseCase
-import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
-import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.Task
-import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskCommand
-import com.example.habitflow.presentation.utils.DateFormatter
+import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
+import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +15,6 @@ import javax.inject.Inject
 @HiltViewModel
 class TasksViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
-    private val deleteTaskUseCase: DeleteTaskUseCase,
     private val addTaskUseCase: AddTaskUseCase
 ) : ViewModel() {
 
@@ -42,7 +37,7 @@ class TasksViewModel @Inject constructor(
         when(command){
             is TasksCommand.InputDate -> {
                 _state.update {
-                    it.copy(date = DateFormatter.formatDate(command.date))
+                    it.copy(date = command.date)
                 }
             }
             is TasksCommand.InputDescription -> {
@@ -84,6 +79,7 @@ class TasksViewModel @Inject constructor(
                             priority = finalTask.priority
                         )
                     )
+                    _state.value = TasksScreenState()
                 }
             }
             is TasksCommand.ChangePriority -> {

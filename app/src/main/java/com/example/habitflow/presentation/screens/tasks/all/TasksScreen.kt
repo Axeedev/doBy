@@ -1,26 +1,26 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -29,26 +29,29 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
+import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.Task
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalTextFieldWithTitle
 import com.example.habitflow.presentation.screens.goals.create.CreateOrEditButton
 import com.example.habitflow.presentation.screens.goals.create.FilterChips
 import com.example.habitflow.presentation.screens.goals.create.MyTextField
+import com.example.habitflow.presentation.screens.tasks.creation.DatePickerModal
+import com.example.habitflow.presentation.screens.tasks.creation.TimePickerDial
+import com.example.habitflow.presentation.utils.DateFormatter
+import com.example.habitflow.presentation.utils.DateFormatter.formatTime
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +64,7 @@ fun TasksScreen(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+    val scope = rememberCoroutineScope()
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -80,10 +84,18 @@ fun TasksScreen(
                     Text(
                         modifier = Modifier
                             .weight(1f),
-                        text = "Create new task"
+                        text = "Create new task",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
                     )
                     Icon(
-                        painterResource(R.drawable.ic_archive),
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .clip(CircleShape)
+                            .clickable{
+
+                            },
+                        painter = painterResource(R.drawable.ic_archive),
                         contentDescription = "Archive task"
                     )
                 }
@@ -96,21 +108,61 @@ fun TasksScreen(
                     }
                 )
 
+                var isDatePickerOpened by remember { mutableStateOf(false) }
+                var isTimePickerOpened by remember { mutableStateOf(false) }
+                if (isDatePickerOpened){
+                    DatePickerModal(
+                        onDateSelected = {
+                            it?.let {date ->
+                                tasksViewModel.processCommand(
+                                    TasksCommand.InputDate(date)
+                                )
+                            }
+
+                        }
+                    ) {
+                        isDatePickerOpened = false
+                    }
+                }
+                if (isTimePickerOpened){
+                    TimePickerDial(
+                        onConfirm = {
+                            tasksViewModel.processCommand(
+                                TasksCommand.InputDeadline(it)
+                            )
+                        }
+                    ) {
+                        isTimePickerOpened = false
+                    }
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     MyTextField(
                         modifier = Modifier
-                            .weight(1f),
+                            .weight(1f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable{
+                                isDatePickerOpened = true
+                            },
                         leadingIconId = R.drawable.ic_calendar_today,
-                        placeholderText = "Select date"
+                        placeholderText = "Select date",
+                        value = state.date?.let {
+                            DateFormatter.formatDate(it)
+                        } ?: ""
                     )
+                    val deadline = state.remindAtMinutesOfDay
                     MyTextField(
                         modifier = Modifier
-                            .weight(1f),
+                            .clip(RoundedCornerShape(12.dp))
+                            .weight(1f)
+                            .clickable{
+                                isTimePickerOpened = true
+                            },
                         leadingIconId = R.drawable.ic_calendar,
-                        placeholderText = "Set time"
+                        placeholderText = "Set time",
+                        value = deadline?.formatTime() ?: ""
                     )
 
                 }
@@ -131,10 +183,45 @@ fun TasksScreen(
                 ) {
                     tasksViewModel.processCommand(TasksCommand.ChangeCategory(it))
                 }
+                Text(
+                    text = "Priority"
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Priority.entries.forEach {priority ->
+                        FilterChip(
+                            selected = state.priority == priority,
+                            onClick = {
+                                tasksViewModel.processCommand(TasksCommand.ChangePriority(priority))
+                            },
+                            label = {
+                                Text(
+                                    text = priority.title,
+                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                            },
+                            shape = CircleShape,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFF10B981),
+                                selectedLabelColor = Color.White,
+                                containerColor = Color.White,
+                                disabledLabelColor = Color(0xFF065F54),
+                                disabledContainerColor = Color.White,
+                            )
+                        )
+                    }
+                }
                 CreateOrEditButton(
-                    isSaveButtonEnabled = true,
+                    isSaveButtonEnabled = state.isButtonEnabled,
                     text = "Create task"
-                ) { }
+                ) {
+                    tasksViewModel.processCommand(TasksCommand.AddTask)
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                }
             }
         }
     }
@@ -145,205 +232,89 @@ fun TasksScreen(
                 onClick = {
                     showBottomSheet = true
                 }
-            ) { }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_add),
+                    contentDescription = "Add task"
+                )
+            }
+        },
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Tasks"
+                    )
+                }
+            )
         }
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Text(
-                modifier = Modifier
-                    .padding(start = 24.dp),
-                text = "Hello Rohan!",
-                color = MaterialTheme.colorScheme.secondary,
-                fontWeight = FontWeight.Medium,
-                fontSize = 30.sp
-            )
-            Spacer(Modifier.size(8.dp))
-            Text(
-                modifier = Modifier
-                    .padding(start = 24.dp),
-                text = "Have a nice day.",
-                color = MaterialTheme.colorScheme.tertiary,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp
-            )
-            Spacer(Modifier.size(32.dp))
-            Text(
-                modifier = Modifier
-                    .padding(start = 28.dp),
-                text = "Pinned",
-                color = MaterialTheme.colorScheme.secondary,
-                fontWeight = FontWeight.Medium,
-                fontSize = 22.sp
-            )
 
-            Spacer(Modifier.size(24.dp))
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                items(items = state.todayTasks, key = { it.id }) { task ->
-                    PinnedTaskCard(
-                        task = task,
-                        backgroundColor = MaterialTheme.colorScheme.primary
-                    )
-                }
+                Text(
+                    text = "Today"
+                )
+                Text(
+                    text = state.todayTasks.size.toString()
+                )
             }
-            Spacer(Modifier.size(32.dp))
             LazyColumn(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+
             ) {
-                item {
-                    Text(
-                        text = "Today",
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 22.sp
-                    )
-                }
-                items(state.todayTasks, key = { it.id }) {
-                    TaskCard(task = it)
-                }
+
             }
+
         }
     }
 
 }
 
-@Composable
-fun PinnedTaskCard(
-    modifier: Modifier = Modifier,
-    backgroundColor: Color,
-    task: Task
-) {
-    Column(
-        modifier = modifier
-            .widthIn(min = 200.dp, max = 260.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(backgroundColor)
-            .drawBehind {
-                drawCircle(
-                    color = Color(0xFF4A3BCF),
-                    center = Offset(x = this.size.width, y = 0f),
-                    radius = size.minDimension / 2.5f
-                )
-                drawCircle(
-                    color = Color(0xFF4A3BCF),
-                    center = Offset(x = 0f, y = this.size.height / 3)
-                )
-            },
-    ) {
-        Row(
-            Modifier
-                .padding(vertical = 24.dp, horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        )
-        {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.5f))
-            ) {
-                Icon(
-                    modifier = Modifier.padding(all = 8.dp),
-                    painter = painterResource(R.drawable.ic_idea),
-                    contentDescription = "idea",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-            Text(
-                modifier = Modifier
-                    .padding(start = 16.dp),
-                text = task.title,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 16.sp
-            )
-        }
-        Spacer(Modifier.size(8.dp))
-        Text(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            text = task.title,
-            maxLines = 3,
-            fontWeight = FontWeight.SemiBold,
-            overflow = TextOverflow.Ellipsis,
-            fontSize = 24.sp,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
-        Spacer(Modifier.size(24.dp))
-        Text(
-            modifier = Modifier.padding(
-                start = 16.dp,
-                bottom = 24.dp
-            ),
-            color = MaterialTheme.colorScheme.onPrimary,
-            text = task.date
-        )
-    }
-}
 
 @Composable
 fun TaskCard(
     modifier: Modifier = Modifier,
-    task: Task
+    task: Task,
+    onRadioButtonClick: () -> Unit
 ) {
-    Column(
+    Card(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.onPrimary)
-            .fillMaxWidth()
+            .fillMaxWidth(),
+        border = BorderStroke(1.dp, Color.Blue)
     ) {
         Row(
-            Modifier
-                .padding(vertical = 24.dp, horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFF9C2CF3), Color(0xFF3A49F9)
-                            )
-                        )
-                    )
-                    .weight(1f)
-            ) {
-                Icon(
-                    modifier = Modifier
-                        .padding(all = 24.dp),
-                    painter = painterResource(R.drawable.ic_task),
-                    contentDescription = "Task card"
-                )
-            }
+            RadioButton(
+                selected = false,
+                onClick = onRadioButtonClick
+            )
             Column(
-                modifier = Modifier
-                    .padding(start = 32.dp)
-                    .weight(5f)
             ) {
-
                 Text(
-                    text = task.title,
-                    color = MaterialTheme.colorScheme.primaryFixedDim,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 24.sp
+                    text = task.title
                 )
-
-                Spacer(Modifier.size(8.dp))
-
-                Text(
-                    text = task.date,
-                    color = MaterialTheme.colorScheme.tertiary
-                )
-
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = task.priority.title
+                    )
+                    Text(
+                        text = task.category.title
+                    )
+                }
             }
-
         }
     }
 }

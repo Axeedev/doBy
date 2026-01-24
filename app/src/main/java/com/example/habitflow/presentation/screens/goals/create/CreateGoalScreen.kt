@@ -311,7 +311,8 @@ fun CreateGoalTextFieldWithTitle(
             .fillMaxWidth()
     ) {
         Text(
-            text = fieldTitle
+            text = fieldTitle,
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(Modifier.size(8.dp))
         TextField(
@@ -475,26 +476,27 @@ fun FilterChips(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         GoalCategory.entries.forEach { goalCategory ->
             FilterChip(
                 selected = stateGoalCategory == goalCategory,
-                border = null,
                 label = {
                     Text(
                         modifier = Modifier.padding(all = 8.dp),
                         text = goalCategory.title
                     )
                 },
+                shape = CircleShape,
                 onClick = {
                     onChipClick(goalCategory)
                 },
                 colors = FilterChipDefaults.filterChipColors(
                     selectedContainerColor = Color(0xFF10B981),
                     selectedLabelColor = Color.White,
+                    containerColor = Color.White,
                     disabledLabelColor = Color(0xFF065F54),
-                    disabledContainerColor = Color(0xFFE6FFFB),
+                    disabledContainerColor = Color.White,
                 )
             )
         }
@@ -631,24 +633,19 @@ fun CreateOrEditButton(
 fun MyTextField(
     modifier: Modifier = Modifier,
     placeholderText: String,
-    leadingIconId: Int
+    leadingIconId: Int,
+    value: String,
 ){
     TextField(
         modifier = modifier,
-//        modifier = Modifier
-//            .clip(RoundedCornerShape(12.dp))
-//            .clickable {}
-//            .fillMaxWidth()
-//            .border(
-//                BorderStroke(1.dp, Color(0xFFEBEBEB)),
-//                shape = RoundedCornerShape(12.dp)
-//            ),
         shape = RoundedCornerShape(12.dp),
+        enabled = false,
         onValueChange = {},
-        value = "",
+        value = value,
         colors = TextFieldDefaults.colors(
             disabledContainerColor = Color.White,
             disabledIndicatorColor = Color.White,
+            disabledTextColor = Color.Unspecified,
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
             unfocusedIndicatorColor = Color.White,

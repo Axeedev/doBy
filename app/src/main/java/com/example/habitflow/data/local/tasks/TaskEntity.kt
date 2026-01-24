@@ -9,7 +9,7 @@ data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val title: String,
-    val date: String,
+    val date: Long?,
     val note: String,
     val category: String,
     val remindAtMinutesOfDay: Int? = null,
