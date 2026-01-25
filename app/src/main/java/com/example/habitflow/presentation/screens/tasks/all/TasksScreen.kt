@@ -34,7 +34,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -66,7 +65,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun TasksScreen(
     tasksViewModel: TasksViewModel = hiltViewModel(),
-    onAddTaskClick: () -> Unit
+    onOpenMenuClick: () -> Unit
 ) {
     val state by tasksViewModel.state.collectAsState()
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -258,6 +257,17 @@ fun TasksScreen(
                 title = {
                     Text(
                         text = "Tasks"
+                    )
+                },
+                navigationIcon = {
+                    Icon(
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .clickable{
+                                onOpenMenuClick()
+                            },
+                        painter = painterResource(R.drawable.ic_menu),
+                        contentDescription = "open menu"
                     )
                 }
             )

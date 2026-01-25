@@ -60,12 +60,24 @@ import com.example.habitflow.presentation.utils.DateFormatter
 fun GoalsScreen(
     viewModel: GoalsViewModel = hiltViewModel(),
     onEditGoalClick: (Int) -> Unit,
+    onBackClick: () -> Unit,
     onCreateButtonClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                Icon(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .clickable{
+                            onBackClick()
+                        },
+                    painter = painterResource(R.drawable.ic_arrow_back),
+                    contentDescription = "go back"
+                )
+            },
                 title = {
                     Text(
                         text = "My goals",
@@ -77,6 +89,7 @@ fun GoalsScreen(
                 )
             )
         },
+
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onCreateButtonClick,
