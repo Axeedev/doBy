@@ -1,5 +1,6 @@
 package com.example.habitflow.presentation.navigation
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideOutHorizontally
@@ -61,7 +62,7 @@ fun NavigationRoot() {
                         Icon(
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .clickable{},
+                                .clickable {},
                             contentDescription = "go to settings",
                             painter = painterResource(R.drawable.ic_settings)
                         )
@@ -70,7 +71,7 @@ fun NavigationRoot() {
                     onClick = {},
                     selected = false
                 )
-                screens.forEach {  screenWithIcon ->
+                screens.forEach { screenWithIcon ->
                     NavigationDrawerItem(
                         modifier = Modifier
                             .padding(NavigationDrawerItemDefaults.ItemPadding),
@@ -122,9 +123,13 @@ fun NavigationRoot() {
         NavDisplay(
             backStack = backStack,
             transitionSpec = {
-                slideIntoContainer(towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
                     animationSpec = tween(300)
-                ) togetherWith slideOutHorizontally(animationSpec = tween(300))
+                ) togetherWith slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = tween(300)
+                )
             },
             entryDecorators = listOf(
                 rememberSaveableStateHolderNavEntryDecorator(),
@@ -143,13 +148,15 @@ fun NavigationRoot() {
                             }
                         }
                     }
-                    is Screen.Achievements ->{
-                        NavEntry(key = key){
+
+                    is Screen.Achievements -> {
+                        NavEntry(key = key) {
                             Text(
                                 text = "here will be achievement screen"
                             )
                         }
                     }
+
                     is Screen.CreateTask -> {
                         NavEntry(
                             key = key
@@ -159,6 +166,7 @@ fun NavigationRoot() {
                             }
                         }
                     }
+
                     is Goals -> {
                         NavEntry(
                             key = key
@@ -168,7 +176,9 @@ fun NavigationRoot() {
                                     backStack.add(Screen.EditGoal(it))
                                 },
                                 onBackClick = {
-                                    backStack.removeLastOrNull()
+                                    if (backStack.size > 1) {
+                                        backStack.removeLastOrNull()
+                                    }
                                 }
                             ) {
                                 backStack.add(Screen.CreateGoal)
