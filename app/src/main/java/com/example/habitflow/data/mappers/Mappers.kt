@@ -11,9 +11,11 @@ import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.Task
 import com.example.habitflow.domain.entities.TaskCategory
 
-fun Task.toTaskEntity(): TaskEntity{
+fun Task.toTaskEntity(
+    taskId: Int
+): TaskEntity{
     return TaskEntity(
-        id = id ,
+        id = taskId ,
         title = title ,
         date = date ,
         note = note ,

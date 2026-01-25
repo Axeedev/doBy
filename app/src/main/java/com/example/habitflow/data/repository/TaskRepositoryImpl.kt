@@ -23,8 +23,11 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addTask(task: Task) {
-        tasksDao.addTask(task.toTaskEntity())
-        alarmScheduler.scheduleNextAlarm()
+        tasksDao.addTask(
+            task.toTaskEntity(
+                task.id
+            )
+        )
     }
 
     override suspend fun deleteTask(taskId: Int) {
@@ -32,7 +35,7 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTask(task: Task) {
-        tasksDao.addTask(task.toTaskEntity())
+        tasksDao.addTask(task.toTaskEntity(task.id))
     }
 
     override suspend fun changeTaskCompletedState(taskId: Int) {
