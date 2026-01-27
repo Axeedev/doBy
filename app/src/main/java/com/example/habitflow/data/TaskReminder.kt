@@ -35,6 +35,18 @@ class TaskReminder @Inject constructor(
             pendingIntent
         )
     }
+    fun cancelTask(taskId: Long){
+        val intent = TaskDeadlineReceiver.newIntent(context)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            taskId.toInt(),
+            intent,
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        )
+        pendingIntent?.let {
+            alarmManager?.cancel(it)
+        }
+    }
     companion object{
         const val TASK_ID = "TASK_ID"
     }

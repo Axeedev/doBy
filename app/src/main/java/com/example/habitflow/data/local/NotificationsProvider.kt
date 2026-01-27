@@ -26,7 +26,7 @@ class NotificationsProvider @Inject constructor(
         val notificationChannelRemind = NotificationChannel(
             REMINDER_CHANNEL_ID,
             "Tasks reminder",
-            NotificationManager.IMPORTANCE_DEFAULT
+            NotificationManager.IMPORTANCE_HIGH
         )
         notificationManager?.createNotificationChannel(notificationChannelRemind)
     }

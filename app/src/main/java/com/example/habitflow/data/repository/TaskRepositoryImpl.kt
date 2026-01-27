@@ -33,19 +33,18 @@ class TaskRepositoryImpl @Inject constructor(
                 task.id
             )
         )
-        if (task.id == 0){
-            Log.d("TaskRepositoryImpl", "id = 0, this is new task")
-            task.deadlineMillis?.let {deadline ->
-                val notifyAt = deadline - TimeUnit.HOURS.toMillis(1)
-                taskReminder.schedule(taskId, notifyAt)
-            }
-        }else{
-
+        if (task.id != 0){
+            taskReminder.cancelTask(taskId)
+        }
+        task.deadlineMillis?.let {deadline ->
+            val notifyAt = deadline - TimeUnit.HOURS.toMillis(1)
+            taskReminder.schedule(taskId, notifyAt)
         }
     }
 
     override suspend fun deleteTask(taskId: Int) {
         tasksDao.deleteTask(taskId)
+        taskReminder.cancelTask(taskId.toLong())
     }
 
     override suspend fun updateTask(task: Task) {
