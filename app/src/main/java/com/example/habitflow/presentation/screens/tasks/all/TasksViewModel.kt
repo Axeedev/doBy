@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.ZoneId
 import javax.inject.Inject
 
@@ -38,23 +39,26 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-    fun processCommand(command: TasksCommand){
-        when(command){
+    fun processCommand(command: TasksCommand) {
+        when (command) {
             is TasksCommand.InputDate -> {
                 _state.update {
                     it.copy(date = command.date)
                 }
             }
+
             is TasksCommand.InputDescription -> {
                 _state.update {
                     it.copy(description = command.description)
                 }
             }
+
             is TasksCommand.InputDeadline -> {
                 _state.update {
                     it.copy(remindAtMinutesOfDay = command.deadline)
                 }
             }
+
             is TasksCommand.InputTitle -> {
                 _state.update {
                     it.copy(title = command.title)
@@ -70,16 +74,17 @@ class TasksViewModel @Inject constructor(
             TasksCommand.AddTask -> {
                 viewModelScope.launch {
                     val finalTask = _state.value
-                    val remind = if (finalTask.remindAtMinutesOfDay != null){
-                        finalTask.remindAtMinutesOfDay.hours * 60 + finalTask.remindAtMinutesOfDay.minutes
-                    }else null
+                    val deadlineMillis = finalTask.date?.let {date ->
+                        finalTask.remindAtMinutesOfDay?.let {
+                            combineDateAndTime(date, it.hours, it.minutes)
+                        }
+                    }
                     addTaskUseCase(
                         Task(
                             id = finalTask.taskId ?: 0,
                             title = finalTask.title,
-                            date = finalTask.date,
+                            deadlineMillis = deadlineMillis,
                             note = finalTask.description,
-                            remindAtMinutesOfDay = remind,
                             category = finalTask.goalCategory,
                             priority = finalTask.priority
                         )
@@ -87,6 +92,7 @@ class TasksViewModel @Inject constructor(
                     _state.value = TasksScreenState()
                 }
             }
+
             is TasksCommand.ChangePriority -> {
                 _state.update {
                     it.copy(priority = command.priority)
@@ -94,13 +100,13 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickCompleteTask -> {
-                _state.update {previous ->
+                _state.update { previous ->
                     val previousList = previous.tasksMapSections[command.taskDeadlineSection]
                         .orEmpty()
-                        .map {oldTask ->
-                            if (oldTask == command.task){
+                        .map { oldTask ->
+                            if (oldTask == command.task) {
                                 oldTask.copy(isCompleted = true)
-                            }else oldTask
+                            } else oldTask
                         }
                     val newMap = previous.tasksMapSections.toMutableMap()
                     newMap[command.taskDeadlineSection] = previousList
@@ -110,17 +116,25 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickTask -> {
-                _state.update {previous ->
+                _state.update { previous ->
+                    val zonedDateTime = command.task.deadlineMillis?.let {date ->
+                        Instant.ofEpochMilli(date)
+                            .atZone(ZoneId.systemDefault())
+                    }
+                    val date = zonedDateTime?.toLocalDate()?.atStartOfDay(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
+                    val timeHour = zonedDateTime?.toLocalTime()?.hour
+                    val timeMinute = zonedDateTime?.toLocalTime()?.minute
+                    val remind = timeMinute?.let {minute ->
+                        timeHour?.let { timeHour ->
+                            TimeEntity(timeHour, minute)
+                        }
+                    }
+
                     previous.copy(
                         taskId = command.task.id,
                         title = command.task.title,
-                        date = command.task.date,
-                        remindAtMinutesOfDay = command.task.remindAtMinutesOfDay?.let {
-                            TimeEntity(
-                                hours = it / 60,
-                                minutes = it % 60
-                            )
-                        },
+                        date = date,
+                        remindAtMinutesOfDay = remind,
                         description = command.task.note,
                         priority = command.task.priority,
                         goalCategory = command.task.category,
@@ -138,5 +152,22 @@ class TasksViewModel @Inject constructor(
             }
         }
     }
+}
 
+fun combineDateAndTime(
+    dateMillis: Long,
+    hour: Int,
+    minute: Int
+): Long {
+    val zone = ZoneId.systemDefault()
+
+    val date = Instant.ofEpochMilli(dateMillis)
+        .atZone(zone)
+        .toLocalDate()
+
+    return date
+        .atTime(hour, minute)
+        .atZone(zone)
+        .toInstant()
+        .toEpochMilli()
 }

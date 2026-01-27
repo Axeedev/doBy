@@ -20,7 +20,7 @@ fun Task.section(
     today: LocalDate,
     zoneId: ZoneId
 ): TaskDeadlineSection {
-    val deadlineDate = date
+    val deadlineDate = deadlineMillis
         ?.let { Instant.ofEpochMilli(it).atZone(zoneId).toLocalDate() }
         ?: return TaskDeadlineSection.LATER
 

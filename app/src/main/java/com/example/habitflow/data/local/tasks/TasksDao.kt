@@ -17,7 +17,7 @@ interface TasksDao {
     fun getTasks() : Flow<List<TaskEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addTask(taskEntity: TaskEntity)
+    suspend fun addTask(taskEntity: TaskEntity) : Long
 
     @Query(
         """
@@ -27,6 +27,12 @@ interface TasksDao {
         """
     )
     suspend fun changeTaskCompletedState(taskId: Int)
+
+    @Query("""
+        SELECT * FROM tasks
+        WHERE id == :taskId
+            """)
+    suspend fun getTaskById(taskId: Int) : TaskEntity
 
     @Query(
         """

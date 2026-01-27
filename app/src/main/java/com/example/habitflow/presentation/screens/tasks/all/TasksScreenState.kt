@@ -18,5 +18,5 @@ data class TasksScreenState(
     val buttonText: String = "Create task"
 ) {
     val isButtonEnabled
-        get() = title.isNotEmpty()
+        get() = title.trim().isNotEmpty()
 }

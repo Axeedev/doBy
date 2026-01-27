@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -96,7 +97,9 @@ fun NavigationRoot() {
                     )
                 }
                 HorizontalDivider(
-                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    modifier = Modifier
+                        .padding(NavigationDrawerItemDefaults.ItemPadding)
+                        .padding(vertical = 4.dp)
                 )
                 NavigationDrawerItem(
                     modifier = Modifier.padding(
@@ -110,7 +113,7 @@ fun NavigationRoot() {
                     onClick = {},
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.ic_delete),
+                            painter = painterResource(R.drawable.ic_done),
                             contentDescription = "go to recently completed"
                         )
                     },

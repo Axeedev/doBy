@@ -7,7 +7,6 @@ import com.example.habitflow.data.mappers.toGoal
 import com.example.habitflow.data.mappers.toGoalEntity
 import com.example.habitflow.data.mappers.toMilestoneEntity
 import com.example.habitflow.domain.entities.Goal
-import com.example.habitflow.domain.entities.Milestone
 import com.example.habitflow.domain.repository.GoalRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,7 +18,7 @@ class GoalRepositoryImpl @Inject constructor(
 ) : GoalRepository {
     override suspend fun addGoal(goal: Goal) {
         val internalPath  = goal.coverUri?.let {
-            internalStorageManager.addToInternal(goal.coverUri)
+            internalStorageManager.addImageToInternal(goal.coverUri)
         }
         val goalId = goalsDao.addGoal(
             goal.toGoalEntity(internalPath)

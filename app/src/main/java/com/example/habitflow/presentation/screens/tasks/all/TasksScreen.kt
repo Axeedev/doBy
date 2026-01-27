@@ -291,28 +291,41 @@ fun TasksScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+
                             Text(
                                 text = taskDeadlineSection.title,
                                 fontWeight = FontWeight.SemiBold
                             )
-                            if (tasks.isNotEmpty()) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(CircleShape)
-                                        .background(Color.White)
-                                ) {
-                                    Text(
-                                        modifier = Modifier.padding(
-                                            horizontal = 16.dp,
-                                            vertical = 4.dp
-                                        ),
-                                        text = "Tasks: ${tasks.size}",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                }
-                            }
+//                            if (tasks.isNotEmpty()) {
+//                                Box(
+//                                    modifier = Modifier
+//                                        .clip(CircleShape)
+//                                        .background(Color.White)
+//                                ) {
+//                                    Text(
+//                                        modifier = Modifier.padding(
+//                                            horizontal = 16.dp,
+//                                            vertical = 4.dp
+//                                        ),
+//                                        text = "Tasks: ${tasks.size}",
+//                                        fontSize = 12.sp,
+//                                        fontWeight = FontWeight.SemiBold
+//                                    )
+//                                }
+//                            }
                         }
+//                        if (taskDeadlineSection == TaskDeadlineSection.TODAY && tasks.isEmpty()){
+//                            Text(
+//                                modifier = Modifier
+//                                    .padding(vertical = 8.dp)
+//                                    .clip(RoundedCornerShape(12.dp))
+//                                    .clickable{
+//                                        showBottomSheet = true
+//                                    },
+//                                text = "Нажмите на текст или на + чтобы добавить задачу",
+//                                color = Color.Gray
+//                            )
+//                        }
 
                     }
                     items(tasks, key = { it.id }) { task ->
@@ -320,6 +333,7 @@ fun TasksScreen(
                             modifier = Modifier
                                 .animateItem(
                                     fadeOutSpec = tween(300),
+                                    fadeInSpec = tween(300)
                                 ),
                             task = task,
                             onTaskClick = {

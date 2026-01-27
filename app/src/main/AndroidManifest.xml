@@ -29,6 +29,15 @@
         </activity>
         <receiver android:name="com.example.habitflow.data.AlarmReceiver" />
         <receiver android:name="com.example.habitflow.data.BootReceiver" />
+        <receiver android:name="com.example.habitflow.data.local.TaskDeadlineReceiver" />
+        <!-- If you want to disable android.startup completely. -->
+        <!-- If you want to disable android.startup completely. -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove">
+        </provider>
+
     </application>
 
 </manifest>

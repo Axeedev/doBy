@@ -9,7 +9,6 @@ import com.example.habitflow.domain.entities.GoalCategory
 import com.example.habitflow.domain.entities.Milestone
 import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.Task
-import com.example.habitflow.domain.entities.TaskCategory
 
 fun Task.toTaskEntity(
     taskId: Int
@@ -17,11 +16,10 @@ fun Task.toTaskEntity(
     return TaskEntity(
         id = taskId ,
         title = title ,
-        date = date ,
+        deadlineMillis = deadlineMillis ,
         note = note ,
         isCompleted = isCompleted,
         category = category.title,
-        remindAtMinutesOfDay = remindAtMinutesOfDay,
         priority = priority.name
     )
 }
@@ -29,10 +27,9 @@ fun TaskEntity.toTask(): Task{
     return Task(
         id = id ,
         title = title ,
-        date = date ,
-        note = note ,
+        deadlineMillis = deadlineMillis,
+        note = note,
         category = GoalCategory.valueOf(this.category.uppercase()),
-        remindAtMinutesOfDay = remindAtMinutesOfDay,
         priority = Priority.valueOf(this.priority.uppercase()),
         isCompleted = isCompleted
     )

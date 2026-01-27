@@ -14,33 +14,51 @@ class NotificationsProvider @Inject constructor(
     private val notificationManager: NotificationManager?
 ) {
     init {
-        createNotificationChannel()
+        createNotificationChannels()
     }
-    fun createNotificationChannel(){
-        val notificationChannel = NotificationChannel(
-            CHANNEL_ID,
+    fun createNotificationChannels(){
+        val notificationChannelTodaysTasks = NotificationChannel(
+            TODAYS_TASKS_CHANNEL_ID,
             "Tasks today",
             NotificationManager.IMPORTANCE_DEFAULT
         )
-        notificationManager?.createNotificationChannel(notificationChannel)
+        notificationManager?.createNotificationChannel(notificationChannelTodaysTasks)
+        val notificationChannelRemind = NotificationChannel(
+            REMINDER_CHANNEL_ID,
+            "Tasks reminder",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationManager?.createNotificationChannel(notificationChannelRemind)
     }
 
     fun showTodaysTasksNotification(
         todaysTasksSize: Int
     ){
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, TODAYS_TASKS_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_calendar_today)
             .setContentTitle("На сегодня")
             .setContentText("Запланировано задач: $todaysTasksSize")
             .build()
         Log.d("showTodaysTasksNotification", notification.toString())
         notificationManager?.notify(NOTIFICATION_ID, notification)
-
+    }
+    fun showReminder(
+        taskTitle: String
+    ){
+        val notification = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_task_app)
+            .setContentTitle("Скоро дедлайн")
+            .setContentText(taskTitle)
+            .build()
+        Log.d("showTodaysTasksNotification", notification.toString())
+        notificationManager?.notify(NOTIFICATION_ID, notification)
     }
 
 
     companion object{
-        private const val CHANNEL_ID = "today tasks"
+        private const val TODAYS_TASKS_CHANNEL_ID = "today tasks"
+        private const val REMINDER_CHANNEL_ID = "Tasks reminders"
+
         private const val NOTIFICATION_ID = 1
     }
 

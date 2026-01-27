@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -52,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -80,13 +83,27 @@ fun CreateGoalScreen(
             viewModel.processCommand(CreateGoalCommand.AddPhoto(it))
         }
     }
+
+    var isCompleteDialogOpened by remember { mutableStateOf(false) }
+    if (isCompleteDialogOpened) {
+        CompleteDialog(
+            onComplete = {
+                isCompleteDialogOpened = false
+            }
+        ) {
+            isCompleteDialogOpened = false
+        }
+    }
     Scaffold(
         containerColor = Color(0xFFF8FAFC),
         topBar = {
             CreateAndEditGoalScreenTopBar(
                 openReason = openReason,
                 title = state.title,
-                onFinished = onFinished
+                onFinished = onFinished,
+                onCompleteGoalClick = {
+                    isCompleteDialogOpened = true
+                }
             )
         }
     ) { paddingValues ->
@@ -192,7 +209,7 @@ fun CreateGoalScreen(
             }
 
             item {
-                AddMilestoneButton{
+                AddMilestoneButton {
                     viewModel.processCommand(CreateGoalCommand.ClickAddMilestone)
                 }
             }
@@ -360,6 +377,7 @@ fun CreateAndEditGoalScreenTopBar(
     modifier: Modifier = Modifier,
     openReason: OpenReason,
     title: String,
+    onCompleteGoalClick: () -> Unit,
     onFinished: () -> Unit
 ) {
     CenterAlignedTopAppBar(
@@ -394,9 +412,11 @@ fun CreateAndEditGoalScreenTopBar(
             Icon(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable {}
+                    .clickable {
+                        onCompleteGoalClick()
+                    }
                     .padding(end = 16.dp),
-                painter = painterResource(R.drawable.ic_more_horiz),
+                painter = painterResource(R.drawable.ic_task_app),
                 contentDescription = "more options"
             )
         }
@@ -577,7 +597,7 @@ fun DatePickerFields(
 fun AddMilestoneButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
-){
+) {
     Button(
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
@@ -603,11 +623,11 @@ fun AddMilestoneButton(
 @Composable
 fun CreateOrEditButton(
     modifier: Modifier = Modifier,
-    isSaveButtonEnabled : Boolean,
+    isSaveButtonEnabled: Boolean,
     text: String,
     onClick: () -> Unit
 
-){
+) {
     Button(
         modifier = modifier
             .fillMaxWidth(),
@@ -635,7 +655,7 @@ fun MyTextField(
     placeholderText: String,
     leadingIconId: Int,
     value: String,
-){
+) {
     TextField(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
@@ -663,4 +683,77 @@ fun MyTextField(
             )
         }
     )
+}
+
+@Composable
+fun CompleteDialog(
+    onComplete: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(width = 500.dp, height = 300.dp)
+                .clip(RoundedCornerShape(32.dp))
+                .background(MaterialTheme.colorScheme.onPrimaryFixed),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 16.dp, horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    modifier = Modifier.size(64.dp),
+                    painter = painterResource(R.drawable.ic_task_app),
+                    contentDescription = "complete goal?"
+                )
+
+                Spacer(Modifier.size(24.dp))
+
+                Text(
+                    text = "Complete Goal",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(Modifier.size(16.dp))
+                Text(
+                    text = "All completed goals can be found in \"Goal's Diary\"",
+                    fontSize = 18.sp
+                )
+                Spacer(Modifier.weight(1f))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(
+                            text = "Cancel"
+                        )
+                    }
+                    Button(
+                        onClick = onComplete,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(
+                            text = "Complete"
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

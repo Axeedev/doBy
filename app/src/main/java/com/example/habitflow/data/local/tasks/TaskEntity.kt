@@ -9,10 +9,9 @@ data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val title: String,
-    val date: Long?,
+    val deadlineMillis: Long?,
     val note: String,
     val category: String,
-    val remindAtMinutesOfDay: Int? = null,
     val priority: String,
     val isCompleted: Boolean
 )

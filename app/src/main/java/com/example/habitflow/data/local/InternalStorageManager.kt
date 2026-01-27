@@ -14,7 +14,7 @@ class InternalStorageManager @Inject constructor(
 ) {
     private val rootDirectory = context.filesDir
 
-    suspend fun addToInternal(uri: String): String{
+    suspend fun addImageToInternal(uri: String): String{
         val filePath = "IMG_${UUID.randomUUID()}"
         val file = File(rootDirectory, filePath)
         withContext(Dispatchers.IO){

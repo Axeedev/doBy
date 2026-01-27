@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,6 +29,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -54,6 +56,7 @@ import coil3.compose.AsyncImage
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.Goal
 import com.example.habitflow.presentation.utils.DateFormatter
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -67,14 +70,16 @@ fun GoalsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 navigationIcon = {
                 Icon(
+                    painter = painterResource(R.drawable.ic_arrow_back),
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
-                        .clickable{
+                        .clip(CircleShape)
+                        .clickable {
                             onBackClick()
                         },
-                    painter = painterResource(R.drawable.ic_arrow_back),
                     contentDescription = "go back"
                 )
             },
@@ -84,12 +89,8 @@ fun GoalsScreen(
                         fontWeight = FontWeight.Bold
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF3F4F6)
-                )
             )
         },
-
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onCreateButtonClick,
@@ -97,13 +98,13 @@ fun GoalsScreen(
                 contentColor = Color.White
             ) {
                 Icon(
+
                     painter = painterResource(R.drawable.ic_add),
                     contentDescription = "add goal"
                 )
 
             }
         },
-        containerColor = Color(0xFFF3F4F6)
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -221,12 +222,13 @@ fun GoalCard(
             Spacer(modifier = Modifier.size(16.dp))
             if (goal.milestones.isNotEmpty()) {
                 val completed = goal.milestones.count { it.isCompleted }
+                val progress = (completed.toFloat()/goal.milestones.size.toFloat())
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
                         Text(
-                            text = "Progress ${(completed.toFloat()/goal.milestones.size.toFloat())*100} %",
+                            text = "Progress ${(progress * 100).roundToInt()} %",
                             color = MaterialTheme.colorScheme.onPrimaryFixedVariant
                         )
                         Text(
@@ -234,6 +236,9 @@ fun GoalCard(
                             color = MaterialTheme.colorScheme.onPrimaryFixedVariant
                         )
                     }
+                    LinearProgressIndicator(
+                        progress = { progress }
+                    )
                 }
                 Spacer(modifier = Modifier.size(16.dp))
             }
