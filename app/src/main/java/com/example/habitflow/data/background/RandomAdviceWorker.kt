@@ -1,16 +1,63 @@
 package com.example.habitflow.data.background
 
 import android.content.Context
+import androidx.hilt.work.HiltWorker
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.example.habitflow.data.local.NotificationsProvider
+import com.example.habitflow.data.remote.ApiService
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import java.util.concurrent.TimeUnit
 
-
-class RandomAdviceWorker(
-    applicationContext: Context,
-    workerParameters: WorkerParameters
+@HiltWorker
+class RandomAdviceWorker @AssistedInject constructor(
+    @Assisted applicationContext: Context,
+    @Assisted workerParameters: WorkerParameters,
+    private val apiService: ApiService,
+    private val notificationsProvider: NotificationsProvider
 ) : CoroutineWorker(applicationContext, workerParameters) {
     override suspend fun doWork(): Result {
-        TODO("Not yet implemented")
+        return try {
+
+            val adviceDto = apiService.getRandomAdvice()
+
+            notificationsProvider.showAdviceForTheDay(adviceDto.advice)
+
+            Result.success()
+
+        }catch (e: Exception){
+            Result.failure()
+        }
     }
 
+    companion object{
+
+        fun enqueue(
+            context: Context
+        ){
+
+            val constraints = Constraints
+                .Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            val request = PeriodicWorkRequestBuilder<RandomAdviceWorker>(
+                1, TimeUnit.DAYS
+            ).setConstraints(constraints).build()
+
+            WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(
+                    uniqueWorkName = "Get advice",
+                    existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
+                    request = request
+                )
+        }
+
+    }
 }

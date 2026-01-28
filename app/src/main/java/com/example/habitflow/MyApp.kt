@@ -3,6 +3,7 @@ package com.example.habitflow
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.example.habitflow.data.background.RandomAdviceWorker
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -17,6 +18,11 @@ class MyApp : Application(),  Configuration.Provider{
         get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
+
+    override fun onCreate() {
+        super.onCreate()
+        RandomAdviceWorker.enqueue(this)
+    }
 
 
 }

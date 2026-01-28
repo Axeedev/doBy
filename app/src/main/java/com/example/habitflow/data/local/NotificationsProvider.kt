@@ -29,7 +29,15 @@ class NotificationsProvider @Inject constructor(
             NotificationManager.IMPORTANCE_HIGH
         )
         notificationManager?.createNotificationChannel(notificationChannelRemind)
+        val notificationChannelAdvice = NotificationChannel(
+            ADVICE_FOR_THE_DAY_ID,
+            "Advice for the day",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationManager?.createNotificationChannel(notificationChannelAdvice)
     }
+
+    //TODO: Refactor code, implement only one function for showing notification
 
     fun showTodaysTasksNotification(
         todaysTasksSize: Int
@@ -42,6 +50,7 @@ class NotificationsProvider @Inject constructor(
         Log.d("showTodaysTasksNotification", notification.toString())
         notificationManager?.notify(NOTIFICATION_ID, notification)
     }
+
     fun showReminder(
         taskTitle: String
     ){
@@ -54,10 +63,20 @@ class NotificationsProvider @Inject constructor(
         notificationManager?.notify(NOTIFICATION_ID, notification)
     }
 
+    fun showAdviceForTheDay(advice: String){
+        val notification = NotificationCompat.Builder(context,ADVICE_FOR_THE_DAY_ID)
+            .setSmallIcon(R.drawable.ic_advice)
+            .setContentTitle("Совет дня")
+            .setContentText(advice)
+            .build()
+        notificationManager?.notify(NOTIFICATION_ID, notification)
+    }
+
 
     companion object{
         private const val TODAYS_TASKS_CHANNEL_ID = "today tasks"
         private const val REMINDER_CHANNEL_ID = "Tasks reminders"
+        private const val ADVICE_FOR_THE_DAY_ID = "advice for the day"
 
         private const val NOTIFICATION_ID = 1
     }
