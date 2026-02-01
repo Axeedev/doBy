@@ -26,7 +26,11 @@ sealed class Screen(val label: String) : NavKey {
     @Serializable
     data object Achievements : Screen("Achievements")
 
+    @Serializable
+    data object RecentlyCompleted : Screen("Recently completed")
 
+    @Serializable
+    data object Settings : Screen("Settings")
 
 }
 

@@ -1,7 +1,6 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,24 +10,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -60,6 +59,9 @@ import com.example.habitflow.presentation.screens.tasks.creation.TimePickerDial
 import com.example.habitflow.presentation.utils.DateFormatter
 import com.example.habitflow.presentation.utils.DateFormatter.formatTime
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -235,14 +237,13 @@ fun TasksScreen(
         }
     }
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.White,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
-                    scope.launch {
-                        showBottomSheet = true
-                    }
+                    showBottomSheet = true
+
                 }
             ) {
                 Icon(
@@ -252,18 +253,21 @@ fun TasksScreen(
             }
         },
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 title = {
                     Text(
-                        text = "Tasks"
+                        modifier = Modifier
+                            .padding(start = 16.dp),
+                        fontWeight = FontWeight.Medium,
+                        text = "My tasks"
                     )
                 },
                 navigationIcon = {
                     Icon(
                         modifier = Modifier
                             .padding(start = 16.dp)
-                            .clickable{
+                            .clickable {
                                 onOpenMenuClick()
                             },
                         painter = painterResource(R.drawable.ic_menu),
@@ -291,11 +295,25 @@ fun TasksScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-
-                            Text(
-                                text = taskDeadlineSection.title,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = taskDeadlineSection.title,
+                                    color = Color.Black,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                if (tasks.isNotEmpty()) {
+                                    Text(
+                                        text = "${tasks.size} tasks",
+                                        fontWeight = FontWeight.Medium,
+                                        color = Color(0xFF94A3B8)
+                                    )
+                                }
+                            }
 //                            if (tasks.isNotEmpty()) {
 //                                Box(
 //                                    modifier = Modifier
@@ -328,7 +346,7 @@ fun TasksScreen(
 //                        }
 
                     }
-                    items(tasks, key = { it.id }) { task ->
+                    itemsIndexed(items = tasks) { index, task ->
                         TaskCard(
                             modifier = Modifier
                                 .animateItem(
@@ -346,6 +364,12 @@ fun TasksScreen(
                                     task,
                                     taskDeadlineSection
                                 )
+                            )
+                        }
+                        if (index != tasks.lastIndex){
+                            HorizontalDivider(
+                                modifier = Modifier.padding(top = 8.dp),
+                                thickness = 0.8.dp
                             )
                         }
                     }
@@ -369,7 +393,7 @@ fun TaskCard(
     Card(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .clickable{
+            .clickable {
                 onTaskClick()
             }
             .fillMaxWidth(),
@@ -378,7 +402,6 @@ fun TaskCard(
             contentColor = Color.Unspecified
         ),
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.2f))
     ) {
         Row(
             modifier = Modifier
@@ -388,71 +411,47 @@ fun TaskCard(
         ) {
             RadioButton(
                 selected = task.isCompleted,
-                onClick = onRadioButtonClick
+                onClick = onRadioButtonClick,
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = Color(0xFF10B981)
+                )
             )
             Column(
             ) {
                 Text(
-                    modifier = Modifier.padding(start = 8.dp),
                     text = task.title,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    val color = when (task.priority) {
-                        Priority.LOW -> {
-                            Color.Green
-                        }
-
-                        Priority.MIDDLE -> {
-                            Color.Yellow
-                        }
-
-                        Priority.HIGH -> {
-                            Color.Red
-                        }
-                    }
-                    val iconId = when (task.priority) {
-                        Priority.LOW -> {
-                            R.drawable.ic_priority_low
-                        }
-
-                        Priority.MIDDLE -> {
-
-                            R.drawable.ic_priority_med
-                        }
-
-                        Priority.HIGH -> {
-
-                            R.drawable.ic_priority_high
-                        }
-                    }
-                    Icon(
-                        modifier = Modifier,
-                        painter = painterResource(iconId),
-                        contentDescription = "priority icon",
-                        tint = color
-                    )
-
-                    Text(
-
-                        text = task.priority.title,
-                        color = color,
-                        fontSize = 12.sp
-                    )
                     Box(
-                        modifier = Modifier.size(4.dp)
-                            .clip(CircleShape)
-                            .background(Color.Gray.copy(alpha = 0.2f))
-                    )
-                    Text(
-                        text = task.category.title,
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
+                        modifier = Modifier.clip(CircleShape)
+                            .background(Color(0XFFF1F5F9))
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                            text = task.category.title,
+                            color = Color.Black,
+                            fontSize = 14.sp
+                        )
+                    }
+                    task.deadlineMillis?.let { deadline ->
+
+                        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+                        val time = Instant.ofEpochMilli(deadline)
+                            .atZone(ZoneId.systemDefault())
+                            .format(formatter)
+                        Text(
+                            text = time,
+                            fontWeight = FontWeight.W400,
+                            color = Color(0XFF94A3B8)
+                        )
+                    }
+
                 }
             }
         }

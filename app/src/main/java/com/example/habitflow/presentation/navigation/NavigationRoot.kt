@@ -35,7 +35,10 @@ import com.example.habitflow.presentation.navigation.Screen.Tasks
 import com.example.habitflow.presentation.screens.goals.all.GoalsScreen
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalScreen
 import com.example.habitflow.presentation.screens.goals.edit.EditGoalScreen
+import com.example.habitflow.presentation.screens.settings.SettingsScreen
 import com.example.habitflow.presentation.screens.tasks.all.TasksScreen
+import com.example.habitflow.presentation.screens.tasks.completed.CompletedTaskCard
+import com.example.habitflow.presentation.screens.tasks.completed.RecentlyCompletedScreen
 import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskScreen
 import kotlinx.coroutines.launch
 
@@ -54,7 +57,7 @@ fun NavigationRoot() {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet() {
+            ModalDrawerSheet {
                 NavigationDrawerItem(
                     modifier = Modifier.padding(
                         NavigationDrawerItemDefaults.ItemPadding
@@ -63,14 +66,19 @@ fun NavigationRoot() {
                         Icon(
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .clickable {},
+                                .clickable {
+                                    scope.launch {
+                                        drawerState.close()
+                                        backStack.add(Screen.Settings)
+                                    }
+                                },
                             contentDescription = "go to settings",
                             painter = painterResource(R.drawable.ic_settings)
                         )
                     },
                     label = {},
                     onClick = {},
-                    selected = false
+                    selected = backStack.lastOrNull() == Screen.Settings
                 )
                 screens.forEach { screenWithIcon ->
                     NavigationDrawerItem(
@@ -110,19 +118,23 @@ fun NavigationRoot() {
                             text = "Recently Completed"
                         )
                     },
-                    onClick = {},
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            backStack.add(Screen.RecentlyCompleted)
+                        }
+                    },
                     icon = {
                         Icon(
                             painter = painterResource(R.drawable.ic_done),
                             contentDescription = "go to recently completed"
                         )
                     },
-                    selected = false
+                    selected = backStack.lastOrNull() == Screen.RecentlyCompleted
                 )
             }
         }
     ) {
-
         NavDisplay(
             backStack = backStack,
             transitionSpec = {
@@ -205,6 +217,26 @@ fun NavigationRoot() {
                         ) {
                             EditGoalScreen(key.id) {
                                 backStack.removeLastOrNull()
+                            }
+                        }
+                    }
+
+                    is Screen.RecentlyCompleted ->{
+                        NavEntry(key = key){
+                            RecentlyCompletedScreen {
+                                if (backStack.size > 1){
+                                    backStack.removeLastOrNull()
+                                }
+                            }
+                        }
+                    }
+
+                    is Screen.Settings ->{
+                        NavEntry(key = key){
+                            SettingsScreen {
+                                if (backStack.size > 1){
+                                    backStack.removeLastOrNull()
+                                }
                             }
                         }
                     }

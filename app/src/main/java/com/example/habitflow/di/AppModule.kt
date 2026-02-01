@@ -8,11 +8,14 @@ import androidx.room.Room
 import com.example.habitflow.data.local.AppDatabase
 import com.example.habitflow.data.local.NotificationsProvider
 import com.example.habitflow.data.local.goals.GoalsDao
+import com.example.habitflow.data.local.tasks.CompletedTasksDao
 import com.example.habitflow.data.local.tasks.TasksDao
 import com.example.habitflow.data.remote.ApiService
 import com.example.habitflow.data.repository.GoalRepositoryImpl
+import com.example.habitflow.data.repository.SettingsRepositoryImpl
 import com.example.habitflow.data.repository.TaskRepositoryImpl
 import com.example.habitflow.domain.repository.GoalRepository
+import com.example.habitflow.domain.repository.SettingsRepository
 import com.example.habitflow.domain.repository.TaskRepository
 import dagger.Binds
 import dagger.Module
@@ -41,6 +44,10 @@ interface AppModule {
     @Binds
     @Singleton
     fun bindTaskRepository(taskRepositoryImpl: TaskRepositoryImpl) : TaskRepository
+
+    @Singleton
+    @Binds
+    fun bindSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl) : SettingsRepository
 
     companion object{
 
@@ -111,6 +118,12 @@ interface AppModule {
         @Singleton
         fun provideTasksDao(appDatabase: AppDatabase) : TasksDao{
             return appDatabase.tasksDao()
+        }
+
+        @Singleton
+        @Provides
+        fun provideCompletedTasksDao(appDatabase: AppDatabase): CompletedTasksDao{
+            return appDatabase.completedTasksDao()
         }
 
         @Provides

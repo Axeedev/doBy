@@ -47,7 +47,6 @@ android {
 dependencies {
 
     implementation(libs.androidx.hilt.work)
-    // When using Kotlin.
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.okhttp)
     implementation(libs.coil.compose)

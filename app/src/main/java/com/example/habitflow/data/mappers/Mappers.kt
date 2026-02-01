@@ -3,12 +3,15 @@ package com.example.habitflow.data.mappers
 import com.example.habitflow.data.local.goals.GoalEntity
 import com.example.habitflow.data.local.goals.GoalWithMilestoneEntity
 import com.example.habitflow.data.local.goals.MilestoneEntity
+import com.example.habitflow.data.local.tasks.CompletedTaskEntity
 import com.example.habitflow.data.local.tasks.TaskEntity
+import com.example.habitflow.domain.entities.CompletedTask
 import com.example.habitflow.domain.entities.Goal
 import com.example.habitflow.domain.entities.GoalCategory
 import com.example.habitflow.domain.entities.Milestone
 import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.domain.entities.Task
+import java.util.Locale
 
 fun Task.toTaskEntity(
     taskId: Int
@@ -75,5 +78,42 @@ fun GoalWithMilestoneEntity.toGoal(): Goal {
         goalEndDate = goalEntity.endDate,
         milestones = milestones.map { it.toMilestone() },
         coverUri = goalEntity.coverUri
+    )
+}
+
+fun TaskEntity.toCompletedTaskEntity(dateOfCompletion: Long): CompletedTaskEntity{
+    return CompletedTaskEntity(
+        id = id,
+        title = title,
+        deadlineMillis = deadlineMillis,
+        note = note,
+        category = category,
+        priority = priority,
+        completedAt = dateOfCompletion
+    )
+}
+
+fun CompletedTaskEntity.toTaskEntity(): TaskEntity{
+    return TaskEntity(
+        id = id ,
+        title = title ,
+        deadlineMillis = deadlineMillis ,
+        note = note ,
+        category = category ,
+        priority = priority ,
+        isCompleted = false
+    )
+}
+
+fun CompletedTaskEntity.toCompletedTask() : CompletedTask{
+    return CompletedTask(
+        id = id,
+        title = title,
+        deadlineMillis = deadlineMillis,
+        note = note,
+        category = GoalCategory.valueOf(category.uppercase()),
+        priority = Priority.valueOf(priority.uppercase()),
+        isCompleted = isCompleted,
+        completionDate = completedAt
     )
 }

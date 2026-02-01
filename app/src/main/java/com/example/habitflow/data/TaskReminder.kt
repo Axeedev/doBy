@@ -6,14 +6,18 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import com.example.habitflow.data.local.TaskDeadlineReceiver
+import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TaskReminder @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val alarmManager: AlarmManager?
+    private val alarmManager: AlarmManager?,
+    private val getSettingsUseCase: GetSettingsUseCase
 ) {
-    fun schedule(
+    suspend fun schedule(
         taskId: Long,
         deadline: Long
     ) {
@@ -23,6 +27,10 @@ class TaskReminder @Inject constructor(
         val intent = TaskDeadlineReceiver.newIntent(context).apply {
             putExtra(TASK_ID, taskId)
         }
+        val settings = getSettingsUseCase().first()
+        val remindBefore = settings.sendNotificationBeforeDeadline.beforeMinutes.toLong()
+        val reminderBeforeMillis = TimeUnit.MINUTES.toMillis(remindBefore)
+        val remindTime = deadline - reminderBeforeMillis
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             taskId.toInt(),
@@ -31,7 +39,7 @@ class TaskReminder @Inject constructor(
         )
         alarmManager?.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
-            deadline,
+            remindTime,
             pendingIntent
         )
     }

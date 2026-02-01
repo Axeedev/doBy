@@ -5,12 +5,14 @@ import androidx.room.RoomDatabase
 import com.example.habitflow.data.local.goals.GoalEntity
 import com.example.habitflow.data.local.goals.GoalsDao
 import com.example.habitflow.data.local.goals.MilestoneEntity
+import com.example.habitflow.data.local.tasks.CompletedTaskEntity
+import com.example.habitflow.data.local.tasks.CompletedTasksDao
 import com.example.habitflow.data.local.tasks.TaskEntity
 import com.example.habitflow.data.local.tasks.TasksDao
 
 @Database(
-    entities = [TaskEntity::class, GoalEntity::class, MilestoneEntity::class],
-    version = 17,
+    entities = [TaskEntity::class, GoalEntity::class, MilestoneEntity::class, CompletedTaskEntity::class],
+    version = 18,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase(){
@@ -19,4 +21,5 @@ abstract class AppDatabase : RoomDatabase(){
 
     abstract fun goalsDao(): GoalsDao
 
+    abstract fun completedTasksDao(): CompletedTasksDao
 }

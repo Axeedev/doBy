@@ -26,9 +26,7 @@ class RandomAdviceWorker @AssistedInject constructor(
         return try {
 
             val adviceDto = apiService.getRandomAdvice()
-
             notificationsProvider.showAdviceForTheDay(adviceDto.advice)
-
             Result.success()
 
         }catch (e: Exception){
@@ -38,10 +36,11 @@ class RandomAdviceWorker @AssistedInject constructor(
 
     companion object{
 
+        const val ADVICE_WORKER_NAME = "Get advice"
+
         fun enqueue(
             context: Context
         ){
-
             val constraints = Constraints
                 .Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -53,7 +52,7 @@ class RandomAdviceWorker @AssistedInject constructor(
 
             WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(
-                    uniqueWorkName = "Get advice",
+                    uniqueWorkName = ADVICE_WORKER_NAME,
                     existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.KEEP,
                     request = request
                 )

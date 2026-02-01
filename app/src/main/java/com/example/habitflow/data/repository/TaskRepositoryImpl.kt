@@ -1,11 +1,13 @@
 package com.example.habitflow.data.repository
 
-import android.util.Log
-import com.example.habitflow.data.AlarmScheduler
 import com.example.habitflow.data.TaskReminder
+import com.example.habitflow.data.local.tasks.CompletedTasksDao
 import com.example.habitflow.data.local.tasks.TasksDao
+import com.example.habitflow.data.mappers.toCompletedTask
+import com.example.habitflow.data.mappers.toCompletedTaskEntity
 import com.example.habitflow.data.mappers.toTask
 import com.example.habitflow.data.mappers.toTaskEntity
+import com.example.habitflow.domain.entities.CompletedTask
 import com.example.habitflow.domain.entities.Task
 import com.example.habitflow.domain.repository.TaskRepository
 import kotlinx.coroutines.flow.Flow
@@ -15,9 +17,17 @@ import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(
     private val tasksDao: TasksDao,
-    private val alarmScheduler: AlarmScheduler,
+    private val completedTasksDao: CompletedTasksDao,
     private val taskReminder: TaskReminder
 ) : TaskRepository {
+
+    override fun getCompletedTasks(): Flow<List<CompletedTask>> {
+        return completedTasksDao.getCompletedTasks().map { list ->
+            list.map { it.toCompletedTask()
+            }
+        }
+    }
+
     override fun getTasks(): Flow<List<Task>> {
         return tasksDao.getTasks().map {list ->
             list.map{
@@ -27,7 +37,6 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addTask(task: Task) {
-        Log.d("TaskRepositoryImpl", "Add task call")
         val taskId = tasksDao.addTask(
             task.toTaskEntity(
                 task.id
@@ -36,9 +45,8 @@ class TaskRepositoryImpl @Inject constructor(
         if (task.id != 0){
             taskReminder.cancelTask(taskId)
         }
-        task.deadlineMillis?.let {deadline ->
-            val notifyAt = deadline - TimeUnit.HOURS.toMillis(1)
-            taskReminder.schedule(taskId, notifyAt)
+        task.deadlineMillis?.let { deadline ->
+            taskReminder.schedule(taskId, deadline)
         }
     }
 
@@ -51,7 +59,19 @@ class TaskRepositoryImpl @Inject constructor(
         tasksDao.addTask(task.toTaskEntity(task.id))
     }
 
-    override suspend fun changeTaskCompletedState(taskId: Int) {
-        tasksDao.changeTaskCompletedState(taskId)
+    override suspend fun completeTask(taskId: Int) {
+        val task = tasksDao.getTaskById(taskId)
+        tasksDao.deleteTask(taskId)
+        completedTasksDao.addTaskToCompleted(
+            task.toCompletedTaskEntity(
+                dateOfCompletion = System.currentTimeMillis()
+            )
+        )
+    }
+
+    override suspend fun clickReturnTask(taskId: Int) {
+        val task = completedTasksDao.getTaskById(taskId)
+        completedTasksDao.deleteCompletedTaskById(taskId)
+        tasksDao.addTask(task.toTaskEntity())
     }
 }

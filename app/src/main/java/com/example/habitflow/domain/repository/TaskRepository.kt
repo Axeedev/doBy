@@ -1,9 +1,12 @@
 package com.example.habitflow.domain.repository
 
+import com.example.habitflow.domain.entities.CompletedTask
 import com.example.habitflow.domain.entities.Task
 import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
+
+    fun getCompletedTasks() : Flow<List<CompletedTask>>
 
     fun getTasks() : Flow<List<Task>>
 
@@ -13,6 +16,9 @@ interface TaskRepository {
 
     suspend fun updateTask(task: Task)
 
-    suspend fun changeTaskCompletedState(taskId: Int)
+    suspend fun completeTask(taskId: Int)
+
+    suspend fun clickReturnTask(taskId: Int)
+
 
 }

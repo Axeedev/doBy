@@ -3,6 +3,7 @@ package com.example.habitflow.presentation.screens.tasks.all
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.domain.usecases.tasks.AddTaskToCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.DeleteTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
@@ -21,7 +22,7 @@ import javax.inject.Inject
 class TasksViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
-    private val deleteTaskUseCase: DeleteTaskUseCase
+    private val addTaskToCompletedUseCase: AddTaskToCompletedUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TasksScreenState())
@@ -100,19 +101,19 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickCompleteTask -> {
-                _state.update { previous ->
-                    val previousList = previous.tasksMapSections[command.taskDeadlineSection]
-                        .orEmpty()
-                        .map { oldTask ->
-                            if (oldTask == command.task) {
-                                oldTask.copy(isCompleted = true)
-                            } else oldTask
-                        }
-                    val newMap = previous.tasksMapSections.toMutableMap()
-                    newMap[command.taskDeadlineSection] = previousList
-                    previous.copy(tasksMapSections = newMap)
-                }
-                viewModelScope.launch { deleteTaskUseCase(command.task.id) }
+//                _state.update { previous ->
+//                    val previousList = previous.tasksMapSections[command.taskDeadlineSection]
+//                        .orEmpty()
+//                        .map { oldTask ->
+//                            if (oldTask == command.task) {
+//                                oldTask.copy(isCompleted = true)
+//                            } else oldTask
+//                        }
+//                    val newMap = previous.tasksMapSections.toMutableMap()
+//                    newMap[command.taskDeadlineSection] = previousList
+//                    previous.copy(tasksMapSections = newMap)
+//                }
+                viewModelScope.launch { addTaskToCompletedUseCase(command.task.id) }
             }
 
             is TasksCommand.ClickTask -> {
