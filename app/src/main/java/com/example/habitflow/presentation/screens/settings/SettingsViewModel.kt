@@ -1,13 +1,12 @@
 package com.example.habitflow.presentation.screens.settings
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habitflow.domain.entities.SendNotificationBeforeDeadline
-import com.example.habitflow.domain.entities.toSendBefore
+import com.example.habitflow.domain.entities.settings.SendNotificationBeforeDeadline
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNotificationsEnabledUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNotifyBeforeUseCase
+import com.example.habitflow.domain.usecases.settings.UpdateShowCompletedTasksUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateWifiOnlyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,8 @@ class SettingsViewModel @Inject constructor(
     private val getSettingsUseCase: GetSettingsUseCase,
     private val updateNotifyBeforeUseCase: UpdateNotifyBeforeUseCase,
     private val updateWifiOnlyUseCase: UpdateWifiOnlyUseCase,
-    private val updateNotificationsEnabledUseCase: UpdateNotificationsEnabledUseCase
+    private val updateNotificationsEnabledUseCase: UpdateNotificationsEnabledUseCase,
+    private val updateShowCompletedTasksUseCase: UpdateShowCompletedTasksUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsScreenState())
@@ -38,6 +38,7 @@ class SettingsViewModel @Inject constructor(
                             wifiOnly = settings.wifiOnly,
                             notificationsEnabled = settings.notificationsEnabled,
                             notifyBeforeMinutes = settings.sendNotificationBeforeDeadline.beforeMinutes,
+                            showCompletedTasks = settings.showCompletedTasksOnMainScreen,
                             selectedIndex = SendNotificationBeforeDeadline.entries.indexOf(settings.sendNotificationBeforeDeadline)
                         )
                     }
@@ -62,10 +63,15 @@ class SettingsViewModel @Inject constructor(
 
                 is SettingsCommand.ClickNotifyItem -> {
                     _state.update {
-                        it.copy(selectedIndex = settingsCommand.index,
+                        it.copy(
+                            selectedIndex = settingsCommand.index,
                             notifyBeforeMinutes = SendNotificationBeforeDeadline.entries[settingsCommand.index].beforeMinutes
                         )
                     }
+                }
+
+                is SettingsCommand.ChangeShowCompletedTasks -> {
+                    updateShowCompletedTasksUseCase(settingsCommand.shouldShow)
                 }
             }
         }

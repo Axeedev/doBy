@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -54,7 +53,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -85,10 +83,15 @@ fun CreateGoalScreen(
     }
 
     var isCompleteDialogOpened by remember { mutableStateOf(false) }
-    if (isCompleteDialogOpened) {
+
+    val goalId = state.goalId
+
+    if (isCompleteDialogOpened && goalId != null) {
         CompleteDialog(
             onComplete = {
                 isCompleteDialogOpened = false
+                viewModel.processCommand(CreateGoalCommand.ClickCompleteGoal(goalId = goalId))
+                onFinished()
             }
         ) {
             isCompleteDialogOpened = false
@@ -399,11 +402,11 @@ fun CreateAndEditGoalScreenTopBar(
         navigationIcon = {
             Icon(
                 modifier = Modifier
+                    .padding(horizontal = 8.dp)
                     .clip(CircleShape)
                     .clickable {
                         onFinished()
-                    }
-                    .padding(start = 8.dp),
+                    },
                 painter = painterResource(R.drawable.ic_arrow_back),
                 contentDescription = "go back"
             )
@@ -411,11 +414,11 @@ fun CreateAndEditGoalScreenTopBar(
         actions = {
             Icon(
                 modifier = Modifier
+                    .padding(horizontal = 16.dp)
                     .clip(CircleShape)
                     .clickable {
                         onCompleteGoalClick()
-                    }
-                    .padding(end = 16.dp),
+                    },
                 painter = painterResource(R.drawable.ic_task_app),
                 contentDescription = "more options"
             )
@@ -697,7 +700,7 @@ fun CompleteDialog(
             modifier = Modifier
                 .size(width = 500.dp, height = 300.dp)
                 .clip(RoundedCornerShape(32.dp))
-                .background(MaterialTheme.colorScheme.onPrimaryFixed),
+                .background(Color(0xFFF1F5F9)),
         ) {
             Column(
                 modifier = Modifier

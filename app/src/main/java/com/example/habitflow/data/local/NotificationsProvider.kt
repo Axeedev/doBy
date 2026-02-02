@@ -2,10 +2,13 @@ package com.example.habitflow.data.local
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.habitflow.R
+import com.example.habitflow.presentation.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -13,6 +16,15 @@ class NotificationsProvider @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val notificationManager: NotificationManager?
 ) {
+    private val intent = Intent(context, MainActivity::class.java)
+    private val pendingIntent = PendingIntent.getActivity(
+        context,
+        0,
+        intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+
+    )
+
     init {
         createNotificationChannels()
     }
@@ -39,12 +51,41 @@ class NotificationsProvider @Inject constructor(
 
     //TODO: Refactor code, implement only one function for showing notification
 
+
+    fun showNotification(
+        channelId: String,
+        smallIconId: Int,
+        contentTitle: String,
+        contentText: String,
+
+    ){
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+
+        )
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(smallIconId)
+            .setContentTitle(contentTitle)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setContentText(contentText)
+            .build()
+        Log.d("showTodaysTasksNotification", notification.toString())
+        notificationManager?.notify(NOTIFICATION_ID, notification)
+
+    }
+
     fun showTodaysTasksNotification(
         todaysTasksSize: Int
     ){
         val notification = NotificationCompat.Builder(context, TODAYS_TASKS_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_calendar_today)
             .setContentTitle("На сегодня")
+            .setContentIntent(pendingIntent)
             .setContentText("Запланировано задач: $todaysTasksSize")
             .build()
         Log.d("showTodaysTasksNotification", notification.toString())
@@ -58,6 +99,8 @@ class NotificationsProvider @Inject constructor(
             .setSmallIcon(R.drawable.ic_task_app)
             .setContentTitle("Скоро дедлайн")
             .setContentText(taskTitle)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
             .build()
         Log.d("showTodaysTasksNotification", notification.toString())
         notificationManager?.notify(NOTIFICATION_ID, notification)
@@ -68,12 +111,14 @@ class NotificationsProvider @Inject constructor(
             .setSmallIcon(R.drawable.ic_advice)
             .setContentTitle("Совет дня")
             .setContentText(advice)
+            .setContentIntent(pendingIntent)
             .build()
         notificationManager?.notify(NOTIFICATION_ID, notification)
     }
 
 
     companion object{
+
         private const val TODAYS_TASKS_CHANNEL_ID = "today tasks"
         private const val REMINDER_CHANNEL_ID = "Tasks reminders"
         private const val ADVICE_FOR_THE_DAY_ID = "advice for the day"

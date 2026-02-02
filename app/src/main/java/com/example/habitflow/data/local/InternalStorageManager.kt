@@ -27,4 +27,11 @@ class InternalStorageManager @Inject constructor(
         return file.absolutePath
     }
 
+    suspend fun deleteImageFromInternal(filePath: String) {
+        withContext(Dispatchers.IO) {
+            File(rootDirectory, filePath).delete()
+        }
+    }
+
+    fun isInternal(s: String) : Boolean = s.startsWith(rootDirectory.absolutePath)
 }

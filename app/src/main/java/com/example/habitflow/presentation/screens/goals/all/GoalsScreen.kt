@@ -68,6 +68,7 @@ fun GoalsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     Scaffold(
+        containerColor = Color(0xFFF7F8FA),
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
@@ -158,56 +159,46 @@ fun GoalCard(
                 modifier = Modifier
                     .heightIn(min = 150.dp, max = 150.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp)),
+                    .clip(RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp)),
                 model = uri.toUri(),
                 contentScale = ContentScale.FillWidth,
                 contentDescription = "cover image"
             )
         }
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFE6FFF6))
-                        .weight(1f),
-                    contentAlignment = Alignment.Center,
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Box(
+//                    modifier = Modifier
+//                        .clip(RoundedCornerShape(12.dp))
+//                        .background(Color(0xFFE6FFF6))
+//                        .weight(1f),
+//                    contentAlignment = Alignment.Center,
+//
+//                    ) {
+//                    Row(
+//                        modifier = Modifier
+//                            .padding(horizontal = 8.dp, vertical = 8.dp),
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(R.drawable.ic_book),
+//                            contentDescription = "goal category",
+//                            tint = Color(0xFF15803D)
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
+//                        Text(
+//                            text = goal.category.title,
+//                            color = Color(0xFF15803D)
+//                        )
+//                    }
+//                }
 
-                    ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_book),
-                            contentDescription = "goal category",
-                            tint = Color(0xFF15803D)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = goal.category.title,
-                            color = Color(0xFF15803D)
-                        )
-                    }
-                }
 
-                Icon(
-                    painter = painterResource(R.drawable.ic_calendar),
-                    contentDescription = "goal end date",
-                    tint = MaterialTheme.colorScheme.onPrimaryFixedVariant
-                )
-                Spacer(Modifier.size(8.dp))
-                Text(
-                    text = DateFormatter.formatDate(goal.goalEndDate),
-                    color = MaterialTheme.colorScheme.onPrimaryFixedVariant
-                )
-            }
+//            }
 
-            Spacer(modifier = Modifier.size(16.dp))
             Text(
                 text = goal.title,
                 fontWeight = FontWeight.SemiBold,
@@ -215,11 +206,19 @@ fun GoalCard(
                 color = MaterialTheme.colorScheme.primaryFixed
             )
             Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                text = goal.description,
-                color = MaterialTheme.colorScheme.onPrimaryFixedVariant
-            )
-            Spacer(modifier = Modifier.size(16.dp))
+            Row() {
+                Icon(
+                    painter = painterResource(R.drawable.ic_calendar),
+                    contentDescription = "goal end date",
+                    tint = MaterialTheme.colorScheme.onPrimaryFixedVariant
+                )
+                Spacer(Modifier.size(8.dp))
+                Text(
+                    text = "Until ${DateFormatter.formatDate(goal.goalEndDate)}",
+                    color = MaterialTheme.colorScheme.onPrimaryFixedVariant
+                )
+            }
+            Spacer(Modifier.size(16.dp))
             if (goal.milestones.isNotEmpty()) {
                 val completed = goal.milestones.count { it.isCompleted }
                 val progress = (completed.toFloat()/goal.milestones.size.toFloat())
@@ -252,7 +251,7 @@ fun GoalCard(
                         .weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryFixedDim
+                        containerColor = Color(0xFFF7F8FA)
                     ),
                     onClick = {
                         onGoalClick()
@@ -263,48 +262,49 @@ fun GoalCard(
                             .padding(vertical = 4.dp),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.secondary,
                         text = "Upgrade Progress"
                     )
                 }
-                Box(
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(MaterialTheme.colorScheme.background)
-                        .clickable {},
-                    contentAlignment = Alignment.Center
-                ) {
-                    var isExpanded by remember { mutableStateOf(false) }
-                    Box(
-                        Modifier
-                            .padding(12.dp)
-                    ) {
-                        Icon(
-                            modifier = Modifier.clickable {
-                                isExpanded = !isExpanded
-                            },
-                            painter = painterResource(R.drawable.ic_more_horiz),
-                            contentDescription = "more options"
-                        )
-                        DropdownMenu(
-                            expanded = isExpanded,
-                            onDismissRequest = { isExpanded = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("Delete") },
-                                leadingIcon = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_delete),
-                                        contentDescription = "delete goal"
-                                    )
-                                },
-                                onClick = {
-                                    onDeleteClick()
-                                }
-                            )
-                        }
-                    }
-                }
+//                Box(
+//                    modifier = Modifier
+//                        .padding(start = 8.dp)
+//                        .clip(RoundedCornerShape(12.dp))
+//                        .background(MaterialTheme.colorScheme.background)
+//                        .clickable {},
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    var isExpanded by remember { mutableStateOf(false) }
+//                    Box(
+//                        Modifier
+//                            .padding(12.dp)
+//                    ) {
+//                        Icon(
+//                            modifier = Modifier.clickable {
+//                                isExpanded = !isExpanded
+//                            },
+//                            painter = painterResource(R.drawable.ic_more_horiz),
+//                            contentDescription = "more options"
+//                        )
+//                        DropdownMenu(
+//                            expanded = isExpanded,
+//                            onDismissRequest = { isExpanded = false }
+//                        ) {
+//                            DropdownMenuItem(
+//                                text = { Text("Delete") },
+//                                leadingIcon = {
+//                                    Icon(
+//                                        painter = painterResource(R.drawable.ic_delete),
+//                                        contentDescription = "delete goal"
+//                                    )
+//                                },
+//                                onClick = {
+//                                    onDeleteClick()
+//                                }
+//                            )
+//                        }
+//                    }
+//                }
             }
             Spacer(modifier = Modifier.size(8.dp))
         }

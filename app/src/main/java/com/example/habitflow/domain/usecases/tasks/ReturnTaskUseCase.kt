@@ -6,5 +6,5 @@ import javax.inject.Inject
 class ReturnTaskUseCase @Inject constructor(
     private val repository: TaskRepository
 ) {
-    suspend operator fun invoke(id: Int) = repository.clickReturnTask(id)
+    suspend operator fun invoke(id: Int) = repository.returnTask(id)
 }

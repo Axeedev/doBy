@@ -18,7 +18,7 @@ interface TaskRepository {
 
     suspend fun completeTask(taskId: Int)
 
-    suspend fun clickReturnTask(taskId: Int)
+    suspend fun returnTask(taskId: Int)
 
 
 }

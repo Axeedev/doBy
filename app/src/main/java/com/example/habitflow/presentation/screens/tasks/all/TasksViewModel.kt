@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Task
 import com.example.habitflow.domain.usecases.tasks.AddTaskToCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
-import com.example.habitflow.domain.usecases.tasks.DeleteTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
+import com.example.habitflow.domain.usecases.tasks.ReturnTaskUseCase
 import com.example.habitflow.presentation.screens.tasks.creation.TimeEntity
 import com.example.habitflow.presentation.utils.groupBySection
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +22,8 @@ import javax.inject.Inject
 class TasksViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
-    private val addTaskToCompletedUseCase: AddTaskToCompletedUseCase
+    private val addTaskToCompletedUseCase: AddTaskToCompletedUseCase,
+    private val returnTaskUseCase: ReturnTaskUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TasksScreenState())
@@ -75,7 +76,7 @@ class TasksViewModel @Inject constructor(
             TasksCommand.AddTask -> {
                 viewModelScope.launch {
                     val finalTask = _state.value
-                    val deadlineMillis = finalTask.date?.let {date ->
+                    val deadlineMillis = finalTask.date?.let { date ->
                         finalTask.remindAtMinutesOfDay?.let {
                             combineDateAndTime(date, it.hours, it.minutes)
                         }
@@ -101,31 +102,39 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickCompleteTask -> {
-//                _state.update { previous ->
-//                    val previousList = previous.tasksMapSections[command.taskDeadlineSection]
-//                        .orEmpty()
-//                        .map { oldTask ->
-//                            if (oldTask == command.task) {
-//                                oldTask.copy(isCompleted = true)
-//                            } else oldTask
-//                        }
-//                    val newMap = previous.tasksMapSections.toMutableMap()
-//                    newMap[command.taskDeadlineSection] = previousList
-//                    previous.copy(tasksMapSections = newMap)
-//                }
-                viewModelScope.launch { addTaskToCompletedUseCase(command.task.id) }
+                _state.update { previous ->
+                    val previousList = previous.tasksMapSections[command.taskDeadlineSection]
+                        .orEmpty()
+                        .map { oldTask ->
+                            if (oldTask == command.task) {
+                                oldTask.copy(isCompleted = true)
+                            } else oldTask
+                        }
+                    val newMap = previous.tasksMapSections.toMutableMap()
+                    newMap[command.taskDeadlineSection] = previousList
+                    previous.copy(tasksMapSections = newMap)
+                }
+                viewModelScope.launch {
+                    if (command.task.isCompleted) {
+                        returnTaskUseCase(command.task.id)
+                    }else{
+                        addTaskToCompletedUseCase(command.task.id)
+                    }
+
+                }
             }
 
             is TasksCommand.ClickTask -> {
                 _state.update { previous ->
-                    val zonedDateTime = command.task.deadlineMillis?.let {date ->
+                    val zonedDateTime = command.task.deadlineMillis?.let { date ->
                         Instant.ofEpochMilli(date)
                             .atZone(ZoneId.systemDefault())
                     }
-                    val date = zonedDateTime?.toLocalDate()?.atStartOfDay(ZoneId.systemDefault())?.toInstant()?.toEpochMilli()
+                    val date = zonedDateTime?.toLocalDate()?.atStartOfDay(ZoneId.systemDefault())
+                        ?.toInstant()?.toEpochMilli()
                     val timeHour = zonedDateTime?.toLocalTime()?.hour
                     val timeMinute = zonedDateTime?.toLocalTime()?.minute
-                    val remind = timeMinute?.let {minute ->
+                    val remind = timeMinute?.let { minute ->
                         timeHour?.let { timeHour ->
                             TimeEntity(timeHour, minute)
                         }

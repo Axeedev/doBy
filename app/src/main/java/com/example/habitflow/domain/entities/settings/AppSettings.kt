@@ -1,15 +1,21 @@
-package com.example.habitflow.domain.entities
+package com.example.habitflow.domain.entities.settings
 
 data class AppSettings(
     val notificationsEnabled: Boolean = false,
     val wifiOnly: Boolean = false,
     val sendNotificationBeforeDeadline: SendNotificationBeforeDeadline = SendNotificationBeforeDeadline.MINUTES_60,
+    val morningInfoTime: MorningNotificationState = morningInfoTimeDefault,
+    val nightInfoTime: NotificationTime = nightInfoTimeDefault,
+    val showCompletedTasksOnMainScreen: Boolean = SHOW_COMPLETED_TASKS_DEFAULT
 ){
     companion object{
 
         const val NOTIFICATIONS_ENABLED_DEFAULT = false
         const val WIFI_ONLY_DEFAULT = false
-        val sendNotificationBeforeDeadline = SendNotificationBeforeDeadline.MINUTES_60
+        const val SHOW_COMPLETED_TASKS_DEFAULT = false
+        val sendNotificationBeforeDeadlineDefault = SendNotificationBeforeDeadline.MINUTES_60
+        val morningInfoTimeDefault = NotificationTime(8, 0)
+        val nightInfoTimeDefault = NotificationTime(22, 0)
 
     }
 }

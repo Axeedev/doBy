@@ -10,7 +10,10 @@ import com.example.habitflow.data.mappers.toTaskEntity
 import com.example.habitflow.domain.entities.CompletedTask
 import com.example.habitflow.domain.entities.Task
 import com.example.habitflow.domain.repository.TaskRepository
+import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
+import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -18,7 +21,8 @@ import javax.inject.Inject
 class TaskRepositoryImpl @Inject constructor(
     private val tasksDao: TasksDao,
     private val completedTasksDao: CompletedTasksDao,
-    private val taskReminder: TaskReminder
+    private val taskReminder: TaskReminder,
+    private val getSettingsUseCase: GetSettingsUseCase
 ) : TaskRepository {
 
     override fun getCompletedTasks(): Flow<List<CompletedTask>> {
@@ -61,7 +65,10 @@ class TaskRepositoryImpl @Inject constructor(
 
     override suspend fun completeTask(taskId: Int) {
         val task = tasksDao.getTaskById(taskId)
-        tasksDao.deleteTask(taskId)
+        val appSettings = getSettingsUseCase().first()
+        if (!appSettings.showCompletedTasksOnMainScreen){
+            tasksDao.deleteTask(taskId)
+        }
         completedTasksDao.addTaskToCompleted(
             task.toCompletedTaskEntity(
                 dateOfCompletion = System.currentTimeMillis()
@@ -69,7 +76,7 @@ class TaskRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun clickReturnTask(taskId: Int) {
+    override suspend fun returnTask(taskId: Int) {
         val task = completedTasksDao.getTaskById(taskId)
         completedTasksDao.deleteCompletedTaskById(taskId)
         tasksDao.addTask(task.toTaskEntity())

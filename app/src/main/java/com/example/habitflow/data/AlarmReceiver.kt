@@ -23,7 +23,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                notificationsProvider.showTodaysTasksNotification(10)
+                notificationsProvider.showTodaysTasksNotification(10) // TODO IMPLEMENT TODAYS TASKS SIZE
                 alarmScheduler.scheduleNextAlarm()
             } finally {
                 pendingResult.finish()

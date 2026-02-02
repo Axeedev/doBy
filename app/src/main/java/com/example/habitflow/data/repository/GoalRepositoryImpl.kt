@@ -10,6 +10,7 @@ import com.example.habitflow.domain.entities.Goal
 import com.example.habitflow.domain.repository.GoalRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.io.File
 import javax.inject.Inject
 
 class GoalRepositoryImpl @Inject constructor(
@@ -30,7 +31,12 @@ class GoalRepositoryImpl @Inject constructor(
 
     override suspend fun editGoal(goal: Goal) {
         Log.d("editGoal", goal.toString())
-        val id = goalsDao.addGoal(goal.toGoalEntity(goal.coverUri))
+
+        val internalPath = goal.coverUri?.let {
+            if (!internalStorageManager.isInternal(it)) internalStorageManager.addImageToInternal(it)
+            else goal.coverUri
+        }
+        val id = goalsDao.addGoal(goal.toGoalEntity(internalPath))
         Log.d("editGoal", id.toString())
         goalsDao.updateMilestones(goal.milestones.map { it.toMilestoneEntity(id)})
     }
@@ -43,8 +49,12 @@ class GoalRepositoryImpl @Inject constructor(
         goalsDao.deleteGoal(goalId)
     }
 
-    override suspend fun changeActiveGoalState(goalId: Int) {
-        TODO("Not yet implemented")
+    override suspend fun completeGoal(goalId: Int) {
+        val goal = goalsDao.getGoalById(goalId)
+        goal.goalEntity.coverUri?.let { filePath ->
+            internalStorageManager.deleteImageFromInternal(filePath)
+        }
+        goalsDao.deleteGoal(goalId)
     }
 
     override suspend fun deleteMilestone(milestoneId: Int) {

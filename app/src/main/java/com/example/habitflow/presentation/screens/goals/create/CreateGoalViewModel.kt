@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Goal
 import com.example.habitflow.domain.entities.Milestone
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
+import com.example.habitflow.domain.usecases.goals.CompleteGoalUseCase
 import com.example.habitflow.domain.usecases.goals.UpdateGoalUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 open class CreateGoalViewModel @Inject constructor(
     private val addGoalUseCase: AddGoalUseCase,
-    private val updateGoalUseCase: UpdateGoalUseCase
+    private val updateGoalUseCase: UpdateGoalUseCase,
+    private val completeGoalUseCase: CompleteGoalUseCase
 ): ViewModel() {
 
     protected val _state = MutableStateFlow(CreateGoalScreenState())
@@ -134,6 +136,12 @@ open class CreateGoalViewModel @Inject constructor(
                     )
                     Log.d("CreateGoalViewModel", goal.toString())
                     updateGoalUseCase(goal)
+                }
+            }
+
+            is CreateGoalCommand.ClickCompleteGoal -> {
+                viewModelScope.launch {
+                    completeGoalUseCase(command.goalId)
                 }
             }
         }

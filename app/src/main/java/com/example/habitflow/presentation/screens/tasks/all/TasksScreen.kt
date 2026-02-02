@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -240,6 +242,8 @@ fun TasksScreen(
         containerColor = Color.White,
         floatingActionButton = {
             FloatingActionButton(
+                containerColor = Color(0xFF10B981),
+                contentColor = Color.White,
                 onClick = {
                     tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
                     showBottomSheet = true
@@ -267,6 +271,7 @@ fun TasksScreen(
                     Icon(
                         modifier = Modifier
                             .padding(start = 16.dp)
+                            .clip(CircleShape)
                             .clickable {
                                 onOpenMenuClick()
                             },

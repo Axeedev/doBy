@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.habitflow.presentation.screens.settings
 
 import android.Manifest
@@ -28,6 +30,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -51,7 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
-import com.example.habitflow.domain.entities.SendNotificationBeforeDeadline
+import com.example.habitflow.domain.entities.settings.SendNotificationBeforeDeadline
 import kotlinx.coroutines.launch
 
 
@@ -71,74 +74,58 @@ fun SettingsScreen(
 
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var isBottomSheetOpen by remember { mutableStateOf(false) }
+    var isNotifyBeforeBottomSheetOpen by remember { mutableStateOf(false) }
+    var isMorningInformationBottomSheetOpen by remember { mutableStateOf(false) }
+    var isNightInformationBottomSheetOpen by remember { mutableStateOf(false) }
 
-    if (isBottomSheetOpen) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                isBottomSheetOpen = false
-            },
+    if (isNotifyBeforeBottomSheetOpen) {
+        BottomSheet(
             sheetState = sheetState,
-            containerColor = Color(0xFFF7F8FA),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Row {
-                    Text(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable {
-                                scope.launch {
-                                    sheetState.hide()
-                                }
-                            },
-                        text = "Back",
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(Modifier.weight(1f))
-
-                    Text(
-                        text = "Notify before",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-
-                    Spacer(Modifier.weight(1f))
-
-                    Text(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable {
-                                settingsViewModel.processCommand(SettingsCommand.ChangeNotifyBefore(state.notifyBeforeMinutes))
-                                scope.launch {
-                                    sheetState.hide()
-                                }
-                            },
-                        text = "Done",
-                        fontWeight = FontWeight.SemiBold
-                    )
+            onDismissRequest = {
+                scope.launch {
+                    sheetState.hide()
+                    isNotifyBeforeBottomSheetOpen = false
                 }
+            },
+            onBackClick = {
+                scope.launch { sheetState.hide() }
+                isNotifyBeforeBottomSheetOpen = false
+            },
+            onDoneClick = {
+                scope.launch {
+                    SettingsCommand.ChangeNotifyBefore(
+                        state.notifyBeforeMinutes
+                    )
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                    isNotifyBeforeBottomSheetOpen = false
+                }
+            },
+        ) {
+            val listMinutes = SendNotificationBeforeDeadline.entries.toList()
+            LazyColumn(
+                modifier = Modifier.padding(top = 24.dp)
+            ) {
+                itemsIndexed(listMinutes) { index, item ->
+                    NotifyBeforeItem(
+                        minutes = item.beforeMinutes,
+                        isSelected = state.selectedIndex == index,
+                        shape = when (index) {
+                            listMinutes.lastIndex -> RoundedCornerShape(
+                                bottomEnd = 12.dp,
+                                bottomStart = 12.dp
+                            )
 
-                val listMinutes = SendNotificationBeforeDeadline.entries.toList()
-
-                LazyColumn(
-                    modifier = Modifier.padding(top = 24.dp)
-                ){
-                    itemsIndexed(listMinutes) { index, item ->
-                        NotifyBeforeItem(
-                            minutes = item.beforeMinutes,
-                            isSelected = state.selectedIndex == index,
-                            shape = when (index) {
-                                listMinutes.lastIndex -> RoundedCornerShape(bottomEnd = 12.dp, bottomStart = 12.dp)
-                                0 -> RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
-                                else -> RoundedCornerShape(0)
-                            }
-                        ){
-                            settingsViewModel.processCommand(SettingsCommand.ClickNotifyItem(index))
+                            0 -> RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+                            else -> RoundedCornerShape(0)
                         }
+                    ) {
+                        settingsViewModel.processCommand(
+                            SettingsCommand.ClickNotifyItem(
+                                index = index
+                            )
+                        )
                     }
                 }
             }
@@ -176,15 +163,12 @@ fun SettingsScreen(
             contentPadding = paddingValues
         ) {
             item {
-
                 Text(
                     text = "Data sync",
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
                 )
-
                 Spacer(Modifier.size(8.dp))
-
                 SettingsField(
                     mainText = "Wi-Fi only",
                     secondaryText = "Sync data only via Wi-fi",
@@ -199,6 +183,35 @@ fun SettingsScreen(
                     )
                 }
                 Spacer(Modifier.size(24.dp))
+            }
+
+            item {
+                Text(
+                    text = "Completed tasks",
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Gray
+                )
+
+                Spacer(Modifier.size(8.dp))
+
+                SettingsField(
+                    mainText = "Show on main screen",
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Switch(
+                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF10B981)),
+                        checked = state.showCompletedTasks,
+                        onCheckedChange = {
+                            settingsViewModel.processCommand(
+                                SettingsCommand.ChangeShowCompletedTasks(
+                                    it
+                                )
+                            )
+                        }
+                    )
+                }
+                Spacer(Modifier.size(24.dp))
+
             }
 
             item {
@@ -234,8 +247,9 @@ fun SettingsScreen(
             item {
                 SettingsField(
                     modifier = Modifier
+                        .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
                         .clickable {
-                            isBottomSheetOpen = true
+                            isNotifyBeforeBottomSheetOpen = true
                         },
                     mainText = "Notify before",
                     secondaryText = "Remind about deadline",
@@ -256,8 +270,67 @@ fun SettingsScreen(
                         )
                     }
                 }
-            }
 
+                Spacer(Modifier.size(24.dp))
+
+            }
+            item {
+                Text(
+                    text = "Information for today",
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Gray
+                )
+
+                Spacer(Modifier.size(8.dp))
+
+                SettingsField(modifier = Modifier
+                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                    .clickable{
+                        isNotifyBeforeBottomSheetOpen = true
+                    },
+                    mainText = "Morning",
+                    shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "08:00",
+                            color = Color.Gray
+                        )
+                        Icon(
+                            modifier = Modifier.clip(CircleShape),
+                            painter = painterResource(R.drawable.ic_arrow_right),
+                            contentDescription = "Open notify before settings",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+                SettingsField(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
+                        .clickable{
+                            isNotifyBeforeBottomSheetOpen = true
+                        },
+                    mainText = "Night",
+                    shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "22:00",
+                            color = Color.Gray
+                        )
+                        Icon(
+                            modifier = Modifier.clip(CircleShape),
+                            painter = painterResource(R.drawable.ic_arrow_right),
+                            contentDescription = "Open notify before settings",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -273,7 +346,8 @@ fun SettingsField(
 ) {
     Card(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clip(shape),
         shape = shape,
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
@@ -305,6 +379,60 @@ fun SettingsField(
             }
             secondaryContent()
 
+        }
+    }
+}
+
+@Composable
+fun BottomSheet(
+    modifier: Modifier = Modifier,
+    sheetState: SheetState,
+    onDismissRequest: () -> Unit,
+    onBackClick: () -> Unit,
+    onDoneClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        sheetState = sheetState,
+        containerColor = Color(0xFFF7F8FA),
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+        ) {
+            Row {
+                Text(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            onBackClick()
+                        },
+                    text = "Back",
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(Modifier.weight(1f))
+
+                Text(
+                    text = "Notify before",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                Text(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            onDoneClick()
+                        },
+                    text = "Done",
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            content()
         }
     }
 }

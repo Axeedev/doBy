@@ -9,13 +9,12 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.habitflow.data.background.RandomAdviceWorker
-import com.example.habitflow.domain.entities.AppSettings
-import com.example.habitflow.domain.entities.toSendBefore
+import com.example.habitflow.domain.entities.settings.AppSettings
+import com.example.habitflow.domain.entities.settings.toSendBefore
 import com.example.habitflow.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -32,14 +31,20 @@ class SettingsRepositoryImpl @Inject constructor(
     private val wifiOnlyKey = booleanPreferencesKey("wifi_only")
     private val notificationBeforeDeadlineKey = intPreferencesKey("notify_before")
     private val notificationsEnabledKey = booleanPreferencesKey("notifications")
+    private val showCompletedTasksOnMainScreenKey = booleanPreferencesKey("show_completed_tasks")
+
+
 
     override fun getSettings(): Flow<AppSettings> {
         return context.dataStore.data.map { preferences ->
-            val wifiOnly = preferences[wifiOnlyKey] ?: false
-            val notificationBeforeDeadlineAsInt = preferences[notificationBeforeDeadlineKey] ?: 60
-            val notificationBeforeDeadline = notificationBeforeDeadlineAsInt.toSendBefore()
-            val notificationsEnabled = preferences[notificationsEnabledKey] ?: false
-            AppSettings(notificationsEnabled, wifiOnly, notificationBeforeDeadline)
+            val wifiOnly = preferences[wifiOnlyKey] ?: AppSettings.WIFI_ONLY_DEFAULT
+            val notificationBeforeDeadlineAsInt = preferences[notificationBeforeDeadlineKey]
+            val notificationBeforeDeadline = notificationBeforeDeadlineAsInt?.toSendBefore() ?: AppSettings.sendNotificationBeforeDeadlineDefault
+            val notificationsEnabled = preferences[notificationsEnabledKey] ?: AppSettings.NOTIFICATIONS_ENABLED_DEFAULT
+            val showCompletedTasks = preferences[showCompletedTasksOnMainScreenKey] ?: AppSettings.SHOW_COMPLETED_TASKS_DEFAULT
+
+            AppSettings(notificationsEnabled, wifiOnly, notificationBeforeDeadline, showCompletedTasksOnMainScreen = showCompletedTasks)
+
         }
     }
 
@@ -77,6 +82,13 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun updateNotificationsEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[notificationsEnabledKey] = enabled
+        }
+    }
+
+
+    override suspend fun updateShowCompletedTasksOnMainScreen(shouldShow: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[showCompletedTasksOnMainScreenKey] = shouldShow
         }
     }
 }

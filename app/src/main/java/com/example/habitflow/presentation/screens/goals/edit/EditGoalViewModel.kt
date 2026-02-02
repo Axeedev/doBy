@@ -3,6 +3,8 @@ package com.example.habitflow.presentation.screens.goals.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
+import com.example.habitflow.domain.usecases.goals.CompleteGoalUseCase
+import com.example.habitflow.domain.usecases.goals.DeleteGoalUseCase
 import com.example.habitflow.domain.usecases.goals.GetGoalByIdUseCase
 import com.example.habitflow.domain.usecases.goals.UpdateGoalUseCase
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalViewModel
@@ -18,8 +20,9 @@ class EditGoalViewModel @AssistedInject constructor(
     private val getGoalByIdUseCase: GetGoalByIdUseCase,
     addGoalUseCase: AddGoalUseCase,
     updateGoalUseCase: UpdateGoalUseCase,
+    completeGoalUseCase: CompleteGoalUseCase,
     @Assisted("goalId") val goalId: Int
-) : CreateGoalViewModel(addGoalUseCase, updateGoalUseCase) {
+) : CreateGoalViewModel(addGoalUseCase, updateGoalUseCase, completeGoalUseCase) {
 
     init {
         viewModelScope.launch {
