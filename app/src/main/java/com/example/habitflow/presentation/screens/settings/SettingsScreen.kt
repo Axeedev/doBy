@@ -39,10 +39,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,8 +50,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
+import com.example.habitflow.domain.entities.settings.AppSettings
+import com.example.habitflow.domain.entities.settings.NotificationTime
 import com.example.habitflow.domain.entities.settings.SendNotificationBeforeDeadline
-import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,64 +69,117 @@ fun SettingsScreen(
         settingsViewModel.processCommand(SettingsCommand.ChangeNotificationsEnabled(permission))
     }
 
-
-    val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var isNotifyBeforeBottomSheetOpen by remember { mutableStateOf(false) }
-    var isMorningInformationBottomSheetOpen by remember { mutableStateOf(false) }
-    var isNightInformationBottomSheetOpen by remember { mutableStateOf(false) }
 
-    if (isNotifyBeforeBottomSheetOpen) {
+    val sheetType = state.bottomSheetType
+    if (sheetType != null) {
         BottomSheet(
             sheetState = sheetState,
             onDismissRequest = {
-                scope.launch {
-                    sheetState.hide()
-                    isNotifyBeforeBottomSheetOpen = false
-                }
+                settingsViewModel.processCommand(SettingsCommand.CloseSheet)
+
             },
             onBackClick = {
-                scope.launch { sheetState.hide() }
-                isNotifyBeforeBottomSheetOpen = false
+                settingsViewModel.processCommand(SettingsCommand.CloseSheet)
             },
-            onDoneClick = {
-                scope.launch {
-                    SettingsCommand.ChangeNotifyBefore(
-                        state.notifyBeforeMinutes
-                    )
-                    scope.launch {
-                        sheetState.hide()
-                    }
-                    isNotifyBeforeBottomSheetOpen = false
+            bottomSheetTitle = when(sheetType){
+                BottomSheetType.MorningTimeNotification -> {
+                    "Notify at"
+                }
+                BottomSheetType.NightTimeNotification -> {
+                    "Notify at"
+                }
+                BottomSheetType.NotifyBefore -> {
+                    "Notify before"
                 }
             },
-        ) {
-            val listMinutes = SendNotificationBeforeDeadline.entries.toList()
-            LazyColumn(
-                modifier = Modifier.padding(top = 24.dp)
-            ) {
-                itemsIndexed(listMinutes) { index, item ->
-                    NotifyBeforeItem(
-                        minutes = item.beforeMinutes,
-                        isSelected = state.selectedIndex == index,
-                        shape = when (index) {
-                            listMinutes.lastIndex -> RoundedCornerShape(
-                                bottomEnd = 12.dp,
-                                bottomStart = 12.dp
-                            )
-
-                            0 -> RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
-                            else -> RoundedCornerShape(0)
-                        }
-                    ) {
+            onDoneClick = {
+                when (sheetType) {
+                    BottomSheetType.MorningTimeNotification -> {
                         settingsViewModel.processCommand(
-                            SettingsCommand.ClickNotifyItem(
-                                index = index
+                            SettingsCommand.ChangeMorningTimeInfo(
+                                AppSettings.morningInfoTimeItems[state.selectedMorningTimeIndex]
+                            )
+                        )
+                    }
+
+                    BottomSheetType.NightTimeNotification -> {
+                        settingsViewModel.processCommand(
+                            SettingsCommand.ChangeNightTimeInfo(
+                                AppSettings.nightInfoTimeItems[state.selectedNightTimeIndex]
+                            )
+                        )
+                    }
+
+                    BottomSheetType.NotifyBefore -> {
+                        settingsViewModel.processCommand(
+                            SettingsCommand.ChangeNotifyBefore(
+                                state.notifyBeforeMinutes
                             )
                         )
                     }
                 }
+                settingsViewModel.processCommand(SettingsCommand.CloseSheet)
+            },
+        ) {
+
+            when (sheetType) {
+                BottomSheetType.MorningTimeNotification -> {
+                    TimeList(
+                        modifier = Modifier.padding(top = 24.dp),
+                        list = AppSettings.morningInfoTimeItems,
+                        selectedIndex = state.selectedMorningTimeIndex
+                    ) {
+                        settingsViewModel.processCommand(SettingsCommand.ClickMorningTimeItem(it))
+                    }
+                }
+
+                BottomSheetType.NightTimeNotification -> {
+                    TimeList(
+                        modifier = Modifier.padding(top = 24.dp),
+                        list = AppSettings.nightInfoTimeItems,
+                        selectedIndex = state.selectedNightTimeIndex
+                    ) {
+                        settingsViewModel.processCommand(SettingsCommand.ClickNightTimeItem(it))
+                    }
+                }
+
+                BottomSheetType.NotifyBefore -> {
+                    val listMinutes = SendNotificationBeforeDeadline.entries.toList()
+                    LazyColumn(
+                        modifier = Modifier.padding(top = 24.dp)
+                    ) {
+                        itemsIndexed(
+                            listMinutes, key = { _, item ->
+                                item.beforeMinutes
+                            }
+                        ) { index, item ->
+                            NotifyBeforeItem(
+                                minutes = item.beforeMinutes,
+                                isSelected = state.selectedNotifyBeforeIndex == index,
+                                shape = when (index) {
+                                    listMinutes.lastIndex -> RoundedCornerShape(
+                                        bottomEnd = 12.dp,
+                                        bottomStart = 12.dp
+                                    )
+
+                                    0 -> RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+                                    else -> RoundedCornerShape(0)
+                                }
+                            ) {
+                                settingsViewModel.processCommand(
+                                    SettingsCommand.ClickNotifyItem(
+                                        index = index
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                }
             }
+
+
         }
     }
 
@@ -249,7 +300,11 @@ fun SettingsScreen(
                     modifier = Modifier
                         .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
                         .clickable {
-                            isNotifyBeforeBottomSheetOpen = true
+                            settingsViewModel.processCommand(
+                                SettingsCommand.OpenSheet(
+                                    sheetType = BottomSheetType.NotifyBefore
+                                )
+                            )
                         },
                     mainText = "Notify before",
                     secondaryText = "Remind about deadline",
@@ -283,11 +338,16 @@ fun SettingsScreen(
 
                 Spacer(Modifier.size(8.dp))
 
-                SettingsField(modifier = Modifier
-                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                    .clickable{
-                        isNotifyBeforeBottomSheetOpen = true
-                    },
+                SettingsField(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                        .clickable {
+                            settingsViewModel.processCommand(
+                                SettingsCommand.OpenSheet(
+                                    sheetType = BottomSheetType.MorningTimeNotification
+                                )
+                            )
+                        },
                     mainText = "Morning",
                     shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
                 ) {
@@ -295,7 +355,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "08:00",
+                            text = state.morningTimeFormatted,
                             color = Color.Gray
                         )
                         Icon(
@@ -309,8 +369,12 @@ fun SettingsScreen(
                 SettingsField(
                     modifier = Modifier
                         .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-                        .clickable{
-                            isNotifyBeforeBottomSheetOpen = true
+                        .clickable {
+                            settingsViewModel.processCommand(
+                                SettingsCommand.OpenSheet(
+                                    sheetType = BottomSheetType.NightTimeNotification
+                                )
+                            )
                         },
                     mainText = "Night",
                     shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
@@ -319,7 +383,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "22:00",
+                            text = state.nightTimeFormatted,
                             color = Color.Gray
                         )
                         Icon(
@@ -387,6 +451,7 @@ fun SettingsField(
 fun BottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState,
+    bottomSheetTitle: String,
     onDismissRequest: () -> Unit,
     onBackClick: () -> Unit,
     onDoneClick: () -> Unit,
@@ -415,7 +480,7 @@ fun BottomSheet(
                 Spacer(Modifier.weight(1f))
 
                 Text(
-                    text = "Notify before",
+                    text = bottomSheetTitle,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -439,6 +504,7 @@ fun BottomSheet(
 
 @Composable
 fun NotifyBeforeItem(
+    modifier: Modifier = Modifier,
     minutes: Int,
     isSelected: Boolean,
     shape: Shape,
@@ -446,6 +512,7 @@ fun NotifyBeforeItem(
 ) {
 
     Card(
+        modifier = modifier,
         shape = shape,
         border = BorderStroke(1.dp, Color(0XFFEBEBEB))
     ) {
@@ -469,6 +536,89 @@ fun NotifyBeforeItem(
                 selected = isSelected,
                 onClick = onSelectedChange
             )
+        }
+    }
+}
+
+
+@Composable
+fun TimeItem(
+    modifier: Modifier = Modifier,
+    isSelected: Boolean,
+    notificationTime: NotificationTime,
+    shape: Shape,
+    onSelectedChange: () -> Unit,
+) {
+    Card(
+        modifier = modifier,
+        shape = shape,
+        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Text(
+                text = String.format(
+                    Locale.getDefault(),
+                    "%02d:%02d",
+                    notificationTime.hour,
+                    notificationTime.minute
+                ),
+            )
+
+            RadioButton(
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = Color(0xFF10B981)
+                ),
+                selected = isSelected,
+                onClick = onSelectedChange
+            )
+        }
+    }
+}
+
+@Composable
+fun TimeList(
+    modifier: Modifier = Modifier,
+    list: List<NotificationTime>,
+    selectedIndex: Int,
+    onClick: (Int) -> Unit,
+) {
+    LazyColumn(
+        modifier = modifier
+    ) {
+        itemsIndexed(
+            list,
+            key = { _, time ->
+                time.hour
+            }
+        ) { index, time ->
+            TimeItem(
+                isSelected = selectedIndex == index,
+                notificationTime = time,
+                shape = when (index) {
+                    list.lastIndex -> {
+                        RoundedCornerShape(bottomEnd = 12.dp, bottomStart = 12.dp)
+
+                    }
+
+                    0 -> {
+                        RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+                    }
+
+                    else -> {
+                        RoundedCornerShape(0)
+                    }
+                }
+            ) {
+                onClick(index)
+            }
         }
     }
 }

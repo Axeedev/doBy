@@ -4,7 +4,7 @@ data class AppSettings(
     val notificationsEnabled: Boolean = false,
     val wifiOnly: Boolean = false,
     val sendNotificationBeforeDeadline: SendNotificationBeforeDeadline = SendNotificationBeforeDeadline.MINUTES_60,
-    val morningInfoTime: MorningNotificationState = morningInfoTimeDefault,
+    val morningInfoTime: NotificationTime = morningInfoTimeDefault,
     val nightInfoTime: NotificationTime = nightInfoTimeDefault,
     val showCompletedTasksOnMainScreen: Boolean = SHOW_COMPLETED_TASKS_DEFAULT
 ){
@@ -17,6 +17,23 @@ data class AppSettings(
         val morningInfoTimeDefault = NotificationTime(8, 0)
         val nightInfoTimeDefault = NotificationTime(22, 0)
 
+        val morningInfoTimeItems = listOf(
+            NotificationTime(6, 0),
+            NotificationTime(7, 0),
+            NotificationTime(8, 0),
+            NotificationTime(9, 0),
+            NotificationTime(10, 0),
+            NotificationTime(11, 0),
+            NotificationTime(12, 0)
+        )
+        val nightInfoTimeItems = listOf(
+            NotificationTime(18, 0),
+            NotificationTime(19, 0),
+            NotificationTime(20, 0),
+            NotificationTime(21, 0),
+            NotificationTime(22, 0),
+            NotificationTime(23, 0),
+        )
     }
 }
 

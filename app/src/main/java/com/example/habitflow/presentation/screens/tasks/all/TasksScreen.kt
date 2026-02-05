@@ -1,5 +1,6 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
+import android.util.Log
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,7 +21,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -105,9 +104,7 @@ fun TasksScreen(
                         modifier = Modifier
                             .padding(end = 16.dp)
                             .clip(CircleShape)
-                            .clickable {
-
-                            },
+                            .clickable {},
                         painter = painterResource(R.drawable.ic_archive),
                         contentDescription = "Archive task"
                     )
@@ -115,7 +112,7 @@ fun TasksScreen(
                 CreateGoalTextFieldWithTitle(
                     value = state.title,
                     fieldTitle = "Task name",
-                    placeholderText = "Например: полить цветы",
+                    placeholderText = "For example: to water the flowers",
                     onValueChange = {
                         tasksViewModel.processCommand(TasksCommand.InputTitle(it))
                     }
@@ -177,9 +174,7 @@ fun TasksScreen(
                         placeholderText = "Set time",
                         value = deadline?.formatTime() ?: ""
                     )
-
                 }
-
                 CreateGoalTextFieldWithTitle(
                     value = state.description,
                     fieldTitle = "Description",
@@ -293,6 +288,8 @@ fun TasksScreen(
             ) {
                 TaskDeadlineSection.entries.forEach { taskDeadlineSection ->
                     val tasks = state.tasksMapSections[taskDeadlineSection].orEmpty()
+
+                    Log.d("Lazy column", tasks.joinToString(", "))
                     item {
                         Row(
                             modifier = Modifier
@@ -308,47 +305,19 @@ fun TasksScreen(
                             ) {
                                 Text(
                                     text = taskDeadlineSection.title,
-                                    color = Color.Black,
+                                    color = if (tasks.isNotEmpty()) Color.Black else Color(0xFF94A3B8),
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 if (tasks.isNotEmpty()) {
                                     Text(
-                                        text = "${tasks.size} tasks",
+                                        text = "tasks: ${tasks.size}",
                                         fontWeight = FontWeight.Medium,
                                         color = Color(0xFF94A3B8)
                                     )
                                 }
                             }
-//                            if (tasks.isNotEmpty()) {
-//                                Box(
-//                                    modifier = Modifier
-//                                        .clip(CircleShape)
-//                                        .background(Color.White)
-//                                ) {
-//                                    Text(
-//                                        modifier = Modifier.padding(
-//                                            horizontal = 16.dp,
-//                                            vertical = 4.dp
-//                                        ),
-//                                        text = "Tasks: ${tasks.size}",
-//                                        fontSize = 12.sp,
-//                                        fontWeight = FontWeight.SemiBold
-//                                    )
-//                                }
-//                            }
+
                         }
-//                        if (taskDeadlineSection == TaskDeadlineSection.TODAY && tasks.isEmpty()){
-//                            Text(
-//                                modifier = Modifier
-//                                    .padding(vertical = 8.dp)
-//                                    .clip(RoundedCornerShape(12.dp))
-//                                    .clickable{
-//                                        showBottomSheet = true
-//                                    },
-//                                text = "Нажмите на текст или на + чтобы добавить задачу",
-//                                color = Color.Gray
-//                            )
-//                        }
 
                     }
                     itemsIndexed(items = tasks) { index, task ->

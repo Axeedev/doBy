@@ -134,7 +134,6 @@ open class CreateGoalViewModel @Inject constructor(
                         milestones = currentState.milestones,
                         coverUri = currentState.coverUri?.toString()
                     )
-                    Log.d("CreateGoalViewModel", goal.toString())
                     updateGoalUseCase(goal)
                 }
             }

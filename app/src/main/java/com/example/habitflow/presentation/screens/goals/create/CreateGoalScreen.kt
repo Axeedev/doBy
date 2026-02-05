@@ -132,8 +132,8 @@ fun CreateGoalScreen(
             item {
                 CreateGoalTextFieldWithTitle(
                     value = state.title,
-                    fieldTitle = "Название цели",
-                    placeholderText = "Например: Выучить испанский язык"
+                    fieldTitle = "Goal's name",
+                    placeholderText = "For example: to learn spanish"
                 ) {
                     viewModel.processCommand(CreateGoalCommand.InputTitle(it))
                 }
@@ -141,7 +141,7 @@ fun CreateGoalScreen(
 
             item {
                 Text(
-                    text = "Категория",
+                    text = "Category",
                 )
                 FilterChips(
                     stateGoalCategory = state.goalCategory
@@ -166,10 +166,10 @@ fun CreateGoalScreen(
 
             item {
                 CreateGoalTextFieldWithTitle(
-                    fieldTitle = "Описание",
+                    fieldTitle = "Description",
                     minLines = 5,
                     value = state.description,
-                    placeholderText = "Опишите, почему эта цель важна для вас"
+                    placeholderText = "Describe why this goal is so important to you"
                 ) {
                     viewModel.processCommand(
                         CreateGoalCommand.InputDescription(it)
@@ -179,7 +179,7 @@ fun CreateGoalScreen(
 
             item {
                 Text(
-                    text = "Подцели (Шаги)",
+                    text = "Milestones",
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -227,11 +227,11 @@ fun CreateGoalScreen(
                     isSaveButtonEnabled = state.isSaveButtonEnabled,
                     text = when (openReason) {
                         OpenReason.CREATE -> {
-                            "Создать цель"
+                            "Create goal"
                         }
 
                         OpenReason.EDIT -> {
-                            "Сохранить изменения"
+                            "Save changes"
                         }
                     },
                 ) {
@@ -389,7 +389,7 @@ fun CreateAndEditGoalScreenTopBar(
             Text(
                 text = when (openReason) {
                     OpenReason.CREATE -> {
-                        "Новая Цель"
+                        "New Goal"
                     }
 
                     OpenReason.EDIT -> {
@@ -544,7 +544,7 @@ fun DatePickerFields(
         CreateGoalTextFieldWithTitle(
             modifier = Modifier
                 .weight(1f),
-            fieldTitle = "Дата начала",
+            fieldTitle = "Start date",
             readOnly = true,
             value = DateFormatter.formatDate(startDate),
             enabled = false,
@@ -552,20 +552,20 @@ fun DatePickerFields(
                 isStartDatePickerEnabled = true
             },
             trailingIconId = R.drawable.ic_calendar_today,
-            placeholderText = "Начало",
+            placeholderText = "Start",
         ) {
         }
         CreateGoalTextFieldWithTitle(
             modifier = Modifier
                 .weight(1f),
-            fieldTitle = "Дата окончания",
+            fieldTitle = "End date",
             readOnly = true,
             enabled = false,
             value = DateFormatter.formatDate(endDate),
             onTextFieldClick = {
                 isEndDatePickerEnabled = true
             },
-            placeholderText = "Окончание",
+            placeholderText = "End",
             trailingIconId = R.drawable.ic_calendar
         ) {
         }
@@ -617,7 +617,7 @@ fun AddMilestoneButton(
         )
         Spacer(Modifier.size(8.dp))
         Text(
-            text = "Добавить шаг",
+            text = "Add milestone",
             fontWeight = FontWeight.SemiBold
         )
     }

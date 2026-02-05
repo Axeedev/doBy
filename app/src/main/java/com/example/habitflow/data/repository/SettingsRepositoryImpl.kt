@@ -14,6 +14,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.habitflow.data.background.RandomAdviceWorker
 import com.example.habitflow.domain.entities.settings.AppSettings
+import com.example.habitflow.domain.entities.settings.NotificationTime
 import com.example.habitflow.domain.entities.settings.toSendBefore
 import com.example.habitflow.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,7 +33,10 @@ class SettingsRepositoryImpl @Inject constructor(
     private val notificationBeforeDeadlineKey = intPreferencesKey("notify_before")
     private val notificationsEnabledKey = booleanPreferencesKey("notifications")
     private val showCompletedTasksOnMainScreenKey = booleanPreferencesKey("show_completed_tasks")
-
+    private val morningNotificationMinuteKey = intPreferencesKey("morning_minute")
+    private val morningNotificationHourKey = intPreferencesKey("morning_hour")
+    private val nightNotificationMinuteKey = intPreferencesKey("night_minute")
+    private val nightNotificationHourKey = intPreferencesKey("night_hour")
 
 
     override fun getSettings(): Flow<AppSettings> {
@@ -42,8 +46,22 @@ class SettingsRepositoryImpl @Inject constructor(
             val notificationBeforeDeadline = notificationBeforeDeadlineAsInt?.toSendBefore() ?: AppSettings.sendNotificationBeforeDeadlineDefault
             val notificationsEnabled = preferences[notificationsEnabledKey] ?: AppSettings.NOTIFICATIONS_ENABLED_DEFAULT
             val showCompletedTasks = preferences[showCompletedTasksOnMainScreenKey] ?: AppSettings.SHOW_COMPLETED_TASKS_DEFAULT
+            val morningNotificationTimeMinute = preferences[morningNotificationMinuteKey] ?: AppSettings.morningInfoTimeDefault.minute
+            val morningNotificationTimeHour = preferences[morningNotificationHourKey] ?: AppSettings.morningInfoTimeDefault.hour
+            val morningNotificationTime = NotificationTime(morningNotificationTimeHour, morningNotificationTimeMinute)
 
-            AppSettings(notificationsEnabled, wifiOnly, notificationBeforeDeadline, showCompletedTasksOnMainScreen = showCompletedTasks)
+            val nightNotificationTimeHour = preferences[nightNotificationHourKey] ?: AppSettings.nightInfoTimeDefault.hour
+            val nightNotificationTimeMinute = preferences[nightNotificationMinuteKey] ?: AppSettings.nightInfoTimeDefault.minute
+            val nightNotificationTime = NotificationTime(nightNotificationTimeHour, nightNotificationTimeMinute)
+
+            AppSettings(
+                notificationsEnabled,
+                wifiOnly,
+                sendNotificationBeforeDeadline = notificationBeforeDeadline,
+                showCompletedTasksOnMainScreen = showCompletedTasks,
+                morningInfoTime = morningNotificationTime,
+                nightInfoTime = nightNotificationTime
+            )
 
         }
     }
@@ -89,6 +107,20 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun updateShowCompletedTasksOnMainScreen(shouldShow: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[showCompletedTasksOnMainScreenKey] = shouldShow
+        }
+    }
+
+    override suspend fun updateMorningTimeInfo(notificationTime: NotificationTime) {
+        context.dataStore.edit {preferences ->
+            preferences[morningNotificationMinuteKey] = notificationTime.minute
+            preferences[morningNotificationHourKey] = notificationTime.hour
+        }
+    }
+
+    override suspend fun updateNightTimeInfo(notificationTime: NotificationTime) {
+        context.dataStore.edit { preferences ->
+            preferences[nightNotificationHourKey] = notificationTime.hour
+            preferences[nightNotificationMinuteKey] = notificationTime.hour
         }
     }
 }

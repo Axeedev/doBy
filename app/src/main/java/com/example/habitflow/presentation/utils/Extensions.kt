@@ -12,6 +12,7 @@ fun List<Task>.groupBySection(
 ): Map<TaskDeadlineSection, List<Task>>{
     val today = LocalDate.now(zoneId)
     Log.d("groupBySection", today.toString())
+    Log.d("List group by", joinToString(", "))
     return groupBy { it.section(today, zoneId) }
 }
 

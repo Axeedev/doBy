@@ -1,5 +1,6 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.Task
@@ -35,7 +36,10 @@ class TasksViewModel @Inject constructor(
         viewModelScope.launch {
             getTasksUseCase().collect { tasks ->
                 _state.update { previousState ->
-                    previousState.copy(tasksMapSections = tasks.groupBySection(ZoneId.systemDefault()))
+                    Log.d("TasksViewModel", tasks.joinToString(", "))
+                    val mapTasks = tasks.groupBySection(ZoneId.systemDefault())
+                    Log.d("Map tasks", mapTasks.toString())
+                    previousState.copy(tasksMapSections = mapTasks)
                 }
             }
         }
@@ -91,7 +95,7 @@ class TasksViewModel @Inject constructor(
                             priority = finalTask.priority
                         )
                     )
-                    _state.value = TasksScreenState()
+
                 }
             }
 
