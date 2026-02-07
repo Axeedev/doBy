@@ -13,6 +13,8 @@ import com.example.habitflow.data.local.NotificationsProvider
 import com.example.habitflow.data.remote.ApiService
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -22,14 +24,14 @@ class RandomAdviceWorker @AssistedInject constructor(
     private val apiService: ApiService,
     private val notificationsProvider: NotificationsProvider
 ) : CoroutineWorker(applicationContext, workerParameters) {
-    override suspend fun doWork(): Result {
-        return try {
+    override suspend fun doWork(): Result = withContext(Dispatchers.IO){
+         try {
 
             val adviceDto = apiService.getRandomAdvice()
             notificationsProvider.showAdviceForTheDay(adviceDto.advice)
             Result.success()
 
-        }catch (e: Exception){
+        }catch (_: Exception){
             Result.failure()
         }
     }

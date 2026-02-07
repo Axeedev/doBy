@@ -12,7 +12,7 @@ import com.example.habitflow.data.local.tasks.TasksDao
 
 @Database(
     entities = [TaskEntity::class, GoalEntity::class, MilestoneEntity::class, CompletedTaskEntity::class],
-    version = 18,
+    version = 19,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase(){

@@ -83,7 +83,7 @@ class TasksViewModel @Inject constructor(
                     val deadlineMillis = finalTask.date?.let { date ->
                         finalTask.remindAtMinutesOfDay?.let {
                             combineDateAndTime(date, it.hours, it.minutes)
-                        }
+                        } ?: combineDateAndTime(date, 18, 0)
                     }
                     addTaskUseCase(
                         Task(
@@ -140,7 +140,7 @@ class TasksViewModel @Inject constructor(
                     val timeMinute = zonedDateTime?.toLocalTime()?.minute
                     val remind = timeMinute?.let { minute ->
                         timeHour?.let { timeHour ->
-                            TimeEntity(timeHour, minute)
+                            TimeEntity(DEFAULT_HOUR, DEFAULT_MINUTE)
                         }
                     }
 
@@ -165,6 +165,10 @@ class TasksViewModel @Inject constructor(
                 }
             }
         }
+    }
+    companion object{
+        private const val DEFAULT_HOUR = 18
+        private const val DEFAULT_MINUTE = 0
     }
 }
 

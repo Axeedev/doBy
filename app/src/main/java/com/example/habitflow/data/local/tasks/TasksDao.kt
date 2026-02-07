@@ -11,7 +11,7 @@ interface TasksDao {
 
     @Query(
         """
-            SELECT * FROM Tasks
+            SELECT * FROM Tasks ORDER BY deadlineMillis ASC
         """
     )
     fun getTasks() : Flow<List<TaskEntity>>
