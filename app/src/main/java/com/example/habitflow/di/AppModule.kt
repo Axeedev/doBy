@@ -17,6 +17,9 @@ import com.example.habitflow.data.repository.TaskRepositoryImpl
 import com.example.habitflow.domain.repository.GoalRepository
 import com.example.habitflow.domain.repository.SettingsRepository
 import com.example.habitflow.domain.repository.TaskRepository
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -118,6 +121,12 @@ interface AppModule {
         @Singleton
         fun provideTasksDao(appDatabase: AppDatabase) : TasksDao{
             return appDatabase.tasksDao()
+        }
+
+        @Provides
+        @Singleton
+        fun provideFirebaseAuth(): FirebaseAuth{
+            return FirebaseAuth.getInstance()
         }
 
         @Singleton

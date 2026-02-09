@@ -3,7 +3,6 @@ package com.example.habitflow.presentation.navigation
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
@@ -32,21 +31,25 @@ import androidx.navigation3.ui.NavDisplay
 import com.example.habitflow.R
 import com.example.habitflow.presentation.navigation.Screen.Goals
 import com.example.habitflow.presentation.navigation.Screen.Tasks
+import com.example.habitflow.presentation.screens.auth.login.LoginScreen
+import com.example.habitflow.presentation.screens.auth.signup.SignupScreen
 import com.example.habitflow.presentation.screens.goals.all.GoalsScreen
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalScreen
 import com.example.habitflow.presentation.screens.goals.edit.EditGoalScreen
 import com.example.habitflow.presentation.screens.settings.SettingsScreen
 import com.example.habitflow.presentation.screens.tasks.all.TasksScreen
-import com.example.habitflow.presentation.screens.tasks.completed.CompletedTaskCard
 import com.example.habitflow.presentation.screens.tasks.completed.RecentlyCompletedScreen
 import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskScreen
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationRoot() {
-    val backStack = rememberNavBackStack(Tasks)
+
+    val startDestination = if (FirebaseAuth.getInstance().currentUser == null) Screen.Login else Tasks
+    val backStack = rememberNavBackStack(startDestination)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val screens = listOf(
@@ -148,7 +151,11 @@ fun NavigationRoot() {
             },
             entryDecorators = listOf(
                 rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
+                rememberViewModelStoreNavEntryDecorator(
+                    removeViewModelStoreOnPop = {
+                        true
+                    }
+                )
             ),
             entryProvider = { key ->
                 when (key) {
@@ -233,11 +240,46 @@ fun NavigationRoot() {
 
                     is Screen.Settings ->{
                         NavEntry(key = key){
-                            SettingsScreen {
+                            SettingsScreen(
+                                onSingOut = {
+                                    while (backStack.isNotEmpty()){
+                                        backStack.removeLastOrNull()
+                                    }
+                                    Log.d("Settings", backStack.joinToString(", "))
+                                    backStack.add(Screen.Login)
+                                }
+                            ) {
                                 if (backStack.size > 1){
                                     backStack.removeLastOrNull()
                                 }
                             }
+                        }
+                    }
+
+                    is Screen.Login -> {
+                        NavEntry(key = key){
+                            LoginScreen(
+                                onSignupClick ={
+                                    backStack.add(Screen.Signup)
+                                },
+                                onSuccessAuth = {
+                                    backStack.add(Tasks)
+                                }
+                            ) {}
+                        }
+                    }
+                    is Screen.Signup -> {
+                        NavEntry(key = key){
+                            SignupScreen (
+                                onBackClick = {
+                                    if (backStack.size > 1) {
+                                        backStack.removeLastOrNull()
+                                    }
+                                },
+                                onSuccessAuth = {
+                                    backStack.add(Tasks)
+                                }
+                            )
                         }
                     }
 
@@ -247,6 +289,5 @@ fun NavigationRoot() {
                 }
             }
         )
-
     }
 }

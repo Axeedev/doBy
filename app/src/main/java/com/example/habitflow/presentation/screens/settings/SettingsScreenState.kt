@@ -20,7 +20,8 @@ data class SettingsScreenState(
             time.hour == AppSettings.nightInfoTimeDefault.hour && time.minute == AppSettings.nightInfoTimeDefault.minute
         }
     ),
-    val bottomSheetType: BottomSheetType? = null
+    val bottomSheetType: BottomSheetType? = null,
+    val isSignedOut: Boolean = false
 ){
     val morningTimeFormatted = String.format(
         Locale.getDefault(),
@@ -34,13 +35,4 @@ data class SettingsScreenState(
         AppSettings.nightInfoTimeItems[selectedNightTimeIndex].hour,
         AppSettings.nightInfoTimeItems[selectedNightTimeIndex].minute,
         )
-}
-sealed interface BottomSheetType {
-
-    data object NotifyBefore: BottomSheetType
-
-    data object NightTimeNotification : BottomSheetType
-
-    data object MorningTimeNotification : BottomSheetType
-
 }

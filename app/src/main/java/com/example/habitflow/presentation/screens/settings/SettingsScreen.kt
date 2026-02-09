@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -37,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -60,9 +64,16 @@ import java.util.Locale
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
+    onSingOut: () -> Unit,
     onBackClick: () -> Unit
 ) {
     val state by settingsViewModel.state.collectAsState()
+    if (state.isSignedOut){
+        LaunchedEffect(Unit) {
+            onSingOut()
+        }
+    }
+
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { permission ->
@@ -82,13 +93,15 @@ fun SettingsScreen(
             onBackClick = {
                 settingsViewModel.processCommand(SettingsCommand.CloseSheet)
             },
-            bottomSheetTitle = when(sheetType){
+            bottomSheetTitle = when (sheetType) {
                 BottomSheetType.MorningTimeNotification -> {
                     "Notify at"
                 }
+
                 BottomSheetType.NightTimeNotification -> {
                     "Notify at"
                 }
+
                 BottomSheetType.NotifyBefore -> {
                     "Notify before"
                 }
@@ -395,7 +408,36 @@ fun SettingsScreen(
                     }
                 }
             }
+            item {
+                Spacer(Modifier.size(16.dp))
+                SignOutButton(
+                    modifier = Modifier
+                        .border(1.dp, Color.Red, RoundedCornerShape(12.dp))
+                        .fillMaxWidth()
+                ) {
+                    settingsViewModel.processCommand(SettingsCommand.SignOut)
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun SignOutButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = modifier,
+        onClick = onClick,
+        shape = RoundedCornerShape(12.dp),
+
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White,
+            contentColor = Color.Red
+        )
+    ) {
+        Text(text = "Sign out")
     }
 }
 

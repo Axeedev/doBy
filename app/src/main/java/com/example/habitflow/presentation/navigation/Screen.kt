@@ -1,12 +1,10 @@
 package com.example.habitflow.presentation.navigation
 
 import androidx.navigation3.runtime.NavKey
-import com.example.habitflow.R
 import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class Screen(val label: String) : NavKey {
-
 
     @Serializable
     data object CreateTask : Screen("Create task")
@@ -31,6 +29,12 @@ sealed class Screen(val label: String) : NavKey {
 
     @Serializable
     data object Settings : Screen("Settings")
+
+    @Serializable
+    data object Login : Screen("Login")
+
+    @Serializable
+    data object Signup : Screen("Signup")
 
 }
 

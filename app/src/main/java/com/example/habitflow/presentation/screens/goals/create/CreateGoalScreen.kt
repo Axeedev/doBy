@@ -26,9 +26,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -52,8 +52,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -114,7 +116,6 @@ fun CreateGoalScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = paddingValues
         ) {
 
@@ -127,6 +128,8 @@ fun CreateGoalScreen(
                 ) {
                     viewModel.processCommand(CreateGoalCommand.ClickDeletePhoto)
                 }
+
+                Spacer(Modifier.size(16.dp))
             }
 
             item {
@@ -137,6 +140,7 @@ fun CreateGoalScreen(
                 ) {
                     viewModel.processCommand(CreateGoalCommand.InputTitle(it))
                 }
+                Spacer(Modifier.size(16.dp))
             }
 
             item {
@@ -150,6 +154,7 @@ fun CreateGoalScreen(
                         CreateGoalCommand.ChangeGoalCategory(it)
                     )
                 }
+                Spacer(Modifier.size(16.dp))
             }
 
             item {
@@ -162,6 +167,7 @@ fun CreateGoalScreen(
                 ) {
                     viewModel.processCommand(CreateGoalCommand.ChooseEndDate(it))
                 }
+                Spacer(Modifier.size(16.dp))
             }
 
             item {
@@ -175,6 +181,7 @@ fun CreateGoalScreen(
                         CreateGoalCommand.InputDescription(it)
                     )
                 }
+                Spacer(Modifier.size(16.dp))
             }
 
             item {
@@ -194,6 +201,15 @@ fun CreateGoalScreen(
                             )
                         )
                     },
+                    shape = when (index) {
+                        0 -> RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
+                        state.milestones.lastIndex -> RoundedCornerShape(
+                            bottomEnd = 12.dp,
+                            bottomStart = 12.dp
+                        )
+
+                        else -> RoundedCornerShape(0)
+                    },
                     onRadioButtonClick = {
                         viewModel.processCommand(
                             CreateGoalCommand.ChangeMilestoneCompletedStatusAt(
@@ -212,14 +228,17 @@ fun CreateGoalScreen(
             }
 
             item {
+                Spacer(Modifier.size(16.dp))
                 AddMilestoneButton {
                     viewModel.processCommand(CreateGoalCommand.ClickAddMilestone)
                 }
+                Spacer(Modifier.size(16.dp))
             }
             item {
                 HorizontalDivider(
                     color = Color(0xFFB4C0C2)
                 )
+                Spacer(Modifier.size(16.dp))
             }
 
             item {
@@ -255,15 +274,18 @@ fun CreateGoalScreen(
 fun MilestoneCard(
     modifier: Modifier = Modifier,
     milestone: Milestone,
+    shape: Shape,
     onRemoveMilestoneClick: () -> Unit,
     onRadioButtonClick: () -> Unit,
     onValueChange: (String) -> Unit
 ) {
-    ElevatedCard(
-        colors = CardDefaults.elevatedCardColors(
+    Card(
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.onPrimary
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = shape,
+        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+
     ) {
         Row(
             modifier = Modifier
@@ -273,12 +295,13 @@ fun MilestoneCard(
             RadioButton(
                 modifier = Modifier
                     .clip(CircleShape),
-                colors = RadioButtonDefaults.colors(),
+                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF10B981)),
                 selected = milestone.isCompleted,
                 onClick = {
                     onRadioButtonClick()
                 }
             )
+
             TextField(
                 modifier = modifier
                     .fillMaxWidth(),
@@ -294,6 +317,7 @@ fun MilestoneCard(
                         contentDescription = "remove milestone"
                     )
                 },
+                textStyle = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp),
                 value = milestone.title,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -304,10 +328,9 @@ fun MilestoneCard(
                 onValueChange = onValueChange,
                 placeholder = {
                     Text(
-                        text = "Добавьте описание цели"
+                        text = "Add milestone description"
                     )
                 }
-
             )
         }
     }
@@ -628,6 +651,7 @@ fun CreateOrEditButton(
     modifier: Modifier = Modifier,
     isSaveButtonEnabled: Boolean,
     text: String,
+    content : @Composable () -> Unit = {},
     onClick: () -> Unit
 
 ) {
@@ -649,6 +673,7 @@ fun CreateOrEditButton(
             text = text,
             fontSize = 18.sp
         )
+        content()
     }
 }
 

@@ -2,7 +2,6 @@ package com.example.habitflow.presentation.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habitflow.domain.entities.settings.AppSettings
 import com.example.habitflow.domain.entities.settings.SendNotificationBeforeDeadline
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateMorningTimeInfoUseCase
@@ -11,6 +10,7 @@ import com.example.habitflow.domain.usecases.settings.UpdateNotificationsEnabled
 import com.example.habitflow.domain.usecases.settings.UpdateNotifyBeforeUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateShowCompletedTasksUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateWifiOnlyUseCase
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +26,8 @@ class SettingsViewModel @Inject constructor(
     private val updateNotificationsEnabledUseCase: UpdateNotificationsEnabledUseCase,
     private val updateShowCompletedTasksUseCase: UpdateShowCompletedTasksUseCase,
     private val updateMorningTimeInfoUseCase: UpdateMorningTimeInfoUseCase,
-    private val updateNightTimeInfoUseCase: UpdateNightTimeInfoUseCase
+    private val updateNightTimeInfoUseCase: UpdateNightTimeInfoUseCase,
+    private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsScreenState())
@@ -106,9 +107,11 @@ class SettingsViewModel @Inject constructor(
                 is SettingsCommand.ChangeNightTimeInfo -> {
                     updateNightTimeInfoUseCase(settingsCommand.notificationTime)
                 }
+                SettingsCommand.SignOut -> {
+                    _state.update { it.copy(isSignedOut = true) }
+                    firebaseAuth.signOut()
+                }
             }
         }
     }
-
-
 }

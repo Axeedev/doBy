@@ -26,4 +26,6 @@ sealed interface SettingsCommand {
     data class OpenSheet(val sheetType: BottomSheetType) : SettingsCommand
 
     data object CloseSheet : SettingsCommand
+
+    data object SignOut : SettingsCommand
 }

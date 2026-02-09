@@ -21,7 +21,7 @@ interface CompletedTasksDao {
 
     @Query("""
         SELECT DISTINCT * FROM completedTasks
-        ORDER BY completedAt
+        ORDER BY completedAt DESC
     """)
     fun getCompletedTasks() : Flow<List<CompletedTaskEntity>>
 
