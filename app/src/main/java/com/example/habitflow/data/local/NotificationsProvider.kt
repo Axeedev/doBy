@@ -8,6 +8,8 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.habitflow.R
+import com.example.habitflow.data.utils.toChannelImportance
+import com.example.habitflow.domain.entities.Priority
 import com.example.habitflow.presentation.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -35,12 +37,30 @@ class NotificationsProvider @Inject constructor(
             NotificationManager.IMPORTANCE_DEFAULT
         )
         notificationManager?.createNotificationChannel(notificationChannelTodaysTasks)
-        val notificationChannelRemind = NotificationChannel(
-            REMINDER_CHANNEL_ID,
-            "Tasks reminder",
+
+
+        val notificationChannelLowImportance = NotificationChannel(
+            TASK_LOW,
+            "Task reminder low importance",
+            NotificationManager.IMPORTANCE_LOW
+        )
+        notificationManager?.createNotificationChannel(notificationChannelLowImportance)
+
+
+        val notificationChannelMedImportance = NotificationChannel(
+            TASK_MED,
+            "Task reminder medium importance",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        notificationManager?.createNotificationChannel(notificationChannelMedImportance)
+
+        val notificationChannelHighImportance = NotificationChannel(
+            TASK_HIGH,
+            "Task reminder high importance",
             NotificationManager.IMPORTANCE_HIGH
         )
-        notificationManager?.createNotificationChannel(notificationChannelRemind)
+        notificationManager?.createNotificationChannel(notificationChannelHighImportance)
+
         val notificationChannelAdvice = NotificationChannel(
             ADVICE_FOR_THE_DAY_ID,
             "Advice for the day",
@@ -93,9 +113,11 @@ class NotificationsProvider @Inject constructor(
     }
 
     fun showReminder(
-        taskTitle: String
+        taskTitle: String,
+        taskPriority: Priority
     ){
-        val notification = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
+        val channelIdImportance = taskPriority.toChannelImportance()
+        val notification = NotificationCompat.Builder(context, channelIdImportance)
             .setSmallIcon(R.drawable.ic_task_app)
             .setContentTitle("Скоро дедлайн")
             .setContentText(taskTitle)
@@ -120,8 +142,10 @@ class NotificationsProvider @Inject constructor(
     companion object{
 
         private const val TODAYS_TASKS_CHANNEL_ID = "today tasks"
-        private const val REMINDER_CHANNEL_ID = "Tasks reminders"
         private const val ADVICE_FOR_THE_DAY_ID = "advice for the day"
+        const val TASK_LOW = "Low priority tasks"
+        const val TASK_MED = "Medium priority tasks"
+        const val TASK_HIGH = "High priority tasks"
 
         private const val NOTIFICATION_ID = 1
     }

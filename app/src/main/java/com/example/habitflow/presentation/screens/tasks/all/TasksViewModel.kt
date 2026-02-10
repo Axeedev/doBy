@@ -139,8 +139,8 @@ class TasksViewModel @Inject constructor(
                     val timeHour = zonedDateTime?.toLocalTime()?.hour
                     val timeMinute = zonedDateTime?.toLocalTime()?.minute
                     val remind = timeMinute?.let { minute ->
-                        timeHour?.let { timeHour ->
-                            TimeEntity(DEFAULT_HOUR, DEFAULT_MINUTE)
+                        timeHour?.let { hour ->
+                            TimeEntity(hour, minute)
                         }
                     }
 

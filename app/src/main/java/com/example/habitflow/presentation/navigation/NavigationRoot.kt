@@ -263,6 +263,7 @@ fun NavigationRoot() {
                                     backStack.add(Screen.Signup)
                                 },
                                 onSuccessAuth = {
+                                    backStack.clear()
                                     backStack.add(Tasks)
                                 }
                             ) {}
@@ -277,6 +278,7 @@ fun NavigationRoot() {
                                     }
                                 },
                                 onSuccessAuth = {
+                                    backStack.clear()
                                     backStack.add(Tasks)
                                 }
                             )

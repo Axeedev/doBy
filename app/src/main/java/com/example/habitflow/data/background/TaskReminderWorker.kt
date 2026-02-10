@@ -5,11 +5,13 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.example.habitflow.data.local.NotificationsProvider
 import com.example.habitflow.data.local.tasks.TasksDao
+import com.example.habitflow.data.mappers.toTask
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -25,8 +27,8 @@ class TaskReminderWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         val id = inputData.getLong(TASK_ID, -1)
         if (id != -1L){
-            val task = tasksDao.getTaskById(id.toInt())
-            notificationsProvider.showReminder(task.title)
+            val task = tasksDao.getTaskById(id.toInt()).toTask()
+            notificationsProvider.showReminder(task.title, task.priority)
             Log.d("TaskReminderWorker", "In doWork(), taskId: ${task.id}, tasktitle:${task.title}")
             return Result.success()
         }else return Result.failure()
@@ -45,6 +47,7 @@ class TaskReminderWorker @AssistedInject constructor(
             )
             val request = OneTimeWorkRequestBuilder<TaskReminderWorker>()
                 .setInputData(data)
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
             WorkManager.getInstance(context).enqueue(request)
         }
