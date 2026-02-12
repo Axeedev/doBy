@@ -1,4 +1,6 @@
-package com.example.habitflow.domain.entities
+package com.example.habitflow.domain.entities.tasks
+
+import com.example.habitflow.domain.entities.goals.GoalCategory
 
 data class CompletedTask(
     val id: Int,

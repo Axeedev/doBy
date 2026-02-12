@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.content.getSystemService
+import androidx.credentials.CredentialManager
 import androidx.room.Room
 import com.example.habitflow.data.local.AppDatabase
 import com.example.habitflow.data.local.NotificationsProvider
@@ -17,7 +18,9 @@ import com.example.habitflow.data.repository.TaskRepositoryImpl
 import com.example.habitflow.domain.repository.GoalRepository
 import com.example.habitflow.domain.repository.SettingsRepository
 import com.example.habitflow.domain.repository.TaskRepository
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -124,7 +127,7 @@ interface AppModule {
         @Provides
         @Singleton
         fun provideFirebaseAuth(): FirebaseAuth{
-            return FirebaseAuth.getInstance()
+            return Firebase.auth
         }
 
         @Singleton
@@ -161,6 +164,12 @@ interface AppModule {
                 context,
                 notificationManager
             )
+        }
+
+        @Provides
+        @Singleton
+        fun provideCredentialManager(@ApplicationContext context: Context): CredentialManager{
+            return CredentialManager.create(context)
         }
     }
 }

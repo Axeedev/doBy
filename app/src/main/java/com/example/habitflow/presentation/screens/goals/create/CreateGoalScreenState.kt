@@ -1,8 +1,8 @@
 package com.example.habitflow.presentation.screens.goals.create
 
 import android.net.Uri
-import com.example.habitflow.domain.entities.GoalCategory
-import com.example.habitflow.domain.entities.Milestone
+import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.goals.Milestone
 
 
 data class CreateGoalScreenState(

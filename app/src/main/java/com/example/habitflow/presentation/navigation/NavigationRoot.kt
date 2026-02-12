@@ -57,7 +57,9 @@ fun NavigationRoot() {
         ScreensForDrawer(Goals, R.drawable.ic_goal),
         ScreensForDrawer(Screen.Achievements, R.drawable.ic_trophy),
     )
+    val currentScreen = backStack.lastOrNull()
     ModalNavigationDrawer(
+        gesturesEnabled = currentScreen != Screen.Login && currentScreen != Screen.Signup,
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {

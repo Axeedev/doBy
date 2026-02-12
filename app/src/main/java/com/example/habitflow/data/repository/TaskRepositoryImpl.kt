@@ -7,15 +7,13 @@ import com.example.habitflow.data.mappers.toCompletedTask
 import com.example.habitflow.data.mappers.toCompletedTaskEntity
 import com.example.habitflow.data.mappers.toTask
 import com.example.habitflow.data.mappers.toTaskEntity
-import com.example.habitflow.domain.entities.CompletedTask
-import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.domain.entities.tasks.CompletedTask
+import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.repository.TaskRepository
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
-import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(

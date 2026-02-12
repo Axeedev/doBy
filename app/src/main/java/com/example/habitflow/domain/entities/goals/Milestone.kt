@@ -1,4 +1,4 @@
-package com.example.habitflow.domain.entities
+package com.example.habitflow.domain.entities.goals
 
 data class Milestone(
     val id: Int,

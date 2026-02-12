@@ -1,13 +1,17 @@
 package com.example.habitflow.presentation.screens.goals.create
 
-import android.util.Log
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habitflow.domain.entities.Goal
-import com.example.habitflow.domain.entities.Milestone
+import com.example.habitflow.domain.entities.goals.Goal
+import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
 import com.example.habitflow.domain.usecases.goals.CompleteGoalUseCase
+import com.example.habitflow.domain.usecases.goals.GetGoalByIdUseCase
 import com.example.habitflow.domain.usecases.goals.UpdateGoalUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,17 +19,36 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@HiltViewModel
-open class CreateGoalViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = CreateGoalViewModel.ViewModelFactory::class)
+class CreateGoalViewModel @AssistedInject constructor(
     private val addGoalUseCase: AddGoalUseCase,
     private val updateGoalUseCase: UpdateGoalUseCase,
-    private val completeGoalUseCase: CompleteGoalUseCase
+    private val completeGoalUseCase: CompleteGoalUseCase,
+    private val getGoalByIdUseCase: GetGoalByIdUseCase,
+    @Assisted("id") private val taskId : Int? = null
 ): ViewModel() {
 
-    protected val _state = MutableStateFlow(CreateGoalScreenState())
+    private val _state = MutableStateFlow(CreateGoalScreenState())
     val state
         get() = _state.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            taskId?.let { id ->
+                val goal = getGoalByIdUseCase(id)
+                _state.value = CreateGoalScreenState(
+                    goalId = id,
+                    title = goal.title,
+                    coverUri = goal.coverUri?.toUri(),
+                    goalCategory = goal.category,
+                    description = goal.description,
+                    startDate = goal.goalStartDate,
+                    endDate = goal.goalEndDate,
+                    milestones = goal.milestones
+                )
+            }
+        }
+    }
 
     fun processCommand(command: CreateGoalCommand){
         when(command) {
@@ -144,5 +167,11 @@ open class CreateGoalViewModel @Inject constructor(
                 }
             }
         }
+    }
+    @AssistedFactory
+    interface ViewModelFactory{
+        fun create(
+            @Assisted("id") goalId: Int?,
+        ) : CreateGoalViewModel
     }
 }

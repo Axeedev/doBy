@@ -3,7 +3,7 @@ package com.example.habitflow.presentation.screens.tasks.all
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.usecases.tasks.AddTaskToCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase

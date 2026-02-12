@@ -1,6 +1,6 @@
 package com.example.habitflow.domain.repository
 
-import com.example.habitflow.domain.entities.Goal
+import com.example.habitflow.domain.entities.goals.Goal
 import kotlinx.coroutines.flow.Flow
 
 interface GoalRepository {

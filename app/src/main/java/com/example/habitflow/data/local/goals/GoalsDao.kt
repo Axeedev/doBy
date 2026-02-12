@@ -7,7 +7,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
-import com.example.habitflow.domain.entities.Milestone
 import kotlinx.coroutines.flow.Flow
 
 @Dao

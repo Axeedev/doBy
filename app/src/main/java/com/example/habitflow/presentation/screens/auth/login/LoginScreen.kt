@@ -69,7 +69,6 @@ fun LoginScreen(
     if (state.isAuthSuccess){
         LaunchedEffect(Unit) {
             onSuccessAuth()
-            viewModel.refreshState()
         }
     }
 
@@ -77,7 +76,6 @@ fun LoginScreen(
 
     LaunchedEffect(Unit) {
         viewModel.errorEvents.collect {errorEvent ->
-            Log.d("LaunchedEffect", errorEvent.toString())
             when(errorEvent){
                 is ErrorEvent.InvalidErrorOrPassword -> {
                     snackbarHostState.showSnackbar(message = errorEvent.msg)
@@ -150,7 +148,6 @@ fun LoginScreen(
                     .fillMaxSize()
                     .padding(horizontal = 32.dp),
             ) {
-
                 Text(
                     fontSize = 28.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -258,6 +255,7 @@ fun LoginScreen(
                     viewModel.processCommand(AuthCommand.ClickGoogleAuthButton)
                 }
                 if (isLogin){
+                    val interactionSource = remember { MutableInteractionSource() }
                     Spacer(Modifier.size(16.dp))
                     Row(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -274,7 +272,7 @@ fun LoginScreen(
                             modifier = Modifier
                                 .clickable(
                                     indication = null,
-                                    interactionSource = remember { MutableInteractionSource() }
+                                    interactionSource = interactionSource
                                 ){
                                     onSignupClick()
                                 },

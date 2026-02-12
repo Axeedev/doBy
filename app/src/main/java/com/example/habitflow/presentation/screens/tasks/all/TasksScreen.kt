@@ -48,8 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
-import com.example.habitflow.domain.entities.Priority
-import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.domain.entities.tasks.Priority
+import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalTextFieldWithTitle
 import com.example.habitflow.presentation.screens.goals.create.CreateOrEditButton
 import com.example.habitflow.presentation.screens.goals.create.FilterChips

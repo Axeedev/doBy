@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.habitflow.R
 import com.example.habitflow.data.utils.toChannelImportance
-import com.example.habitflow.domain.entities.Priority
+import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.presentation.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

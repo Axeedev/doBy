@@ -1,7 +1,7 @@
 package com.example.habitflow.data.utils
 
 import com.example.habitflow.data.local.NotificationsProvider
-import com.example.habitflow.domain.entities.Priority
+import com.example.habitflow.domain.entities.tasks.Priority
 
 fun Priority.toChannelImportance() : String{
     return when(this){

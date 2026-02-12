@@ -6,11 +6,10 @@ import com.example.habitflow.data.local.goals.GoalsDao
 import com.example.habitflow.data.mappers.toGoal
 import com.example.habitflow.data.mappers.toGoalEntity
 import com.example.habitflow.data.mappers.toMilestoneEntity
-import com.example.habitflow.domain.entities.Goal
+import com.example.habitflow.domain.entities.goals.Goal
 import com.example.habitflow.domain.repository.GoalRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.io.File
 import javax.inject.Inject
 
 class GoalRepositoryImpl @Inject constructor(

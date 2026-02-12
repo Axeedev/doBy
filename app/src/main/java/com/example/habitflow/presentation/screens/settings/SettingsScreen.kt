@@ -10,6 +10,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -499,6 +501,7 @@ fun BottomSheet(
     onDoneClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
@@ -513,7 +516,10 @@ fun BottomSheet(
                 Text(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable {
+                        .clickable(
+                            indication = null,
+                            interactionSource = interactionSource
+                        ) {
                             onBackClick()
                         },
                     text = "Back",
@@ -532,7 +538,10 @@ fun BottomSheet(
                 Text(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable {
+                        .clickable(
+                            indication = null,
+                            interactionSource = interactionSource
+                        ) {
                             onDoneClick()
                         },
                     text = "Done",

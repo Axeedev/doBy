@@ -5,13 +5,12 @@ import com.example.habitflow.data.local.goals.GoalWithMilestoneEntity
 import com.example.habitflow.data.local.goals.MilestoneEntity
 import com.example.habitflow.data.local.tasks.CompletedTaskEntity
 import com.example.habitflow.data.local.tasks.TaskEntity
-import com.example.habitflow.domain.entities.CompletedTask
-import com.example.habitflow.domain.entities.Goal
-import com.example.habitflow.domain.entities.GoalCategory
-import com.example.habitflow.domain.entities.Milestone
-import com.example.habitflow.domain.entities.Priority
-import com.example.habitflow.domain.entities.Task
-import java.util.Locale
+import com.example.habitflow.domain.entities.tasks.CompletedTask
+import com.example.habitflow.domain.entities.goals.Goal
+import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.goals.Milestone
+import com.example.habitflow.domain.entities.tasks.Priority
+import com.example.habitflow.domain.entities.tasks.Task
 
 fun Task.toTaskEntity(
     taskId: Int

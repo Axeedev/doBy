@@ -1,7 +1,7 @@
 package com.example.habitflow.domain.repository
 
-import com.example.habitflow.domain.entities.CompletedTask
-import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.domain.entities.tasks.CompletedTask
+import com.example.habitflow.domain.entities.tasks.Task
 import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {

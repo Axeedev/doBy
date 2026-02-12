@@ -1,6 +1,6 @@
 package com.example.habitflow.domain.usecases.tasks
 
-import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.repository.TaskRepository
 import javax.inject.Inject
 

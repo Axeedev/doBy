@@ -62,8 +62,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.habitflow.R
-import com.example.habitflow.domain.entities.GoalCategory
-import com.example.habitflow.domain.entities.Milestone
+import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.presentation.screens.goals.OpenReason
 import com.example.habitflow.presentation.screens.tasks.creation.DatePickerModal
 import com.example.habitflow.presentation.utils.DateFormatter
@@ -71,7 +71,11 @@ import com.example.habitflow.presentation.utils.DateFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGoalScreen(
-    viewModel: CreateGoalViewModel = hiltViewModel(),
+    viewModel: CreateGoalViewModel = hiltViewModel(
+        creationCallback = {factory: CreateGoalViewModel.ViewModelFactory ->
+            factory.create(null)
+        }
+    ),
     openReason: OpenReason = OpenReason.CREATE,
     onFinished: () -> Unit
 ) {
@@ -189,6 +193,7 @@ fun CreateGoalScreen(
                     text = "Milestones",
                     fontWeight = FontWeight.Bold
                 )
+                Spacer(Modifier.size(8.dp))
             }
 
             itemsIndexed(state.milestones) { index, milestone ->

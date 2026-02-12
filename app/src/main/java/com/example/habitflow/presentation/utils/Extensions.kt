@@ -1,7 +1,7 @@
 package com.example.habitflow.presentation.utils
 
 import android.util.Log
-import com.example.habitflow.domain.entities.Task
+import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.presentation.screens.tasks.TaskDeadlineSection
 import java.time.Instant
 import java.time.LocalDate
