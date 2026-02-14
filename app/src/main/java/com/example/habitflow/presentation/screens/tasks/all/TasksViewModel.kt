@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.tasks.Task
+import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskToCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
@@ -11,7 +12,9 @@ import com.example.habitflow.domain.usecases.tasks.ReturnTaskUseCase
 import com.example.habitflow.presentation.screens.tasks.creation.TimeEntity
 import com.example.habitflow.presentation.utils.groupBySection
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,7 +27,8 @@ class TasksViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val addTaskToCompletedUseCase: AddTaskToCompletedUseCase,
-    private val returnTaskUseCase: ReturnTaskUseCase
+    private val returnTaskUseCase: ReturnTaskUseCase,
+    private val onTaskCompletedUseCase: OnTaskCompletedUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TasksScreenState())
@@ -32,13 +36,15 @@ class TasksViewModel @Inject constructor(
     val state
         get() = _state.asStateFlow()
 
+    private val _unlockEvents = MutableSharedFlow<AchievementEvent>()
+    val unlockEvent
+        get() = _unlockEvents.asSharedFlow()
+
     init {
         viewModelScope.launch {
             getTasksUseCase().collect { tasks ->
                 _state.update { previousState ->
-                    Log.d("TasksViewModel", tasks.joinToString(", "))
                     val mapTasks = tasks.groupBySection(ZoneId.systemDefault())
-                    Log.d("Map tasks", mapTasks.toString())
                     previousState.copy(tasksMapSections = mapTasks)
                 }
             }
@@ -95,7 +101,6 @@ class TasksViewModel @Inject constructor(
                             priority = finalTask.priority
                         )
                     )
-
                 }
             }
 
@@ -119,6 +124,11 @@ class TasksViewModel @Inject constructor(
                     previous.copy(tasksMapSections = newMap)
                 }
                 viewModelScope.launch {
+                    val isAchieveUnlocked = onTaskCompletedUseCase().isNotEmpty()
+                    if (isAchieveUnlocked){
+                        _unlockEvents.emit(AchievementEvent.AchievementUnlocked)
+                    }
+
                     if (command.task.isCompleted) {
                         returnTaskUseCase(command.task.id)
                     }else{
@@ -165,10 +175,6 @@ class TasksViewModel @Inject constructor(
                 }
             }
         }
-    }
-    companion object{
-        private const val DEFAULT_HOUR = 18
-        private const val DEFAULT_MINUTE = 0
     }
 }
 

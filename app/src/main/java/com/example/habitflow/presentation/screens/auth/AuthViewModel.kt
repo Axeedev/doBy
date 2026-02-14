@@ -3,6 +3,7 @@ package com.example.habitflow.presentation.screens.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.data.auth.GoogleAuthClient
+import com.example.habitflow.domain.usecases.auth.SignInWithGoogleUseCase
 import com.example.habitflow.presentation.utils.AuthValidator
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -21,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val googleAuthClient: GoogleAuthClient
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AuthScreenState())
@@ -37,7 +38,7 @@ class AuthViewModel @Inject constructor(
         when (authCommand) {
             AuthCommand.ClickGoogleAuthButton -> {
                 viewModelScope.launch {
-                    val isSignedIn = googleAuthClient.signIn()
+                    val isSignedIn = signInWithGoogleUseCase()
                     _state.update {
                         it.copy(
                             isAuthSuccess = isSignedIn

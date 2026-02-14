@@ -1,18 +1,16 @@
 package com.example.habitflow.data.repository
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.habitflow.data.background.RandomAdviceWorker
+import com.example.habitflow.data.dataStore
 import com.example.habitflow.domain.entities.settings.AppSettings
 import com.example.habitflow.domain.entities.settings.NotificationTime
 import com.example.habitflow.domain.entities.settings.toSendBefore
@@ -23,7 +21,6 @@ import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore("App settings")
 
 class SettingsRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context

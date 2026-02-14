@@ -1,10 +1,12 @@
 package com.example.habitflow.data.mappers
 
+import com.example.habitflow.data.local.achievements.AchievementEntity
 import com.example.habitflow.data.local.goals.GoalEntity
 import com.example.habitflow.data.local.goals.GoalWithMilestoneEntity
 import com.example.habitflow.data.local.goals.MilestoneEntity
 import com.example.habitflow.data.local.tasks.CompletedTaskEntity
 import com.example.habitflow.data.local.tasks.TaskEntity
+import com.example.habitflow.domain.entities.achievements.Achievement
 import com.example.habitflow.domain.entities.tasks.CompletedTask
 import com.example.habitflow.domain.entities.goals.Goal
 import com.example.habitflow.domain.entities.goals.GoalCategory
@@ -116,3 +118,24 @@ fun CompletedTaskEntity.toCompletedTask() : CompletedTask{
         completionDate = completedAt
     )
 }
+
+fun AchievementEntity.toAchievement() = Achievement(
+    id = id ,
+    title = title ,
+    description = description ,
+    targetGoal = targetGoal ,
+    currentScore = currentProgress ,
+    iconResId = iconId,
+    achievementType = achievementType,
+    progress = progress
+)
+fun Achievement.toAchievementEntity() = AchievementEntity(
+    id = id ,
+    title = title ,
+    description = description ,
+    targetGoal = targetGoal ,
+    currentProgress = currentScore ,
+    iconId = iconResId,
+    achievementType = achievementType,
+    progress = progress
+)

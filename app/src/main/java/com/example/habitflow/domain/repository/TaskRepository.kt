@@ -20,5 +20,7 @@ interface TaskRepository {
 
     suspend fun returnTask(taskId: Int)
 
+    fun getNumberOfCompletedTasks() : Flow<Int>
+
 
 }

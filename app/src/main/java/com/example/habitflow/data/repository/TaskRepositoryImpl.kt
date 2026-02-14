@@ -79,4 +79,8 @@ class TaskRepositoryImpl @Inject constructor(
         completedTasksDao.deleteCompletedTaskById(taskId)
         tasksDao.addTask(task.toTaskEntity())
     }
+
+    override fun getNumberOfCompletedTasks(): Flow<Int> {
+        return completedTasksDao.getCompletedTasksSize()
+    }
 }

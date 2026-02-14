@@ -31,6 +31,8 @@ import androidx.navigation3.ui.NavDisplay
 import com.example.habitflow.R
 import com.example.habitflow.presentation.navigation.Screen.Goals
 import com.example.habitflow.presentation.navigation.Screen.Tasks
+import com.example.habitflow.presentation.screens.achievements.AchievementsScreen
+import com.example.habitflow.presentation.screens.analytics.AnalyticsScreen
 import com.example.habitflow.presentation.screens.auth.login.LoginScreen
 import com.example.habitflow.presentation.screens.auth.signup.SignupScreen
 import com.example.habitflow.presentation.screens.goals.all.GoalsScreen
@@ -56,10 +58,11 @@ fun NavigationRoot() {
         ScreensForDrawer(Tasks, R.drawable.ic_task_app),
         ScreensForDrawer(Goals, R.drawable.ic_goal),
         ScreensForDrawer(Screen.Achievements, R.drawable.ic_trophy),
+        ScreensForDrawer(Screen.Analytics, R.drawable.ic_analytics)
     )
     val currentScreen = backStack.lastOrNull()
     ModalNavigationDrawer(
-        gesturesEnabled = currentScreen != Screen.Login && currentScreen != Screen.Signup,
+        gesturesEnabled = currentScreen != Screen.Login && currentScreen != Screen.Signup && currentScreen != Screen.Analytics,
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
@@ -165,7 +168,11 @@ fun NavigationRoot() {
                         NavEntry(
                             key = key,
                         ) {
-                            TasksScreen {
+                            TasksScreen(
+                                onGoToAchievementClick = {
+                                    backStack.add(Screen.Achievements)
+                                }
+                            ) {
                                 scope.launch {
                                     drawerState.open()
                                 }
@@ -175,9 +182,9 @@ fun NavigationRoot() {
 
                     is Screen.Achievements -> {
                         NavEntry(key = key) {
-                            Text(
-                                text = "here will be achievement screen"
-                            )
+                            AchievementsScreen {
+                                if (backStack.size > 1) backStack.removeLastOrNull()
+                            }
                         }
                     }
 
@@ -284,6 +291,16 @@ fun NavigationRoot() {
                                     backStack.add(Tasks)
                                 }
                             )
+                        }
+                    }
+
+                    is Screen.Analytics ->{
+                        NavEntry(key = key){
+                            AnalyticsScreen{
+                                if (backStack.size > 1){
+                                    backStack.removeLastOrNull()
+                                }
+                            }
                         }
                     }
 

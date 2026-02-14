@@ -36,6 +36,9 @@ sealed class Screen(val label: String) : NavKey {
     @Serializable
     data object Signup : Screen("Signup")
 
+    @Serializable
+    data object Analytics : Screen("Analytics")
+
 }
 
 data class ScreensForDrawer(

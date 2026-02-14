@@ -8,13 +8,21 @@ import androidx.credentials.CredentialManager
 import androidx.room.Room
 import com.example.habitflow.data.local.AppDatabase
 import com.example.habitflow.data.local.NotificationsProvider
+import com.example.habitflow.data.local.achievements.AchievementsDao
+import com.example.habitflow.data.local.achievements.StartCallback
 import com.example.habitflow.data.local.goals.GoalsDao
 import com.example.habitflow.data.local.tasks.CompletedTasksDao
 import com.example.habitflow.data.local.tasks.TasksDao
 import com.example.habitflow.data.remote.ApiService
+import com.example.habitflow.data.repository.AchievementRepositoryImpl
+import com.example.habitflow.data.repository.AnalyticsRepositoryImpl
+import com.example.habitflow.data.repository.AuthRepositoryImpl
 import com.example.habitflow.data.repository.GoalRepositoryImpl
 import com.example.habitflow.data.repository.SettingsRepositoryImpl
 import com.example.habitflow.data.repository.TaskRepositoryImpl
+import com.example.habitflow.domain.repository.AchievementRepository
+import com.example.habitflow.domain.repository.AnalyticsRepository
+import com.example.habitflow.domain.repository.AuthRepository
 import com.example.habitflow.domain.repository.GoalRepository
 import com.example.habitflow.domain.repository.SettingsRepository
 import com.example.habitflow.domain.repository.TaskRepository
@@ -53,7 +61,20 @@ interface AppModule {
     @Binds
     fun bindSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl) : SettingsRepository
 
+    @Singleton
+    @Binds
+    fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl) : AuthRepository
+
+    @Singleton
+    @Binds
+    fun bindAnalyticsRepository(analyticsRepositoryImpl: AnalyticsRepositoryImpl) : AnalyticsRepository
+
+    @Singleton
+    @Binds
+    fun bindAchievementRepository(achievementRepositoryImpl: AchievementRepositoryImpl) : AchievementRepository
+
     companion object{
+
 
         private const val X_API_KEY = "X-Api-Key"
         private const val BASE_URL = "https://api.api-ninjas.com/v1/"
@@ -108,13 +129,16 @@ interface AppModule {
         @Provides
         @Singleton
         fun provideDatabase(
-            @ApplicationContext context: Context
+            @ApplicationContext context: Context,
+            startCallback: StartCallback
         ): AppDatabase {
             return Room.databaseBuilder(
                 context = context,
                 klass = AppDatabase::class.java,
-                name = "TasksDatabase"
-            ).fallbackToDestructiveMigration(dropAllTables = true)
+                name = "AppDatabase"
+            )
+                .addCallback(startCallback)
+                .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
         }
 
@@ -140,6 +164,12 @@ interface AppModule {
         @Singleton
         fun provideGoalsDao(appDatabase: AppDatabase): GoalsDao{
             return appDatabase.goalsDao()
+        }
+
+        @Singleton
+        @Provides
+        fun provideAchievementsDao(appDatabase: AppDatabase) : AchievementsDao{
+            return appDatabase.achievementsDao()
         }
 
         @Provides
