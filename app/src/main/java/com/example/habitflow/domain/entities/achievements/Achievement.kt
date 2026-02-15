@@ -8,5 +8,7 @@ data class Achievement(
     val currentScore: Int,
     val achievementType: AchievementType,
     val iconResId: Int,
-    val progress: Int
-)
+){
+    val progressPercentage
+        get() = (currentScore.toFloat() / targetGoal.toFloat() * 100).toInt()
+}

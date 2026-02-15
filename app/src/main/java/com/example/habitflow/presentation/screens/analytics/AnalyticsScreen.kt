@@ -64,7 +64,8 @@ fun AnalyticsScreen(
                     Text(
                         modifier = Modifier
                             .padding(start = 16.dp),
-                        text = "Your Activity"
+                        text = "Your Activity",
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {

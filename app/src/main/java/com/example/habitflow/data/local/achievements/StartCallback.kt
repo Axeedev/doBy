@@ -98,7 +98,8 @@ class StartCallback @Inject constructor (
             AchievementEntity(
                 id = 8,
                 title = "Early bird",
-                description = "Complete a task before 8:00 AM",
+                description = "Complete a task after between 5:00 AM and 8:00 AM",
+                achievementCode = AchievementCodes.EARLY_BIRD,
                 targetGoal = 1,
                 iconId = R.drawable.ic_time,
                 achievementType = AchievementType.TIMING
@@ -106,7 +107,8 @@ class StartCallback @Inject constructor (
             AchievementEntity(
                 id = 9,
                 title = "Night owl",
-                description = "Complete a task after midnight",
+                description = "Complete a task between 0:00 AM and 4:00 AM",
+                achievementCode = AchievementCodes.NIGHT_OWL,
                 targetGoal = 1,
                 iconId = R.drawable.ic_time,
                 achievementType = AchievementType.TIMING
@@ -130,6 +132,7 @@ class StartCallback @Inject constructor (
             AchievementEntity(
                 id = 12,
                 title = "Monday Warrior",
+                achievementCode = AchievementCodes.MONDAY_WARRIOR,
                 description = "Complete 5 tasks on a Monday",
                 targetGoal = 5,
                 iconId = R.drawable.ic_checklist,
@@ -138,17 +141,10 @@ class StartCallback @Inject constructor (
             AchievementEntity(
                 id = 13,
                 title = "Overachiever",
+                achievementCode = AchievementCodes.MARATHON,
                 description = "Complete 10 tasks in a single day",
                 targetGoal = 10,
                 iconId = R.drawable.ic_checklist,
-                achievementType = AchievementType.PRODUCTIVITY
-            ),
-            AchievementEntity(
-                id = 14,
-                title = "PUSH DEDOV",
-                description = "Запушить дедова 10 раз за одну катку",
-                targetGoal = 10,
-                iconId = R.drawable.ic_delete,
                 achievementType = AchievementType.PRODUCTIVITY
             )
         )

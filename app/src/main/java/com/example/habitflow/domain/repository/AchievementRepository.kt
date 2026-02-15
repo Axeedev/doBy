@@ -11,6 +11,10 @@ interface AchievementRepository {
 
     fun getLockedAchievements() : Flow<List<Achievement>>
 
-    suspend fun onTaskCompleted() : List<Achievement>
+    fun getCurrentStreak() : Flow<Int>
+
+    suspend fun onTaskCompleted() : Boolean
+
+    suspend fun updateDayStreak() : Boolean
 
 }

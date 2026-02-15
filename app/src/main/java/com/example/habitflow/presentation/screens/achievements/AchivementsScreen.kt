@@ -33,6 +33,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -58,13 +59,14 @@ fun AchievementsScreen(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
+                    containerColor = Color.White
                 ),
                 title = {
                     Text(
                         modifier = Modifier
                             .padding(start = 16.dp),
-                        text = "Achievements"
+                        text = "Achievements",
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
@@ -90,6 +92,9 @@ fun AchievementsScreen(
             contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            item {
+                CurrentStreak(streak = state.currentStreak.toString())
+            }
             item {
                 Row(
                     modifier = Modifier
@@ -135,6 +140,67 @@ fun AchievementsScreen(
 }
 
 @Composable
+fun CurrentStreak(
+    modifier: Modifier = Modifier,
+    streak: String
+){
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF8FAFC),
+            contentColor = Color.Unspecified
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(all = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(7f)
+                    .fillMaxHeight()
+            ) {
+                Text(
+                    text = "Current streak",
+                    color = Color(0xFF1680EC),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(Modifier.size(16.dp))
+                Text(
+                    text = streak,
+                    fontSize = 30.sp,
+                    color = Color(0xFF181F32),
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Spacer(Modifier.size(16.dp))
+                Text(
+                    text = "Complete tasks every day and raise your daily streak",
+                    fontSize = 14.sp,
+                    color = Color(0xFF718095),
+                    fontWeight = FontWeight.Medium
+                )
+            }
+
+            Icon(
+                modifier = Modifier
+                    .size(80.dp)
+                    .weight(3f),
+                painter = painterResource(R.drawable.ic_fire),
+                contentDescription = "current streak",
+                tint = Color(0xFFF97316)
+            )
+        }
+    }
+}
+
+
+
+@Composable
 fun AchievementCard(
     modifier: Modifier = Modifier,
     achievement: Achievement
@@ -144,10 +210,10 @@ fun AchievementCard(
             .fillMaxWidth()
             .shadow(
                 elevation = 4.dp,
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(20.dp),
                 spotColor = Color.Gray.copy(alpha = 0.6f)
             ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             contentColor = Color.Unspecified,
             containerColor = Color.White
@@ -221,7 +287,7 @@ fun AchievementCard(
                     Text(
                         text = achievement.title,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 22.sp,
+                        fontSize = 18.sp,
                         color = Color(0xFF181F32)
                     )
                     Spacer(Modifier.size(8.dp))
@@ -248,7 +314,7 @@ fun AchievementCard(
                 )
 
                 Text(
-                    text = if (achievement.progress != 100) "${achievement.progress}%" else "Completed",
+                    text = if (achievement.progressPercentage != 100) "${achievement.progressPercentage}%" else "Completed",
                     color = primary,
                     fontWeight = FontWeight.Medium
                 )
@@ -262,7 +328,7 @@ fun AchievementCard(
                 color = Color(0xFF007AFF),
                 trackColor = secondary,
                 progress = {
-                    achievement.progress.toFloat() / 100f
+                    achievement.progressPercentage.toFloat() / 100f
                 }
 
             )

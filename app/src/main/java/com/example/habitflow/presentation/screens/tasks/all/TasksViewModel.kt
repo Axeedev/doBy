@@ -1,6 +1,5 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.tasks.Task
@@ -124,7 +123,7 @@ class TasksViewModel @Inject constructor(
                     previous.copy(tasksMapSections = newMap)
                 }
                 viewModelScope.launch {
-                    val isAchieveUnlocked = onTaskCompletedUseCase().isNotEmpty()
+                    val isAchieveUnlocked = onTaskCompletedUseCase()
                     if (isAchieveUnlocked){
                         _unlockEvents.emit(AchievementEvent.AchievementUnlocked)
                     }

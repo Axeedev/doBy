@@ -7,10 +7,10 @@ import com.example.habitflow.data.local.goals.MilestoneEntity
 import com.example.habitflow.data.local.tasks.CompletedTaskEntity
 import com.example.habitflow.data.local.tasks.TaskEntity
 import com.example.habitflow.domain.entities.achievements.Achievement
-import com.example.habitflow.domain.entities.tasks.CompletedTask
 import com.example.habitflow.domain.entities.goals.Goal
 import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.goals.Milestone
+import com.example.habitflow.domain.entities.tasks.CompletedTask
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
 
@@ -127,7 +127,6 @@ fun AchievementEntity.toAchievement() = Achievement(
     currentScore = currentProgress ,
     iconResId = iconId,
     achievementType = achievementType,
-    progress = progress
 )
 fun Achievement.toAchievementEntity() = AchievementEntity(
     id = id ,
@@ -136,6 +135,5 @@ fun Achievement.toAchievementEntity() = AchievementEntity(
     targetGoal = targetGoal ,
     currentProgress = currentScore ,
     iconId = iconResId,
-    achievementType = achievementType,
-    progress = progress
+    achievementType = achievementType
 )

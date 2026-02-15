@@ -89,8 +89,8 @@ fun TasksScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        tasksViewModel.unlockEvent.collect {event ->
-            when(event){
+        tasksViewModel.unlockEvent.collect { event ->
+            when (event) {
                 AchievementEvent.AchievementUnlocked -> {
                     snackbarHostState.showSnackbar(
                         message = "New Achievement unlocked!",
@@ -282,14 +282,9 @@ fun TasksScreen(
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
                 hostState = snackbarHostState
-            ){data ->
+            ) { data ->
                 Snackbar(
-                    modifier = Modifier
-//                        .border(
-//                            border = BorderStroke(1.dp, Color(0xFF9DC0EE)),
-//                            shape = RoundedCornerShape(12.dp)
-//                        )
-                    ,
+                    modifier = Modifier,
                     action = {
                         Button(
                             onClick = {
@@ -324,7 +319,7 @@ fun TasksScreen(
                     Text(
                         modifier = Modifier
                             .padding(start = 16.dp),
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Bold,
                         text = "My tasks"
                     )
                 },
@@ -371,7 +366,9 @@ fun TasksScreen(
                             ) {
                                 Text(
                                     text = taskDeadlineSection.title,
-                                    color = if (tasks.isNotEmpty()) Color.Black else Color(0xFF94A3B8),
+                                    color = if (tasks.isNotEmpty()) Color.Black else Color(
+                                        0xFF94A3B8
+                                    ),
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 if (tasks.isNotEmpty()) {
@@ -406,7 +403,7 @@ fun TasksScreen(
                                 )
                             )
                         }
-                        if (index != tasks.lastIndex){
+                        if (index != tasks.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(top = 8.dp),
                                 thickness = 0.8.dp

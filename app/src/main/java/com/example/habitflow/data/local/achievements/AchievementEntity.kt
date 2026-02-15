@@ -15,8 +15,9 @@ data class AchievementEntity(
     val targetGoal: Int,
     val currentProgress: Int = 0,
     val achievementType: AchievementType,
+    val achievementCode: String = AchievementCodes.BASIC_ACHIEVEMENT,
     val isUnlocked: Boolean = false,
     val iconId: Int,
     val dateOfUnlock: Long? = null,
-    val progress: Int = (currentProgress.toFloat() / targetGoal.toFloat()).toInt()
+    val lastDateOfCompletion: String? = null
 )

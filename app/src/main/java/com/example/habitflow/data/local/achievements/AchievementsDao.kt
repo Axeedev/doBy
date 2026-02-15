@@ -11,10 +11,12 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AchievementsDao {
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM achievements
-        ORDER BY progress DESC
-    """)
+        ORDER BY currentProgress DESC
+    """
+    )
     fun getAllAchievements() : Flow<List<AchievementEntity>>
 
     @Query("""
@@ -24,10 +26,13 @@ interface AchievementsDao {
     """)
     fun getUnlockedAchievements() : Flow<List<AchievementEntity>>
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM achievements
         WHERE isUnlocked = 0
-    """)
+        ORDER BY currentProgress DESC
+    """
+    )
     fun getLockedAchievements(): Flow<List<AchievementEntity>>
 
     @Query("""
@@ -42,5 +47,15 @@ interface AchievementsDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAchievements(achievement: List<AchievementEntity>)
+
+    @Query("""
+        SELECT * FROM achievements
+        WHERE achievementCode == :code
+        LIMIT 1
+    """)
+    suspend fun getAchievementByCode(code: String) : AchievementEntity?
+
+    @Query("SELECT COUNT(*) FROM completedTasks WHERE isCompleted = 1 AND completedAt BETWEEN :startOfDay AND :endOfDay")
+    suspend fun getCompletedTasksCountForRange(startOfDay: Long, endOfDay: Long): Int
 
 }

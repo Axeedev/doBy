@@ -205,7 +205,8 @@ fun SettingsScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 title = {
                     Text(
-                        text = "Settings"
+                        text = "Settings",
+                        fontWeight = FontWeight.Bold
                     )
                 },
                 navigationIcon = {
