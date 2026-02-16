@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TaskReminder @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val alarmManager: AlarmManager?,
     private val getSettingsUseCase: GetSettingsUseCase
 ) {

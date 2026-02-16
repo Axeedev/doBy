@@ -77,7 +77,9 @@ class TaskRepositoryImpl @Inject constructor(
     override suspend fun returnTask(taskId: Int) {
         val task = completedTasksDao.getTaskById(taskId)
         completedTasksDao.deleteCompletedTaskById(taskId)
-        tasksDao.addTask(task.toTaskEntity())
+        tasksDao.addTask(
+            taskEntity = task.toTaskEntity()
+        )
     }
 
     override fun getNumberOfCompletedTasks(): Flow<Int> {

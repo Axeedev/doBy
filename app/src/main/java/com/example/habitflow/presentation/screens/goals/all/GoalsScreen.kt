@@ -258,45 +258,6 @@ fun GoalCard(
                         text = "Upgrade Progress"
                     )
                 }
-//                Box(
-//                    modifier = Modifier
-//                        .padding(start = 8.dp)
-//                        .clip(RoundedCornerShape(12.dp))
-//                        .background(MaterialTheme.colorScheme.background)
-//                        .clickable {},
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    var isExpanded by remember { mutableStateOf(false) }
-//                    Box(
-//                        Modifier
-//                            .padding(12.dp)
-//                    ) {
-//                        Icon(
-//                            modifier = Modifier.clickable {
-//                                isExpanded = !isExpanded
-//                            },
-//                            painter = painterResource(R.drawable.ic_more_horiz),
-//                            contentDescription = "more options"
-//                        )
-//                        DropdownMenu(
-//                            expanded = isExpanded,
-//                            onDismissRequest = { isExpanded = false }
-//                        ) {
-//                            DropdownMenuItem(
-//                                text = { Text("Delete") },
-//                                leadingIcon = {
-//                                    Icon(
-//                                        painter = painterResource(R.drawable.ic_delete),
-//                                        contentDescription = "delete goal"
-//                                    )
-//                                },
-//                                onClick = {
-//                                    onDeleteClick()
-//                                }
-//                            )
-//                        }
-//                    }
-//                }
             }
             Spacer(modifier = Modifier.size(8.dp))
         }

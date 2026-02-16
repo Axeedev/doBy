@@ -23,9 +23,7 @@ class AnalyticsViewModel @Inject constructor(
     val state
         get() = _state.asStateFlow()
 
-
     init {
-
         viewModelScope.launch {
             combine(
                 flow = getDailyStatsUseCase(),
@@ -41,8 +39,4 @@ class AnalyticsViewModel @Inject constructor(
 
 
     }
-
-
-
-
 }

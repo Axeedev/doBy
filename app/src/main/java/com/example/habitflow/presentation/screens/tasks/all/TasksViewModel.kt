@@ -8,7 +8,7 @@ import com.example.habitflow.domain.usecases.tasks.AddTaskToCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
 import com.example.habitflow.domain.usecases.tasks.ReturnTaskUseCase
-import com.example.habitflow.presentation.screens.tasks.creation.TimeEntity
+import com.example.habitflow.presentation.screens.tasks.TimeEntity
 import com.example.habitflow.presentation.utils.groupBySection
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -123,15 +123,17 @@ class TasksViewModel @Inject constructor(
                     previous.copy(tasksMapSections = newMap)
                 }
                 viewModelScope.launch {
-                    val isAchieveUnlocked = onTaskCompletedUseCase()
-                    if (isAchieveUnlocked){
-                        _unlockEvents.emit(AchievementEvent.AchievementUnlocked)
-                    }
 
                     if (command.task.isCompleted) {
                         returnTaskUseCase(command.task.id)
-                    }else{
+                    } else {
                         addTaskToCompletedUseCase(command.task.id)
+                    }
+                    val isAchieveUnlocked = if (!command.task.isReturned) {
+                        onTaskCompletedUseCase()
+                    } else false
+                    if (isAchieveUnlocked) {
+                        _unlockEvents.emit(AchievementEvent.AchievementUnlocked)
                     }
 
                 }

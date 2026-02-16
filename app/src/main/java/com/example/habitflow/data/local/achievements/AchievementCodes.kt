@@ -6,5 +6,7 @@ object AchievementCodes {
     const val NIGHT_OWL = "NIGHT_OWO"
     const val MONDAY_WARRIOR = "MANIC_MONDAY"
     const val MARATHON = "MARATHON"
+    const val SPEEDSTER = "SPEEDSTER"
+    const val CLUTCH = "CLUTCH"
     const val BASIC_ACHIEVEMENT = "BASIC"
 }

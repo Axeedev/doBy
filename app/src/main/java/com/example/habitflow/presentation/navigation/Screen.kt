@@ -7,9 +7,6 @@ import kotlinx.serialization.Serializable
 sealed class Screen(val label: String) : NavKey {
 
     @Serializable
-    data object CreateTask : Screen("Create task")
-
-    @Serializable
     data object Tasks : Screen("Tasks")
 
     @Serializable

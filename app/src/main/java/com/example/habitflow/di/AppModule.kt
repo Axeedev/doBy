@@ -136,8 +136,7 @@ interface AppModule {
                 context = context,
                 klass = AppDatabase::class.java,
                 name = "AppDatabase"
-            )
-                .addCallback(startCallback)
+            ).addCallback(startCallback)
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
         }

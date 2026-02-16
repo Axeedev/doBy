@@ -24,7 +24,8 @@ fun Task.toTaskEntity(
         note = note ,
         isCompleted = isCompleted,
         category = category.title,
-        priority = priority.name
+        priority = priority.name,
+        isReturned = false
     )
 }
 fun TaskEntity.toTask(): Task{
@@ -35,7 +36,8 @@ fun TaskEntity.toTask(): Task{
         note = note,
         category = GoalCategory.valueOf(this.category.uppercase()),
         priority = Priority.valueOf(this.priority.uppercase()),
-        isCompleted = isCompleted
+        isCompleted = isCompleted,
+        isReturned = isReturned
     )
 }
 
@@ -102,7 +104,8 @@ fun CompletedTaskEntity.toTaskEntity(): TaskEntity{
         note = note ,
         category = category ,
         priority = priority ,
-        isCompleted = false
+        isCompleted = false,
+        isReturned = true
     )
 }
 

@@ -4,7 +4,7 @@ import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.presentation.screens.tasks.TaskDeadlineSection
-import com.example.habitflow.presentation.screens.tasks.creation.TimeEntity
+import com.example.habitflow.presentation.screens.tasks.TimeEntity
 
 
 sealed interface TasksCommand {

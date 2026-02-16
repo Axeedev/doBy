@@ -41,7 +41,6 @@ import com.example.habitflow.presentation.screens.goals.edit.EditGoalScreen
 import com.example.habitflow.presentation.screens.settings.SettingsScreen
 import com.example.habitflow.presentation.screens.tasks.all.TasksScreen
 import com.example.habitflow.presentation.screens.tasks.completed.RecentlyCompletedScreen
-import com.example.habitflow.presentation.screens.tasks.creation.CreateTaskScreen
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -187,17 +186,6 @@ fun NavigationRoot() {
                             }
                         }
                     }
-
-                    is Screen.CreateTask -> {
-                        NavEntry(
-                            key = key
-                        ) {
-                            CreateTaskScreen {
-                                backStack.removeLastOrNull()
-                            }
-                        }
-                    }
-
                     is Goals -> {
                         NavEntry(
                             key = key

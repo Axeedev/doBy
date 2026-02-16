@@ -1,7 +1,7 @@
 package com.example.habitflow.presentation.utils
 
 import androidx.collection.mutableIntIntMapOf
-import com.example.habitflow.presentation.screens.tasks.creation.TimeEntity
+import com.example.habitflow.presentation.screens.tasks.TimeEntity
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

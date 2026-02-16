@@ -117,6 +117,7 @@ class StartCallback @Inject constructor (
                 id = 10,
                 title = "Speedster",
                 description = "Complete a task within 5 mins of creating it",
+                achievementCode = AchievementCodes.SPEEDSTER,
                 targetGoal = 1,
                 iconId = R.drawable.ic_time,
                 achievementType = AchievementType.TIMING
@@ -125,6 +126,7 @@ class StartCallback @Inject constructor (
                 id = 11,
                 title = "Clutch",
                 description = "Complete a task 1 minute before deadline",
+                achievementCode = AchievementCodes.CLUTCH,
                 targetGoal = 1,
                 iconId = R.drawable.ic_time,
                 achievementType = AchievementType.TIMING

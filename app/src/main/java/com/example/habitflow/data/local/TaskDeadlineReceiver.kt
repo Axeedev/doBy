@@ -18,11 +18,7 @@ class TaskDeadlineReceiver : BroadcastReceiver() {
 
                 Log.d("TaskDeadlineReceiver", "Broadcast receiver: work enqueued")
             }
-
         }
-
-
-
     }
     companion object{
         fun newIntent(context: Context): Intent{

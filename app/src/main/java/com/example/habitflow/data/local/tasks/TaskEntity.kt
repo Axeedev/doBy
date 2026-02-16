@@ -12,5 +12,6 @@ data class TaskEntity(
     val note: String,
     val category: String,
     val priority: String,
-    val isCompleted: Boolean
+    val isCompleted: Boolean,
+    val isReturned: Boolean
 )

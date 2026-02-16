@@ -12,7 +12,7 @@ import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 class StreakManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     private val streakKey = intPreferencesKey("current_streak")
     private val lastDateKey = stringPreferencesKey("last_date")
@@ -39,7 +39,7 @@ class StreakManager @Inject constructor(
             val newStreak = if (lastDate != null && lastDate.plusDays(1).toString() == today) {
                 currentStreak + 1
             } else {
-                1
+                0
             }
 
             prefs[streakKey] = newStreak

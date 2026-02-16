@@ -2,7 +2,6 @@ package com.example.habitflow.presentation.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habitflow.data.auth.GoogleAuthClient
 import com.example.habitflow.domain.usecases.auth.SignInWithGoogleUseCase
 import com.example.habitflow.presentation.utils.AuthValidator
 import com.google.firebase.auth.FirebaseAuth
@@ -76,11 +75,6 @@ class AuthViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-
-    fun refreshState() {
-        _state.value = AuthScreenState()
     }
 
     private suspend fun auth(

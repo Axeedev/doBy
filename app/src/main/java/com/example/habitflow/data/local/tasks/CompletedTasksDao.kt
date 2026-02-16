@@ -64,4 +64,11 @@ interface CompletedTasksDao {
     )
     fun getCompletedTasksSize() : Flow<Int>
 
+    @Query("""
+        SELECT * FROM completedTasks
+        ORDER BY completedAt DESC LIMIT 1
+        
+    """)
+    suspend fun getLastCompletedTask() : CompletedTaskEntity
+
 }

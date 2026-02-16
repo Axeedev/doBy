@@ -29,7 +29,6 @@ class TaskReminderWorker @AssistedInject constructor(
         if (id != -1L){
             val task = tasksDao.getTaskById(id.toInt()).toTask()
             notificationsProvider.showReminder(task.title, task.priority)
-            Log.d("TaskReminderWorker", "In doWork(), taskId: ${task.id}, tasktitle:${task.title}")
             return Result.success()
         }else return Result.failure()
 

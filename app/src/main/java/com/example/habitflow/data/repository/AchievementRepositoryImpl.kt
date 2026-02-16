@@ -1,9 +1,9 @@
 package com.example.habitflow.data.repository
 
-import android.util.Log
 import com.example.habitflow.data.StreakManager
 import com.example.habitflow.data.local.achievements.AchievementCodes
 import com.example.habitflow.data.local.achievements.AchievementsDao
+import com.example.habitflow.data.local.tasks.CompletedTasksDao
 import com.example.habitflow.data.mappers.toAchievement
 import com.example.habitflow.domain.entities.achievements.Achievement
 import com.example.habitflow.domain.entities.achievements.AchievementType
@@ -15,43 +15,106 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 class AchievementRepositoryImpl @Inject constructor(
-    private val dao: AchievementsDao,
-    private val streakManager: StreakManager
+    private val achievementsDao: AchievementsDao,
+    private val streakManager: StreakManager,
+    private val tasksDao: CompletedTasksDao
 ) : AchievementRepository {
 
     override suspend fun onTaskCompleted(): Boolean {
 
-        val lockedAchievements = dao.getLockedAchievementsByType(AchievementType.TASKS_COMPLETED)
-        val unlockedNow = mutableListOf<Achievement>()
-        val updatedDayStreak = updateDayStreak()
+        val lockedAchievementsTasksCompleted =
+            achievementsDao.getLockedAchievementsByType(AchievementType.TASKS_COMPLETED)
+        val unlockedNow = mutableListOf<Boolean>()
+        unlockedNow.add(updateDayStreak())
 
         streakManager.updateStreak()
 
-        lockedAchievements.forEach { achievementEntity ->
+        lockedAchievementsTasksCompleted.forEach { achievementEntity ->
 
             val newProgress = achievementEntity.currentProgress + 1
             val isAchievementUnlocked = newProgress == achievementEntity.targetGoal
 
-            dao.updateAchievement(
+            achievementsDao.updateAchievement(
                 achievementEntity.copy(
                     currentProgress = newProgress,
                     isUnlocked = isAchievementUnlocked,
                     dateOfUnlock = if (isAchievementUnlocked) System.currentTimeMillis() else null,
                 )
             )
-            if (isAchievementUnlocked) unlockedNow.add(achievementEntity.toAchievement())
+            if (isAchievementUnlocked) unlockedNow.add(true)
         }
 
-        val isSpecialAchievementUnlocked = checkForSpecialAchievements()
+        unlockedNow.add(checkForSpecialAchievements())
+        val completedTask = tasksDao.getLastCompletedTask()
+        completedTask.deadlineMillis
 
-        return unlockedNow.isNotEmpty() || updatedDayStreak || isSpecialAchievementUnlocked
+        unlockedNow.add(
+            checkTimeAchievement(
+                completedTask.completedAt,
+                code = AchievementCodes.SPEEDSTER
+            ) {
+                it <= 1
+            })
+
+        unlockedNow.add(
+            checkTimeAchievement(
+                completedTask.deadlineMillis,
+                code = AchievementCodes.CLUTCH
+            ) {
+                it <= 5
+            })
+
+
+        return unlockedNow.isNotEmpty()
     }
+
 
     override fun getCurrentStreak(): Flow<Int> {
         return streakManager.getCurrentStreak()
+    }
+
+
+    private suspend inline fun checkTimeAchievement(
+        predicate: Long?,
+        code: String,
+        isSuits: (Long) -> Boolean
+    ): Boolean {
+
+        val achievement = achievementsDao.getAchievementByCode(code) ?: return false
+
+        predicate ?: return false
+
+        if (achievement.isUnlocked) return false
+
+        val now = LocalDateTime.now()
+
+        val completionTime = LocalDateTime.ofInstant(
+            Instant.ofEpochMilli(predicate),
+            ZoneId.systemDefault()
+        )
+
+        val diffInMinutes = ChronoUnit.MINUTES.between(
+            completionTime,
+            now
+        )
+
+        if (isSuits(diffInMinutes)) {
+            val newProgress = achievement.currentProgress + 1
+            val isUnlocked = newProgress >= achievement.targetGoal
+
+            val updatedAchievement = achievement.copy(
+                currentProgress = newProgress,
+                isUnlocked = isUnlocked
+            )
+            achievementsDao.updateAchievement(updatedAchievement)
+
+            return true
+        }
+        return false
     }
 
     private suspend fun checkForSpecialAchievements(): Boolean {
@@ -77,8 +140,8 @@ class AchievementRepositoryImpl @Inject constructor(
         val endOfDay =
             date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-        val todayCompletedCount = dao.getCompletedTasksCountForRange(startOfDay, endOfDay)
-
+        val todayCompletedCount =
+            achievementsDao.getCompletedTasksCountForRange(startOfDay, endOfDay)
 
         val isMondayWarriorUnlocked =
             dayOfWeek == DayOfWeek.MONDAY && updateDailyProgressForSpecialTasks(
@@ -90,31 +153,35 @@ class AchievementRepositoryImpl @Inject constructor(
             code = AchievementCodes.MARATHON,
             dailyCount = todayCompletedCount
         )
-        return isEarlyBirdUnlocked || isNightOwlUnlocked || isMarathonUnlocked || isMondayWarriorUnlocked
 
+        return isEarlyBirdUnlocked || isNightOwlUnlocked || isMarathonUnlocked || isMondayWarriorUnlocked
     }
 
     private suspend fun updateDailyProgressForSpecialTasks(code: String, dailyCount: Int): Boolean {
-        val achievement = dao.getAchievementByCode(code) ?: return false
+
+        val achievement = achievementsDao.getAchievementByCode(code) ?: return false
 
         if (achievement.isUnlocked) return false
+
         val isUnlocked = dailyCount >= achievement.targetGoal
 
         val updatedAchievement = achievement.copy(
             isUnlocked = isUnlocked,
             currentProgress = dailyCount
         )
-        dao.updateAchievement(updatedAchievement)
-        return isUnlocked
 
+        achievementsDao.updateAchievement(updatedAchievement)
+
+        return isUnlocked
     }
 
     private suspend fun unlockByCode(code: String): Boolean {
-        val achievement = dao.getAchievementByCode(code) ?: return false
+        val achievement = achievementsDao.getAchievementByCode(code) ?: return false
         if (achievement.isUnlocked) return false
 
         val unlockedAchievement = achievement.copy(isUnlocked = true, currentProgress = 1)
-        dao.updateAchievement(unlockedAchievement)
+        achievementsDao.updateAchievement(unlockedAchievement)
+
         return true
     }
 
@@ -123,7 +190,7 @@ class AchievementRepositoryImpl @Inject constructor(
         val currentDate = LocalDate.now()
         val unlockedNow = mutableListOf<Achievement>()
 
-        val streakAchievements = dao.getLockedAchievementsByType(AchievementType.STREAK)
+        val streakAchievements = achievementsDao.getLockedAchievementsByType(AchievementType.STREAK)
         streakAchievements.forEach { achievementEntity ->
             val lastDate = achievementEntity.lastDateOfCompletion?.let {
                 LocalDate.parse(it)
@@ -141,7 +208,7 @@ class AchievementRepositoryImpl @Inject constructor(
 
             val isUnlocked = newProgress >= achievementEntity.targetGoal
 
-            dao.updateAchievement(
+            achievementsDao.updateAchievement(
                 achievementEntity.copy(
                     currentProgress = newProgress,
                     isUnlocked = isUnlocked,
@@ -156,7 +223,7 @@ class AchievementRepositoryImpl @Inject constructor(
     }
 
     override fun getAchievements(): Flow<List<Achievement>> {
-        return dao.getAllAchievements().map { list ->
+        return achievementsDao.getAllAchievements().map { list ->
             list.map {
                 it.toAchievement()
             }
@@ -164,13 +231,13 @@ class AchievementRepositoryImpl @Inject constructor(
     }
 
     override fun getLockedAchievements(): Flow<List<Achievement>> {
-        return dao.getLockedAchievements().map { list ->
+        return achievementsDao.getLockedAchievements().map { list ->
             list.map { it.toAchievement() }
         }
     }
 
     override fun getUnlockedAchievements(): Flow<List<Achievement>> {
-        return dao.getUnlockedAchievements().map { list ->
+        return achievementsDao.getUnlockedAchievements().map { list ->
             list.map { it.toAchievement() }
         }
     }
