@@ -70,16 +70,21 @@ fun SettingsScreen(
     onBackClick: () -> Unit
 ) {
     val state by settingsViewModel.state.collectAsState()
-    if (state.isSignedOut){
+    if (state.isSignedOut) {
         LaunchedEffect(Unit) {
             onSingOut()
         }
     }
 
-    val launcher = rememberLauncherForActivityResult(
+    val notificationsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { permission ->
         settingsViewModel.processCommand(SettingsCommand.ChangeNotificationsEnabled(permission))
+    }
+    val readCalendarLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { permission ->
+        settingsViewModel.processCommand(SettingsCommand.ChangeShowCalendarEvents(permission))
     }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -280,6 +285,38 @@ fun SettingsScreen(
                 Spacer(Modifier.size(24.dp))
 
             }
+            item {
+                Text(
+                    text = "Sync with calendar",
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Gray
+                )
+
+                Spacer(Modifier.size(8.dp))
+
+                SettingsField(
+                    mainText = "Show events from calendar",
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Switch(
+                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF10B981)),
+                        checked = state.showEventsFromCalendar,
+                        onCheckedChange = {
+                            if (it) {
+                                readCalendarLauncher.launch(Manifest.permission.READ_CALENDAR)
+                            } else {
+                                settingsViewModel.processCommand(
+                                    SettingsCommand.ChangeShowCalendarEvents(
+                                        it
+                                    )
+                                )
+                            }
+                        }
+                    )
+                }
+                Spacer(Modifier.size(24.dp))
+
+            }
 
             item {
 
@@ -298,7 +335,7 @@ fun SettingsScreen(
                         checked = state.notificationsEnabled,
                         onCheckedChange = {
                             if (it && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                notificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             } else {
                                 settingsViewModel.processCommand(
                                     SettingsCommand.ChangeNotificationsEnabled(

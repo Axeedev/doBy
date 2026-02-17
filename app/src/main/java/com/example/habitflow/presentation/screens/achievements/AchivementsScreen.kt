@@ -262,6 +262,13 @@ fun AchievementCard(
                         secondaryColor = Color(0xFFFFF7ED)
                     )
                 }
+
+                AchievementType.GOALS_COMPLETED -> {
+                    AchievementColorElement(
+                        primaryColor = Color(0xFF4ED07E),
+                        secondaryColor = Color(0xFFF3FDF6)
+                    )
+                }
             }
 
             Row {

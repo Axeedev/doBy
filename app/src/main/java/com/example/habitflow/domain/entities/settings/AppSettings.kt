@@ -6,12 +6,14 @@ data class AppSettings(
     val sendNotificationBeforeDeadline: SendNotificationBeforeDeadline = SendNotificationBeforeDeadline.MINUTES_60,
     val morningInfoTime: NotificationTime = morningInfoTimeDefault,
     val nightInfoTime: NotificationTime = nightInfoTimeDefault,
-    val showCompletedTasksOnMainScreen: Boolean = SHOW_COMPLETED_TASKS_DEFAULT
+    val showCompletedTasksOnMainScreen: Boolean = SHOW_COMPLETED_TASKS_DEFAULT,
+    val showCalendarEvents: Boolean = SHOW_CALENDAR_EVENTS_DEFAULT
 ){
     companion object{
 
         const val NOTIFICATIONS_ENABLED_DEFAULT = false
         const val WIFI_ONLY_DEFAULT = false
+        const val SHOW_CALENDAR_EVENTS_DEFAULT = false
         const val SHOW_COMPLETED_TASKS_DEFAULT = false
         val sendNotificationBeforeDeadlineDefault = SendNotificationBeforeDeadline.MINUTES_60
         val morningInfoTimeDefault = NotificationTime(8, 0)

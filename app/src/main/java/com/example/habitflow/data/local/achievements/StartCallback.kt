@@ -148,6 +148,30 @@ class StartCallback @Inject constructor (
                 targetGoal = 10,
                 iconId = R.drawable.ic_checklist,
                 achievementType = AchievementType.PRODUCTIVITY
+            ),
+            AchievementEntity(
+                id = 14,
+                title = "First steps",
+                description = "Achieve 1 goal",
+                targetGoal = 1,
+                iconId = R.drawable.ic_task_app,
+                achievementType = AchievementType.GOALS_COMPLETED
+            ),
+            AchievementEntity(
+                id = 15,
+                title = "Perfect ten",
+                description = "Achieve 10 goals",
+                targetGoal = 10,
+                iconId = R.drawable.ic_task_app,
+                achievementType = AchievementType.GOALS_COMPLETED
+            ),
+            AchievementEntity(
+                id = 16,
+                title = "Goal Master",
+                description = "Achieve 100 goals",
+                targetGoal = 100,
+                iconId = R.drawable.ic_task_app,
+                achievementType = AchievementType.GOALS_COMPLETED
             )
         )
         databaseProvider.get().achievementsDao().insertAchievements(startAchievements)

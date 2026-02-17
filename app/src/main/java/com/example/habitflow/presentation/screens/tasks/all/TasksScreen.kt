@@ -1,10 +1,7 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
-import android.util.Log
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -349,8 +346,6 @@ fun TasksScreen(
             ) {
                 TaskDeadlineSection.entries.forEach { taskDeadlineSection ->
                     val tasks = state.tasksMapSections[taskDeadlineSection].orEmpty()
-
-                    Log.d("Lazy column", tasks.joinToString(", "))
                     item {
                         Row(
                             modifier = Modifier
@@ -391,6 +386,7 @@ fun TasksScreen(
                                     fadeInSpec = tween(300)
                                 ),
                             task = task,
+                            taskDeadlineSection = taskDeadlineSection,
                             onTaskClick = {
                                 tasksViewModel.processCommand(TasksCommand.ClickTask(task))
                                 showBottomSheet = true
@@ -425,6 +421,7 @@ fun TaskCard(
     modifier: Modifier = Modifier,
     task: Task,
     onTaskClick: () -> Unit,
+    taskDeadlineSection: TaskDeadlineSection,
     onRadioButtonClick: () -> Unit
 ) {
     Card(
@@ -480,11 +477,29 @@ fun TaskCard(
                     task.deadlineMillis?.let { deadline ->
 
                         val formatter = DateTimeFormatter.ofPattern("HH:mm")
-                        val time = Instant.ofEpochMilli(deadline)
-                            .atZone(ZoneId.systemDefault())
-                            .format(formatter)
+
+                        val taskTime = when(taskDeadlineSection){
+                            TaskDeadlineSection.TODAY -> {
+                                Instant.ofEpochMilli(deadline)
+                                    .atZone(ZoneId.systemDefault())
+                                    .format(formatter)
+                            }
+                            TaskDeadlineSection.TOMORROW -> {
+                                Instant.ofEpochMilli(deadline)
+                                    .atZone(ZoneId.systemDefault())
+                                    .format(formatter)
+                            }
+                            TaskDeadlineSection.NEXT_WEEK -> {
+                                DateFormatter.formatDate(deadline)
+                            }
+                            TaskDeadlineSection.LATER -> {
+                                DateFormatter.formatDate(deadline)
+                            }
+                        }
+
+
                         Text(
-                            text = time,
+                            text = taskTime,
                             fontWeight = FontWeight.W400,
                             color = Color(0XFF94A3B8)
                         )

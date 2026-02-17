@@ -8,6 +8,7 @@ import com.example.habitflow.domain.usecases.settings.UpdateMorningTimeInfoUseCa
 import com.example.habitflow.domain.usecases.settings.UpdateNightTimeInfoUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNotificationsEnabledUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNotifyBeforeUseCase
+import com.example.habitflow.domain.usecases.settings.UpdateShowCalendarEventsUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateShowCompletedTasksUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateWifiOnlyUseCase
 import com.google.firebase.auth.FirebaseAuth
@@ -27,6 +28,7 @@ class SettingsViewModel @Inject constructor(
     private val updateShowCompletedTasksUseCase: UpdateShowCompletedTasksUseCase,
     private val updateMorningTimeInfoUseCase: UpdateMorningTimeInfoUseCase,
     private val updateNightTimeInfoUseCase: UpdateNightTimeInfoUseCase,
+    private val showCalendarEventsUseCase: UpdateShowCalendarEventsUseCase,
     private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
@@ -45,6 +47,7 @@ class SettingsViewModel @Inject constructor(
                             notificationsEnabled = settings.notificationsEnabled,
                             notifyBeforeMinutes = settings.sendNotificationBeforeDeadline.beforeMinutes,
                             showCompletedTasks = settings.showCompletedTasksOnMainScreen,
+                            showEventsFromCalendar = settings.showCalendarEvents,
                             selectedNotifyBeforeIndex = SendNotificationBeforeDeadline.entries.indexOf(settings.sendNotificationBeforeDeadline),
                         )
                     }
@@ -110,6 +113,10 @@ class SettingsViewModel @Inject constructor(
                 SettingsCommand.SignOut -> {
                     _state.update { it.copy(isSignedOut = true) }
                     firebaseAuth.signOut()
+                }
+
+                is SettingsCommand.ChangeShowCalendarEvents -> {
+                    showCalendarEventsUseCase(settingsCommand.enabled)
                 }
             }
         }

@@ -34,6 +34,7 @@ class SettingsRepositoryImpl @Inject constructor(
     private val morningNotificationHourKey = intPreferencesKey("morning_hour")
     private val nightNotificationMinuteKey = intPreferencesKey("night_minute")
     private val nightNotificationHourKey = intPreferencesKey("night_hour")
+    private val showCalendarEventsKey = booleanPreferencesKey("show_calendar_events")
 
 
     override fun getSettings(): Flow<AppSettings> {
@@ -46,20 +47,28 @@ class SettingsRepositoryImpl @Inject constructor(
             val morningNotificationTimeMinute = preferences[morningNotificationMinuteKey] ?: AppSettings.morningInfoTimeDefault.minute
             val morningNotificationTimeHour = preferences[morningNotificationHourKey] ?: AppSettings.morningInfoTimeDefault.hour
             val morningNotificationTime = NotificationTime(morningNotificationTimeHour, morningNotificationTimeMinute)
+            val showCalendarEvents = preferences[showCalendarEventsKey] ?: AppSettings.SHOW_CALENDAR_EVENTS_DEFAULT
 
             val nightNotificationTimeHour = preferences[nightNotificationHourKey] ?: AppSettings.nightInfoTimeDefault.hour
             val nightNotificationTimeMinute = preferences[nightNotificationMinuteKey] ?: AppSettings.nightInfoTimeDefault.minute
             val nightNotificationTime = NotificationTime(nightNotificationTimeHour, nightNotificationTimeMinute)
 
             AppSettings(
-                notificationsEnabled,
-                wifiOnly,
+                notificationsEnabled = notificationsEnabled,
+                wifiOnly = wifiOnly,
                 sendNotificationBeforeDeadline = notificationBeforeDeadline,
                 showCompletedTasksOnMainScreen = showCompletedTasks,
                 morningInfoTime = morningNotificationTime,
-                nightInfoTime = nightNotificationTime
+                nightInfoTime = nightNotificationTime,
+                showCalendarEvents = showCalendarEvents
             )
 
+        }
+    }
+
+    override suspend fun updateShowEventsFromCalendar(show: Boolean) {
+        context.dataStore.edit {preferences ->
+            preferences[showCalendarEventsKey] = show
         }
     }
 

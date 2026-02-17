@@ -15,7 +15,7 @@ object DateFormatter {
     fun formatDate(millis: Long): String {
         val formatter = DateTimeFormatter.ofPattern(
             "MMM dd, yyyy",
-            Locale.ENGLISH
+            Locale.getDefault()
         )
         return Instant.ofEpochMilli(millis)
             .atZone(ZoneId.systemDefault())

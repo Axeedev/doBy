@@ -20,4 +20,6 @@ interface SettingsRepository {
     suspend fun updateMorningTimeInfo(notificationTime: NotificationTime)
 
     suspend fun updateNightTimeInfo(notificationTime: NotificationTime)
+
+    suspend fun updateShowEventsFromCalendar(show: Boolean)
 }

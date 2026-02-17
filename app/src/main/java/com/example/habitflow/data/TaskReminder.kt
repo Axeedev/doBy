@@ -21,7 +21,6 @@ class TaskReminder @Inject constructor(
         taskId: Long,
         deadline: Long
     ) {
-        Log.d("TaskReminder", "Task scheduled")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             && alarmManager?.canScheduleExactAlarms() == false) return
         val intent = TaskDeadlineReceiver.newIntent(context).apply {

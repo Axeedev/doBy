@@ -9,6 +9,8 @@ sealed interface SettingsCommand {
 
     data class ChangeNotificationsEnabled(val enabled: Boolean): SettingsCommand
 
+    data class ChangeShowCalendarEvents(val enabled: Boolean) : SettingsCommand
+
     data class ChangeNotifyBefore(val newBefore : Int) : SettingsCommand
 
     data class ClickNotifyItem(val index: Int) : SettingsCommand

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.goals.Goal
 import com.example.habitflow.domain.entities.goals.Milestone
+import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
 import com.example.habitflow.domain.usecases.goals.CompleteGoalUseCase
 import com.example.habitflow.domain.usecases.goals.GetGoalByIdUseCase
@@ -25,6 +26,7 @@ class CreateGoalViewModel @AssistedInject constructor(
     private val updateGoalUseCase: UpdateGoalUseCase,
     private val completeGoalUseCase: CompleteGoalUseCase,
     private val getGoalByIdUseCase: GetGoalByIdUseCase,
+    private val onTaskCompletedUseCase: OnTaskCompletedUseCase,
     @Assisted("id") private val taskId : Int? = null
 ): ViewModel() {
 

@@ -51,29 +51,29 @@ interface AppModule {
 
     @Binds
     @Singleton
-    fun bindGoalRepository(goalRepositoryImpl: GoalRepositoryImpl) : GoalRepository
+    fun bindGoalRepository(goalRepositoryImpl: GoalRepositoryImpl): GoalRepository
 
     @Binds
     @Singleton
-    fun bindTaskRepository(taskRepositoryImpl: TaskRepositoryImpl) : TaskRepository
+    fun bindTaskRepository(taskRepositoryImpl: TaskRepositoryImpl): TaskRepository
 
     @Singleton
     @Binds
-    fun bindSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl) : SettingsRepository
+    fun bindSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl): SettingsRepository
 
     @Singleton
     @Binds
-    fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl) : AuthRepository
+    fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
 
     @Singleton
     @Binds
-    fun bindAnalyticsRepository(analyticsRepositoryImpl: AnalyticsRepositoryImpl) : AnalyticsRepository
+    fun bindAnalyticsRepository(analyticsRepositoryImpl: AnalyticsRepositoryImpl): AnalyticsRepository
 
     @Singleton
     @Binds
-    fun bindAchievementRepository(achievementRepositoryImpl: AchievementRepositoryImpl) : AchievementRepository
+    fun bindAchievementRepository(achievementRepositoryImpl: AchievementRepositoryImpl): AchievementRepository
 
-    companion object{
+    companion object {
 
 
         private const val X_API_KEY = "X-Api-Key"
@@ -81,7 +81,7 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideJson(): Json{
+        fun provideJson(): Json {
             return Json {
                 ignoreUnknownKeys = true
                 coerceInputValues = true
@@ -90,17 +90,19 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideConverterFactory(json: Json): Converter.Factory{
+        fun provideConverterFactory(json: Json): Converter.Factory {
             return json.asConverterFactory(contentType = "application/json".toMediaType())
         }
 
         @Provides
         @Singleton
-        fun provideOkHttpClient(): OkHttpClient{
+        fun provideOkHttpClient(): OkHttpClient {
             return OkHttpClient
                 .Builder()
-                .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
-                .addInterceptor {chain ->
+                .addInterceptor(HttpLoggingInterceptor().apply {
+                    level = HttpLoggingInterceptor.Level.BODY
+                })
+                .addInterceptor { chain ->
                     val request = chain.request()
                     val newRequest = request.newBuilder()
                         .addHeader(X_API_KEY, "0zoR+3VH8MaKmZxowuX+UA==yZxeFcZfj4Av9V7V")
@@ -112,7 +114,10 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideRetrofit(okHttpClient: OkHttpClient, converterFactory: Converter.Factory): Retrofit{
+        fun provideRetrofit(
+            okHttpClient: OkHttpClient,
+            converterFactory: Converter.Factory
+        ): Retrofit {
             return Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(converterFactory)
@@ -122,7 +127,7 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideApiService(retrofit: Retrofit): ApiService{
+        fun provideApiService(retrofit: Retrofit): ApiService {
             return retrofit.create()
         }
 
@@ -143,31 +148,31 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideTasksDao(appDatabase: AppDatabase) : TasksDao{
+        fun provideTasksDao(appDatabase: AppDatabase): TasksDao {
             return appDatabase.tasksDao()
         }
 
         @Provides
         @Singleton
-        fun provideFirebaseAuth(): FirebaseAuth{
+        fun provideFirebaseAuth(): FirebaseAuth {
             return Firebase.auth
         }
 
         @Singleton
         @Provides
-        fun provideCompletedTasksDao(appDatabase: AppDatabase): CompletedTasksDao{
+        fun provideCompletedTasksDao(appDatabase: AppDatabase): CompletedTasksDao {
             return appDatabase.completedTasksDao()
         }
 
         @Provides
         @Singleton
-        fun provideGoalsDao(appDatabase: AppDatabase): GoalsDao{
+        fun provideGoalsDao(appDatabase: AppDatabase): GoalsDao {
             return appDatabase.goalsDao()
         }
 
         @Singleton
         @Provides
-        fun provideAchievementsDao(appDatabase: AppDatabase) : AchievementsDao{
+        fun provideAchievementsDao(appDatabase: AppDatabase): AchievementsDao {
             return appDatabase.achievementsDao()
         }
 
@@ -188,7 +193,7 @@ interface AppModule {
         fun provideNotificationsProvider(
             @ApplicationContext context: Context,
             notificationManager: NotificationManager?
-        ) : NotificationsProvider{
+        ): NotificationsProvider {
             return NotificationsProvider(
                 context,
                 notificationManager
@@ -197,7 +202,7 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideCredentialManager(@ApplicationContext context: Context): CredentialManager{
+        fun provideCredentialManager(@ApplicationContext context: Context): CredentialManager {
             return CredentialManager.create(context)
         }
     }

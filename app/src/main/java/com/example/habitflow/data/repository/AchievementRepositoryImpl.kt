@@ -72,6 +72,28 @@ class AchievementRepositoryImpl @Inject constructor(
         return unlockedNow.isNotEmpty()
     }
 
+    override suspend fun onGoalCompleted(): Boolean {
+        val lockedAchievementsTasksCompleted =
+        achievementsDao.getLockedAchievementsByType(AchievementType.GOALS_COMPLETED)
+        val unlockedNow = mutableListOf<Boolean>()
+
+        lockedAchievementsTasksCompleted.forEach { achievementEntity ->
+
+            val newProgress = achievementEntity.currentProgress + 1
+            val isAchievementUnlocked = newProgress == achievementEntity.targetGoal
+
+            achievementsDao.updateAchievement(
+                achievementEntity.copy(
+                    currentProgress = newProgress,
+                    isUnlocked = isAchievementUnlocked,
+                    dateOfUnlock = if (isAchievementUnlocked) System.currentTimeMillis() else null,
+                )
+            )
+            if (isAchievementUnlocked) unlockedNow.add(true)
+        }
+        return unlockedNow.isNotEmpty()
+    }
+
 
     override fun getCurrentStreak(): Flow<Int> {
         return streakManager.getCurrentStreak()

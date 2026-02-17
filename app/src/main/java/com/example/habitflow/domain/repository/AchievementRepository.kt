@@ -15,6 +15,8 @@ interface AchievementRepository {
 
     suspend fun onTaskCompleted() : Boolean
 
+    suspend fun onGoalCompleted() : Boolean
+
     suspend fun updateDayStreak() : Boolean
 
 }

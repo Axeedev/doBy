@@ -1,5 +1,6 @@
 package com.example.habitflow.data.repository
 
+import com.example.habitflow.data.calendar.SystemCalendarManager
 import com.example.habitflow.data.TaskReminder
 import com.example.habitflow.data.local.tasks.CompletedTasksDao
 import com.example.habitflow.data.local.tasks.TasksDao
@@ -12,6 +13,7 @@ import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.repository.TaskRepository
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -20,31 +22,44 @@ class TaskRepositoryImpl @Inject constructor(
     private val tasksDao: TasksDao,
     private val completedTasksDao: CompletedTasksDao,
     private val taskReminder: TaskReminder,
-    private val getSettingsUseCase: GetSettingsUseCase
+    private val getSettingsUseCase: GetSettingsUseCase,
+    private val systemCalendarManager: SystemCalendarManager
 ) : TaskRepository {
 
     override fun getCompletedTasks(): Flow<List<CompletedTask>> {
-        return completedTasksDao.getCompletedTasks().map { list ->
-            list.map { it.toCompletedTask()
+        return completedTasksDao.getCompletedTasks()
+            .map { list ->
+                list.map {
+                    it.toCompletedTask()
+                }
             }
-        }
     }
 
     override fun getTasks(): Flow<List<Task>> {
-        return tasksDao.getTasks().map {list ->
-            list.map{
-                it.toTask()
+        return combine(
+            flow = tasksDao.getTasks(),
+            flow2 = systemCalendarManager.getEventsAsTasks(),
+            flow3 = getSettingsUseCase()
+        ) { tasksFromDao, eventsFromCalendar, appSettings ->
+
+            val tasksDomain = tasksFromDao.map { it.toTask() }
+
+            if (appSettings.showCalendarEvents){
+                tasksDomain + eventsFromCalendar
+            }
+            else{
+                tasksDomain
             }
         }
     }
 
     override suspend fun addTask(task: Task) {
         val taskId = tasksDao.addTask(
-            task.toTaskEntity(
-                task.id
+            taskEntity = task.toTaskEntity(
+                taskId = task.id
             )
         )
-        if (task.id != 0){
+        if (task.id != 0) {
             taskReminder.cancelTask(taskId)
         }
         task.deadlineMillis?.let { deadline ->
@@ -64,7 +79,7 @@ class TaskRepositoryImpl @Inject constructor(
     override suspend fun completeTask(taskId: Int) {
         val task = tasksDao.getTaskById(taskId)
         val appSettings = getSettingsUseCase().first()
-        if (!appSettings.showCompletedTasksOnMainScreen){
+        if (!appSettings.showCompletedTasksOnMainScreen) {
             tasksDao.deleteTask(taskId)
         }
         completedTasksDao.addTaskToCompleted(

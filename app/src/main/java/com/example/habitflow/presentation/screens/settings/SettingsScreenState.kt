@@ -20,6 +20,7 @@ data class SettingsScreenState(
             time.hour == AppSettings.nightInfoTimeDefault.hour && time.minute == AppSettings.nightInfoTimeDefault.minute
         }
     ),
+    val showEventsFromCalendar: Boolean = AppSettings.SHOW_CALENDAR_EVENTS_DEFAULT,
     val bottomSheetType: BottomSheetType? = null,
     val isSignedOut: Boolean = false
 ){
