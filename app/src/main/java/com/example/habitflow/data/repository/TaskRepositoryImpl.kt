@@ -82,8 +82,9 @@ class TaskRepositoryImpl @Inject constructor(
         if (!appSettings.showCompletedTasksOnMainScreen) {
             tasksDao.deleteTask(taskId)
         }
+        taskReminder.cancelTask(taskId.toLong())
         completedTasksDao.addTaskToCompleted(
-            task.toCompletedTaskEntity(
+            completedTaskEntity = task.toCompletedTaskEntity(
                 dateOfCompletion = System.currentTimeMillis()
             )
         )

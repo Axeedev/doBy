@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -85,7 +86,8 @@ fun AnalyticsScreen(
     ) { paddingValues ->
 
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
         ) {
             Row(
@@ -95,7 +97,7 @@ fun AnalyticsScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
 
             ) {
-                ElevatedCard (
+                ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
@@ -116,18 +118,20 @@ fun AnalyticsScreen(
                             fontWeight = FontWeight.Medium
                         )
                         Text(
-                            text = state.completedTasks.toString(),
+                            text = state.completedTasksOverall.toString(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
                         )
+                        val textColor = if (state.percentageDiffPastWeek < 0) Color.Red else Color(0xFF10B981).copy(alpha = 0.6f)
+                        val text = if (state.percentageDiffPastWeek > 0) "+" else ""
                         Text(
-                            text = "+ 12 % this week",
+                            text = "$text${state.percentageDiffPastWeek}% past 7 days",
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF10B981).copy(alpha = 0.6f)
+                            color = textColor
                         )
                     }
                 }
-                ElevatedCard (
+                ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
@@ -147,7 +151,7 @@ fun AnalyticsScreen(
                             color = Color.Gray,
                         )
                         Text(
-                            text = state.dailyStats.size.toString(),
+                            text = state.completedTasksThisWeek.toString(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
                         )
@@ -165,7 +169,6 @@ fun AnalyticsScreen(
 }
 
 
-
 @Composable
 fun WeeklyBarChart(
     data: List<Pair<LocalDate, Int>>,
@@ -173,6 +176,7 @@ fun WeeklyBarChart(
 ) {
     val maxValue = (data.maxOfOrNull { it.second } ?: 0).coerceAtLeast(1)
     val numberOfGridLines = maxValue / 2 + 1
+
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
@@ -193,15 +197,25 @@ fun WeeklyBarChart(
                 text = "Tasks completed"
             )
         }
+        var screenWidth by remember { mutableFloatStateOf(0f) }
+        var contentWidth by remember { mutableFloatStateOf(0f) }
+
         var barWidth by remember { mutableFloatStateOf(0f) }
+
         val visibleCount = 7
-        var scrolledBy by remember {
-            mutableFloatStateOf(0f)
-        }
-        var width by remember { mutableFloatStateOf(0f) }
+        var scrolledBy by remember { mutableFloatStateOf(0f) }
+        var initialized by remember { mutableStateOf(false) }
+
         val transformableState = rememberTransformableState { _, panChange, _ ->
+
+            val minScroll = -contentWidth + screenWidth
+            val maxScroll = 0f
+
             scrolledBy = (scrolledBy + panChange.x)
+                .coerceIn(minScroll, maxScroll)
         }
+
+
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -209,9 +223,16 @@ fun WeeklyBarChart(
                 .height(220.dp)
                 .transformable(transformableState)
         ) {
-            width = size.width
-
             val barSpacing = 16.dp.toPx()
+
+            screenWidth = size.width
+            contentWidth = barSpacing + data.size * (barWidth + barSpacing)
+            if (!initialized && contentWidth > size.width) {
+                scrolledBy = size.width - contentWidth
+                initialized = true
+            }
+
+
             val availableWidth = size.width - barSpacing * (visibleCount + 1)
             barWidth = availableWidth / visibleCount
 
@@ -239,9 +260,9 @@ fun WeeklyBarChart(
 
                 data.forEachIndexed { index, (date, value) ->
 
-                    val barHeight = (value + 1) / maxValue.toFloat() * chartHeight
+                    val barHeight = if (value == 0) 10f else  value / maxValue.toFloat() * chartHeight
 
-                    val left =  barSpacing + index * (barWidth + barSpacing)
+                    val left = barSpacing + index * (barWidth + barSpacing)
                     val top = chartHeight - barHeight
 
 

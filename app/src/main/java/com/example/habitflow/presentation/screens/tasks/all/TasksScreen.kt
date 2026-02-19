@@ -120,7 +120,7 @@ fun TasksScreen(
                     Text(
                         modifier = Modifier
                             .weight(1f),
-                        text = "Create new task",
+                        text = if (state.taskId == null) "Create new task" else "Edit task",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )

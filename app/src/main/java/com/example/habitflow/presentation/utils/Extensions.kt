@@ -69,8 +69,6 @@ fun Map<Long, Int>.toWeeklyPairsFromDayBucket(
             .toInstant()
             .toEpochMilli()  / 86400000 + 1
 
-        Log.d("toWeeklyPairsFromDayBucket", bucket.toString())
-
         date to (this[bucket] ?: 0)
     }
 }

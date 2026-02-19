@@ -71,4 +71,10 @@ interface CompletedTasksDao {
     """)
     suspend fun getLastCompletedTask() : CompletedTaskEntity
 
+    @Query("""
+        SELECT COUNT(*) FROM completedTasks
+        WHERE completedAt BETWEEN :start AND :end
+    """)
+    fun getCountOfTasksForPeriod(start: Long, end: Long) : Flow<Int>
+
 }

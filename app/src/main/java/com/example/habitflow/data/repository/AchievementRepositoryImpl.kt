@@ -1,5 +1,6 @@
 package com.example.habitflow.data.repository
 
+import android.util.Log
 import com.example.habitflow.data.StreakManager
 import com.example.habitflow.data.local.achievements.AchievementCodes
 import com.example.habitflow.data.local.achievements.AchievementsDao
@@ -17,6 +18,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
+import kotlin.math.abs
 
 class AchievementRepositoryImpl @Inject constructor(
     private val achievementsDao: AchievementsDao,
@@ -29,7 +31,9 @@ class AchievementRepositoryImpl @Inject constructor(
         val lockedAchievementsTasksCompleted =
             achievementsDao.getLockedAchievementsByType(AchievementType.TASKS_COMPLETED)
         val unlockedNow = mutableListOf<Boolean>()
-        unlockedNow.add(updateDayStreak())
+        unlockedNow.add(updateDayStreak().also {
+            Log.d("updateDayStreak", it.toString())
+        })
 
         streakManager.updateStreak()
 
@@ -45,31 +49,33 @@ class AchievementRepositoryImpl @Inject constructor(
                     dateOfUnlock = if (isAchievementUnlocked) System.currentTimeMillis() else null,
                 )
             )
-            if (isAchievementUnlocked) unlockedNow.add(true)
+            if (isAchievementUnlocked) {
+                unlockedNow.add(true)
+            }
         }
 
-        unlockedNow.add(checkForSpecialAchievements())
+        unlockedNow.add(checkForSpecialAchievements().also { Log.d("special", it.toString()) })
         val completedTask = tasksDao.getLastCompletedTask()
-        completedTask.deadlineMillis
 
         unlockedNow.add(
             checkTimeAchievement(
-                completedTask.completedAt,
+                predicate = completedTask.completedAt,
                 code = AchievementCodes.SPEEDSTER
             ) {
-                it <= 1
-            })
+                abs(it) <= 1
+            }.also { Log.d("checkTimeAchievement", it.toString()) })
 
         unlockedNow.add(
             checkTimeAchievement(
-                completedTask.deadlineMillis,
+                predicate = completedTask.deadlineMillis,
                 code = AchievementCodes.CLUTCH
             ) {
-                it <= 5
-            })
+                abs(it) <= 5
+            }.also { Log.d("checkTimeAchievementClutch", it.toString()) })
 
+        println(unlockedNow.joinToString(", "))
 
-        return unlockedNow.isNotEmpty()
+        return unlockedNow.any { it }
     }
 
     override suspend fun onGoalCompleted(): Boolean {
@@ -91,7 +97,7 @@ class AchievementRepositoryImpl @Inject constructor(
             )
             if (isAchievementUnlocked) unlockedNow.add(true)
         }
-        return unlockedNow.isNotEmpty()
+        return unlockedNow.any{ it }
     }
 
 
@@ -175,6 +181,7 @@ class AchievementRepositoryImpl @Inject constructor(
             code = AchievementCodes.MARATHON,
             dailyCount = todayCompletedCount
         )
+
 
         return isEarlyBirdUnlocked || isNightOwlUnlocked || isMarathonUnlocked || isMondayWarriorUnlocked
     }

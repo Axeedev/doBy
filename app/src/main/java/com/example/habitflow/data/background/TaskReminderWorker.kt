@@ -40,7 +40,6 @@ class TaskReminderWorker @AssistedInject constructor(
             context: Context,
             taskId: Long
         ){
-            Log.d("TaskReminderWorker", "In worker")
             val data = workDataOf(
                 TASK_ID to taskId
             )
