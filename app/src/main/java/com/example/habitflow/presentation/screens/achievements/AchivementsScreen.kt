@@ -56,10 +56,11 @@ fun AchievementsScreen(
     val state by viewModel.state.collectAsState()
 
     Scaffold(
+        containerColor = Color(0xFFF7F8FA),
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = Color(0xFFF7F8FA),
                 ),
                 title = {
                     Text(
@@ -83,7 +84,6 @@ fun AchievementsScreen(
                 }
             )
         },
-        containerColor = Color.White
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -117,7 +117,7 @@ fun AchievementsScreen(
                                     text = filterType.title
                                 )
                             },
-                            border = BorderStroke(1.dp, Color(0xFFE7ECF2)),
+                            border = BorderStroke(1.dp, Color(0XFFEBEBEB)),
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFF0F172A),
                                 selectedLabelColor = Color.White,
@@ -147,10 +147,11 @@ fun CurrentStreak(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFF8FAFC),
+            containerColor = Color.White,
             contentColor = Color.Unspecified
         ),
-        shape = RoundedCornerShape(16.dp)
+        border = BorderStroke(1.dp, Color(0XFFEBEBEB)),
+        shape = RoundedCornerShape(12.dp),
     ) {
         Row(
             modifier = Modifier
@@ -213,12 +214,12 @@ fun AchievementCard(
                 shape = RoundedCornerShape(20.dp),
                 spotColor = Color.Gray.copy(alpha = 0.6f)
             ),
-        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             contentColor = Color.Unspecified,
             containerColor = Color.White
         ),
-        border = BorderStroke(0.5.dp, Color(0xFFF3F7FA))
+        border = BorderStroke(1.dp, Color(0XFFEBEBEB)),
+        shape = RoundedCornerShape(12.dp),
     ) {
         Column(
             modifier = Modifier

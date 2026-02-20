@@ -1,6 +1,7 @@
 package com.example.habitflow.data
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -17,8 +18,9 @@ class StreakManager @Inject constructor(
     private val streakKey = intPreferencesKey("current_streak")
     private val lastDateKey = stringPreferencesKey("last_date")
 
-    fun getCurrentStreak() : Flow<Int> {
+    fun getCurrentStreak(): Flow<Int> {
         return context.dataStore.data.map {
+            Log.d("getCurrentStreak", it[streakKey].toString())
             it[streakKey] ?: 0
         }
     }
@@ -30,18 +32,20 @@ class StreakManager @Inject constructor(
             val lastDateStr = prefs[lastDateKey]
             val currentStreak = prefs[streakKey] ?: 0
 
+            Log.d("getCurrentStreak", lastDateStr ?: "empty last date")
             if (lastDateStr == today) {
                 return@edit
             }
 
             val lastDate = lastDateStr?.let { LocalDate.parse(it) }
 
-            val newStreak = if (lastDate != null && lastDate.plusDays(1).toString() == today) {
+            val newStreak = if (
+                lastDate != null && lastDate.plusDays(1).toString() == today
+            ) {
                 currentStreak + 1
             } else {
-                0
+                1
             }
-
             prefs[streakKey] = newStreak
             prefs[lastDateKey] = today
         }

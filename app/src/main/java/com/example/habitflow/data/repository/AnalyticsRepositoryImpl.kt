@@ -1,6 +1,5 @@
 package com.example.habitflow.data.repository
 
-import android.util.Log
 import com.example.habitflow.data.local.tasks.CompletedTasksDao
 import com.example.habitflow.domain.repository.AnalyticsRepository
 import kotlinx.coroutines.flow.Flow
@@ -39,11 +38,12 @@ class AnalyticsRepositoryImpl @Inject constructor(
             flow2 = thisWeekCount
         ){previousWeek , thisWeek ->
 
-            Log.d("getWeeklyDifferencePercentage", "thisWeek:$thisWeek")
-            Log.d("getWeeklyDifferencePercentage", "previous:$previousWeek")
             val isDecrease = if (thisWeek < previousWeek) -1 else 1
-            ((thisWeek.toFloat() / previousWeek.toFloat()) * 100).toInt() * isDecrease
-
+            if (previousWeek == 0) {
+                100 * thisWeek
+            }else {
+                ((thisWeek.toFloat() / previousWeek.toFloat()) * 100).toInt() * isDecrease
+            }
         }
 
     }

@@ -26,6 +26,10 @@ sealed interface TasksCommand {
         val taskDeadlineSection: TaskDeadlineSection
     ) : TasksCommand
 
+    data class DeleteTask(
+        val taskId: Int
+    ) : TasksCommand
+
     data class ClickTask(
         val task: Task
     ) : TasksCommand
@@ -33,5 +37,7 @@ sealed interface TasksCommand {
     data object ClickButtonAddTask : TasksCommand
 
     data object AddTask : TasksCommand
+
+    data object CloseBottomSheet : TasksCommand
 
 }

@@ -6,6 +6,7 @@ import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskToCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
+import com.example.habitflow.domain.usecases.tasks.DeleteTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
 import com.example.habitflow.domain.usecases.tasks.ReturnTaskUseCase
 import com.example.habitflow.presentation.screens.tasks.TimeEntity
@@ -27,6 +28,7 @@ class TasksViewModel @Inject constructor(
     private val addTaskUseCase: AddTaskUseCase,
     private val addTaskToCompletedUseCase: AddTaskToCompletedUseCase,
     private val returnTaskUseCase: ReturnTaskUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
     private val onTaskCompletedUseCase: OnTaskCompletedUseCase
 ) : ViewModel() {
 
@@ -38,6 +40,11 @@ class TasksViewModel @Inject constructor(
     private val _unlockEvents = MutableSharedFlow<AchievementEvent>()
     val unlockEvent
         get() = _unlockEvents.asSharedFlow()
+
+    private val _bottomSheetEvents = MutableSharedFlow<BottomSheetEvent>()
+    val bottomSheetEvents
+        get() = _bottomSheetEvents.asSharedFlow()
+
 
     init {
         viewModelScope.launch {
@@ -100,6 +107,7 @@ class TasksViewModel @Inject constructor(
                             priority = finalTask.priority
                         )
                     )
+                    _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
                 }
             }
 
@@ -140,6 +148,9 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickTask -> {
+                viewModelScope.launch {
+                    _bottomSheetEvents.emit(BottomSheetEvent.OpenSheet)
+                }
                 _state.update { previous ->
                     val zonedDateTime = command.task.deadlineMillis?.let { date ->
                         Instant.ofEpochMilli(date)
@@ -166,13 +177,28 @@ class TasksViewModel @Inject constructor(
                         buttonText = "Confirm"
                     )
                 }
+
             }
 
             TasksCommand.ClickButtonAddTask -> {
+                viewModelScope.launch { _bottomSheetEvents.emit(BottomSheetEvent.OpenSheet) }
                 _state.update {
                     TasksScreenState(
                         tasksMapSections = it.tasksMapSections
                     )
+                }
+            }
+
+            is TasksCommand.DeleteTask -> {
+                viewModelScope.launch {
+                    deleteTaskUseCase(command.taskId)
+                    _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
+                }
+            }
+
+            TasksCommand.CloseBottomSheet -> {
+                viewModelScope.launch {
+                    _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
                 }
             }
         }

@@ -59,18 +59,4 @@ class AnalyticsViewModel @Inject constructor(
             }
         }
     }
-
-
-    companion object{
-        val menuItems = listOf(
-            MenuItem(
-                chartType = ChartType.BAR_CHART,
-                iconId = R.drawable.ic_bar_chart
-            ),
-            MenuItem(
-                chartType = ChartType.HEATMAP,
-                iconId = R.drawable.ic_heatmap
-            )
-        )
-    }
 }

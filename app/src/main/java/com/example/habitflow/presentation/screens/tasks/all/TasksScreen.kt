@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
+import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalTextFieldWithTitle
@@ -99,12 +100,23 @@ fun TasksScreen(
             }
         }
     }
+    LaunchedEffect(Unit) {
+        tasksViewModel.bottomSheetEvents.collect { event ->
+            when(event){
+                BottomSheetEvent.CloseSheet -> {
+                    showBottomSheet = false
+                }
+                BottomSheetEvent.OpenSheet -> {
+                    showBottomSheet = true
+                }
+            }
+        }
+    }
 
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = {
-                scope.launch { sheetState.hide() }
-                showBottomSheet = false
+                tasksViewModel.processCommand(TasksCommand.CloseBottomSheet)
             },
             sheetState = sheetState
         ) {
@@ -124,14 +136,19 @@ fun TasksScreen(
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Icon(
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .clip(CircleShape)
-                            .clickable {},
-                        painter = painterResource(R.drawable.ic_archive),
-                        contentDescription = "Archive task"
-                    )
+                    val taskId = state.taskId
+                    if (taskId != null && state.goalCategory != GoalCategory.CALENDAR) {
+                        Icon(
+                            modifier = Modifier
+                                .padding(end = 16.dp)
+                                .clip(CircleShape)
+                                .clickable {
+                                    tasksViewModel.processCommand(TasksCommand.DeleteTask(taskId))
+                                },
+                            painter = painterResource(R.drawable.ic_delete),
+                            contentDescription = "Delete task"
+                        )
+                    }
                 }
                 CreateGoalTextFieldWithTitle(
                     value = state.title,
@@ -265,7 +282,6 @@ fun TasksScreen(
                 contentColor = Color.White,
                 onClick = {
                     tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
-                    showBottomSheet = true
                 }
             ) {
                 Icon(
@@ -389,7 +405,6 @@ fun TasksScreen(
                             taskDeadlineSection = taskDeadlineSection,
                             onTaskClick = {
                                 tasksViewModel.processCommand(TasksCommand.ClickTask(task))
-                                showBottomSheet = true
                             }
                         ) {
                             tasksViewModel.processCommand(
@@ -450,8 +465,7 @@ fun TaskCard(
                     selectedColor = Color(0xFF10B981)
                 )
             )
-            Column(
-            ) {
+            Column{
                 Text(
                     text = task.title,
                     fontWeight = FontWeight.Bold,
@@ -478,20 +492,23 @@ fun TaskCard(
 
                         val formatter = DateTimeFormatter.ofPattern("HH:mm")
 
-                        val taskTime = when(taskDeadlineSection){
+                        val taskTime = when (taskDeadlineSection) {
                             TaskDeadlineSection.TODAY -> {
                                 Instant.ofEpochMilli(deadline)
                                     .atZone(ZoneId.systemDefault())
                                     .format(formatter)
                             }
+
                             TaskDeadlineSection.TOMORROW -> {
                                 Instant.ofEpochMilli(deadline)
                                     .atZone(ZoneId.systemDefault())
                                     .format(formatter)
                             }
+
                             TaskDeadlineSection.NEXT_WEEK -> {
                                 DateFormatter.formatDate(deadline)
                             }
+
                             TaskDeadlineSection.LATER -> {
                                 DateFormatter.formatDate(deadline)
                             }

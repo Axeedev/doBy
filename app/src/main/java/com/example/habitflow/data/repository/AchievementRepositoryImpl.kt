@@ -1,6 +1,5 @@
 package com.example.habitflow.data.repository
 
-import android.util.Log
 import com.example.habitflow.data.StreakManager
 import com.example.habitflow.data.local.achievements.AchievementCodes
 import com.example.habitflow.data.local.achievements.AchievementsDao
@@ -31,9 +30,7 @@ class AchievementRepositoryImpl @Inject constructor(
         val lockedAchievementsTasksCompleted =
             achievementsDao.getLockedAchievementsByType(AchievementType.TASKS_COMPLETED)
         val unlockedNow = mutableListOf<Boolean>()
-        unlockedNow.add(updateDayStreak().also {
-            Log.d("updateDayStreak", it.toString())
-        })
+        unlockedNow.add(updateDayStreak())
 
         streakManager.updateStreak()
 
@@ -54,8 +51,10 @@ class AchievementRepositoryImpl @Inject constructor(
             }
         }
 
-        unlockedNow.add(checkForSpecialAchievements().also { Log.d("special", it.toString()) })
         val completedTask = tasksDao.getLastCompletedTask()
+
+        val isCompletedSpecialEvents = checkForSpecialAchievements()
+        unlockedNow.add(isCompletedSpecialEvents)
 
         unlockedNow.add(
             checkTimeAchievement(
@@ -63,7 +62,7 @@ class AchievementRepositoryImpl @Inject constructor(
                 code = AchievementCodes.SPEEDSTER
             ) {
                 abs(it) <= 1
-            }.also { Log.d("checkTimeAchievement", it.toString()) })
+            })
 
         unlockedNow.add(
             checkTimeAchievement(
@@ -71,10 +70,7 @@ class AchievementRepositoryImpl @Inject constructor(
                 code = AchievementCodes.CLUTCH
             ) {
                 abs(it) <= 5
-            }.also { Log.d("checkTimeAchievementClutch", it.toString()) })
-
-        println(unlockedNow.joinToString(", "))
-
+            })
         return unlockedNow.any { it }
     }
 

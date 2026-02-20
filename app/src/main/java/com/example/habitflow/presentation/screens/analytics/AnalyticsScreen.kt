@@ -3,6 +3,7 @@
 package com.example.habitflow.presentation.screens.analytics
 
 import android.graphics.Paint
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -65,6 +66,28 @@ import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
+private val menuItems = listOf(
+    MenuItem(
+        chartType = ChartType.BAR_CHART,
+        iconId = R.drawable.ic_bar_chart
+    ),
+    MenuItem(
+        chartType = ChartType.HEATMAP,
+        iconId = R.drawable.ic_heatmap
+    )
+)
+
+private val intensityColors = listOf(
+    Color.Gray.copy(alpha = 0.4f),
+    Color(0xFF00ad00),
+    Color(0xFF00d100),
+    Color(0xFF00f000),
+    Color(0xFFb3ffb3)
+)
+
+private const val VISIBLE_COUNT = 7
+
+
 @Composable
 fun AnalyticsScreen(
     viewModel: AnalyticsViewModel = hiltViewModel(),
@@ -73,9 +96,10 @@ fun AnalyticsScreen(
     val state by viewModel.state.collectAsState()
 
     Scaffold(
+        containerColor = Color(0xFFF7F8FA),
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF7F8FA)),
                 title = {
                     Text(
                         modifier = Modifier
@@ -99,7 +123,6 @@ fun AnalyticsScreen(
             )
         }
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -110,7 +133,6 @@ fun AnalyticsScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
-
             ) {
                 Card(
                     modifier = Modifier
@@ -119,8 +141,9 @@ fun AnalyticsScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
                         contentColor = Color.Unspecified,
-                        containerColor = Color.Transparent
-                    )
+                        containerColor = Color.White
+                    ),
+                    border = BorderStroke(1.dp, Color(0XFFEBEBEB))
                 ) {
                     Column(
                         modifier = Modifier.padding(all = 16.dp),
@@ -136,16 +159,30 @@ fun AnalyticsScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
                         )
-                        val textColor =
-                            if (state.percentageDiffPastWeek < 0) Color.Red else Color(0xFF10B981).copy(
-                                alpha = 0.6f
-                            )
+                        val currentPercentage = state.percentageDiffPastWeek
+
+                        val (color, iconId) = when{
+                            currentPercentage == 0 -> TrendItem(Color.Gray, R.drawable.ic_flat)
+                            currentPercentage > 0 -> TrendItem(Color(0xFF10B981), R.drawable.ic_upwards)
+                            else -> TrendItem(Color(0xFFdc143c), R.drawable.ic_downwards)
+                        }
+
                         val text = if (state.percentageDiffPastWeek > 0) "+" else ""
-                        Text(
-                            text = "$text${state.percentageDiffPastWeek}% past 7 days",
-                            fontWeight = FontWeight.Medium,
-                            color = textColor
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(iconId),
+                                contentDescription = "trend",
+                                tint = color
+                            )
+                            Spacer(Modifier.size(8.dp))
+                            Text(
+                                text = "$text${state.percentageDiffPastWeek}% past 7 days",
+                                fontWeight = FontWeight.Medium,
+                                color = color
+                            )
+                        }
                     }
                 }
                 Card(
@@ -155,8 +192,9 @@ fun AnalyticsScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
                         contentColor = Color.Unspecified,
-                        containerColor = Color.Transparent
-                    )
+                        containerColor = Color.White
+                    ),
+                    border = BorderStroke(1.dp, Color(0XFFEBEBEB))
                 ) {
                     Column(
                         modifier = Modifier.padding(all = 16.dp),
@@ -165,11 +203,17 @@ fun AnalyticsScreen(
                         Text(
                             text = "This week",
                             color = Color.Gray,
+                            fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = state.completedTasksThisWeek.toString(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
+                        )
+                        Text(
+                            text = "Tasks completed",
+                            color = Color.Gray,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
@@ -184,13 +228,37 @@ fun AnalyticsScreen(
             ) {
 
                 var expanded by remember { mutableStateOf(false) }
+                Column(
+                    modifier = Modifier.weight(1f)
+                ){
+                    Text(
+                        text = state.selectedChartType.title,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    if (state.selectedChartType == ChartType.HEATMAP) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = "Less"
+                            )
+                            intensityColors.forEach { color ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(color)
+                                )
+                            }
+                            Text(
+                                text = "More"
+                            )
+                        }
+                    }
+                }
 
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = state.selectedChartType.title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
                 Column(
                     modifier = Modifier
                 ) {
@@ -199,27 +267,29 @@ fun AnalyticsScreen(
                         onDismissRequest = {
                             expanded = false
                         },
-                        containerColor = Color.Gray.copy(alpha = 0.5f),
+                        containerColor = Color.Gray.copy(alpha = 0.887f),
                         shape = RoundedCornerShape(20.dp),
                         border = null,
                         shadowElevation = 0.dp,
                         tonalElevation = 0.dp
                     ) {
-                        AnalyticsViewModel.menuItems.forEach { item ->
+                        menuItems.forEach { item ->
                             DropdownMenuItem(
                                 text = {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = item.chartType.title
+                                            text = item.chartType.title,
+                                            color = Color.White
                                         )
                                     }
                                 },
                                 leadingIcon = {
                                     Icon(
                                         painter = painterResource(item.iconId),
-                                        contentDescription = "type of bar"
+                                        contentDescription = "type of bar",
+                                        tint = Color.White
                                     )
 
                                 },
@@ -246,6 +316,7 @@ fun AnalyticsScreen(
                     )
                 }
             }
+            Spacer(Modifier.size(24.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -273,8 +344,6 @@ fun AnalyticsScreen(
     }
 }
 
-private const val VISIBLE_COUNT = 7
-
 @Composable
 fun WeeklyBarChart(
     data: List<Pair<LocalDate, Int>>,
@@ -288,9 +357,10 @@ fun WeeklyBarChart(
             .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent,
+            containerColor = Color.White,
             contentColor = Color.Unspecified
         ),
+        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
     ) {
         var screenWidth by remember { mutableFloatStateOf(0f) }
         var contentWidth by remember { mutableFloatStateOf(0f) }
@@ -430,15 +500,17 @@ fun HeatmapGrid(
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             contentColor = Color.Unspecified,
-            containerColor = Color.Transparent
-        )
+            containerColor = Color.White
+        ),
+        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
     ) {
         LazyRow(
-            modifier = Modifier,
+            modifier = Modifier
+                .padding(vertical = 16.dp),
             state = listState,
             horizontalArrangement = Arrangement
                 .spacedBy(32.dp),
-            contentPadding = PaddingValues(16.dp)
+            contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             items(months, key = { it.monthValue }) { month ->
                 HeatMapMonth(
@@ -470,7 +542,7 @@ fun HeatMapMonth(
     ) {
         Text(
             modifier = Modifier
-                .padding(all = 8.dp),
+                .padding(start = 8.dp, bottom = 8.dp),
             text = month.month.getDisplayName(
                 TextStyle.SHORT,
                 Locale.getDefault(),
@@ -506,19 +578,23 @@ fun HeatMapMonth(
                             }
 
                             count == 1 -> {
-                                Color(0xFFbdffbd)
+                                Color(0xFF00ad00)
                             }
+
 
                             count == 2 -> {
-                                Color(0xFF94ff94)
+                                Color(0xFF00d100)
                             }
+
 
                             count == 3 -> {
-                                Color(0xFF61ff61)
+                                Color(0xFF00f000)
                             }
 
+
+
                             else -> {
-                                Color(0xFF0aff0a)
+                                Color(0xFFb3ffb3)
                             }
                         }
 
@@ -544,7 +620,5 @@ fun HeatMapMonth(
                 }
             }
         }
-
     }
-
 }
