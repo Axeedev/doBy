@@ -2,6 +2,7 @@ package com.example.habitflow.presentation.screens.analytics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.habitflow.R
 import com.example.habitflow.domain.usecases.analytics.GetCountOfCompletedTasksForWeekUseCase
 import com.example.habitflow.domain.usecases.analytics.GetDailyStatsUseCase
 import com.example.habitflow.domain.usecases.analytics.GetWeeklyDifferencePercentageUseCase
@@ -11,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,16 +39,38 @@ class AnalyticsViewModel @Inject constructor(
                 val pairs = stats.toWeeklyPairsFromDayBucket()
                 AnalyticsScreenState(
                     dailyStats = pairs,
+                    heatMapStats = pairs,
                     completedTasksOverall = size,
                     completedTasksThisWeek = countOfCompletedTasks,
                     percentageDiffPastWeek = differencePercentage
                 )
             }.collect { state->
                 _state.value = state
-
             }
         }
+    }
+
+    fun processCommand(analyticsCommand: AnalyticsCommand){
+        when(analyticsCommand){
+            is AnalyticsCommand.SwitchSelectedChartType -> {
+                _state.update {
+                    it.copy(selectedChartType = analyticsCommand.chartType)
+                }
+            }
+        }
+    }
 
 
+    companion object{
+        val menuItems = listOf(
+            MenuItem(
+                chartType = ChartType.BAR_CHART,
+                iconId = R.drawable.ic_bar_chart
+            ),
+            MenuItem(
+                chartType = ChartType.HEATMAP,
+                iconId = R.drawable.ic_heatmap
+            )
+        )
     }
 }

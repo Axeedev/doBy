@@ -4,11 +4,14 @@ package com.example.habitflow.presentation.screens.analytics
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,10 +19,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -27,12 +35,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
@@ -48,7 +59,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
 import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.TextStyle
 import java.util.Locale
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 @Composable
 fun AnalyticsScreen(
@@ -97,15 +112,14 @@ fun AnalyticsScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
 
             ) {
-                ElevatedCard(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
                     shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp),
-                    colors = CardDefaults.elevatedCardColors(
+                    colors = CardDefaults.cardColors(
                         contentColor = Color.Unspecified,
-                        containerColor = Color.White
+                        containerColor = Color.Transparent
                     )
                 ) {
                     Column(
@@ -122,7 +136,10 @@ fun AnalyticsScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
                         )
-                        val textColor = if (state.percentageDiffPastWeek < 0) Color.Red else Color(0xFF10B981).copy(alpha = 0.6f)
+                        val textColor =
+                            if (state.percentageDiffPastWeek < 0) Color.Red else Color(0xFF10B981).copy(
+                                alpha = 0.6f
+                            )
                         val text = if (state.percentageDiffPastWeek > 0) "+" else ""
                         Text(
                             text = "$text${state.percentageDiffPastWeek}% past 7 days",
@@ -131,15 +148,14 @@ fun AnalyticsScreen(
                         )
                     }
                 }
-                ElevatedCard(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
                     shape = RoundedCornerShape(12.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp),
-                    colors = CardDefaults.elevatedCardColors(
+                    colors = CardDefaults.cardColors(
                         contentColor = Color.Unspecified,
-                        containerColor = Color.White
+                        containerColor = Color.Transparent
                     )
                 ) {
                     Column(
@@ -160,53 +176,141 @@ fun AnalyticsScreen(
             }
             Spacer(Modifier.size(24.dp))
 
-            WeeklyBarChart(
-                data = state.dailyStats
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                var expanded by remember { mutableStateOf(false) }
+
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = state.selectedChartType.title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Column(
+                    modifier = Modifier
+                ) {
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = {
+                            expanded = false
+                        },
+                        containerColor = Color.Gray.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(20.dp),
+                        border = null,
+                        shadowElevation = 0.dp,
+                        tonalElevation = 0.dp
+                    ) {
+                        AnalyticsViewModel.menuItems.forEach { item ->
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = item.chartType.title
+                                        )
+                                    }
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        painter = painterResource(item.iconId),
+                                        contentDescription = "type of bar"
+                                    )
+
+                                },
+                                onClick = {
+                                    viewModel.processCommand(
+                                        AnalyticsCommand.SwitchSelectedChartType(
+                                            item.chartType
+                                        )
+                                    )
+                                    expanded = !expanded
+                                }
+                            )
+                        }
+                    }
+                    Icon(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable {
+                                expanded = !expanded
+                            },
+                        painter = painterResource(R.drawable.ic_menu),
+                        contentDescription = "open menu",
+                        tint = Color.Black
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(),
+            ) {
+                when (state.selectedChartType) {
+                    ChartType.BAR_CHART -> {
+                        WeeklyBarChart(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp),
+                            data = state.dailyStats,
+                            maxValue = state.maxValue
+                        )
+                    }
+
+                    ChartType.HEATMAP -> {
+                        HeatmapGrid(
+                            statsMap = state.statsMap,
+                            months = state.months,
+                        )
+                    }
+                }
+            }
 
         }
     }
 }
 
+private const val VISIBLE_COUNT = 7
 
 @Composable
 fun WeeklyBarChart(
     data: List<Pair<LocalDate, Int>>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    maxValue: Int,
 ) {
-    val maxValue = (data.maxOfOrNull { it.second } ?: 0).coerceAtLeast(1)
     val numberOfGridLines = maxValue / 2 + 1
 
-    ElevatedCard(
+    Card(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = Color.White),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.5.dp)
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent,
+            contentColor = Color.Unspecified
+        ),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, top = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                text = "Tasks completed"
-            )
-        }
         var screenWidth by remember { mutableFloatStateOf(0f) }
         var contentWidth by remember { mutableFloatStateOf(0f) }
 
         var barWidth by remember { mutableFloatStateOf(0f) }
 
-        val visibleCount = 7
+        var visibleCount by remember { mutableIntStateOf(VISIBLE_COUNT) }
         var scrolledBy by remember { mutableFloatStateOf(0f) }
-        var initialized by remember { mutableStateOf(false) }
+        LaunchedEffect(contentWidth, screenWidth, data.size) {
+            scrolledBy = if (contentWidth > screenWidth) {
+                screenWidth - contentWidth
+            } else {
+                0f
+            }
+        }
+        val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
 
-        val transformableState = rememberTransformableState { _, panChange, _ ->
+            visibleCount = (visibleCount / zoomChange)
+                .roundToInt()
+                .coerceIn(5, 10)
 
             val minScroll = -contentWidth + screenWidth
             val maxScroll = 0f
@@ -214,8 +318,6 @@ fun WeeklyBarChart(
             scrolledBy = (scrolledBy + panChange.x)
                 .coerceIn(minScroll, maxScroll)
         }
-
-
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -227,11 +329,6 @@ fun WeeklyBarChart(
 
             screenWidth = size.width
             contentWidth = barSpacing + data.size * (barWidth + barSpacing)
-            if (!initialized && contentWidth > size.width) {
-                scrolledBy = size.width - contentWidth
-                initialized = true
-            }
-
 
             val availableWidth = size.width - barSpacing * (visibleCount + 1)
             barWidth = availableWidth / visibleCount
@@ -260,7 +357,8 @@ fun WeeklyBarChart(
 
                 data.forEachIndexed { index, (date, value) ->
 
-                    val barHeight = if (value == 0) 10f else  value / maxValue.toFloat() * chartHeight
+                    val barHeight =
+                        if (value == 0) 10f else value / maxValue.toFloat() * chartHeight
 
                     val left = barSpacing + index * (barWidth + barSpacing)
                     val top = chartHeight - barHeight
@@ -281,7 +379,7 @@ fun WeeklyBarChart(
 
                     drawContext.canvas.nativeCanvas.apply {
                         val paint = Paint().apply {
-                            color = android.graphics.Color.GRAY
+                            color = android.graphics.Color.BLACK
                             textSize = 28f
                             textAlign = Paint.Align.CENTER
                             isAntiAlias = true
@@ -292,10 +390,21 @@ fun WeeklyBarChart(
                             "%02d",
                             date.dayOfMonth
                         )
+                        val monthLabel = date.month.getDisplayName(
+                            TextStyle.SHORT,
+                            Locale.getDefault()
+                        )
+
                         drawText(
                             dayLabel,
                             left + barWidth / 2f,
                             chartHeight + bottomPadding / 2,
+                            paint
+                        )
+                        drawText(
+                            monthLabel,
+                            left + barWidth / 2f,
+                            chartHeight + bottomPadding,
                             paint
                         )
                     }
@@ -303,4 +412,139 @@ fun WeeklyBarChart(
             }
         }
     }
+}
+
+@Composable
+fun HeatmapGrid(
+    modifier: Modifier = Modifier,
+    statsMap: Map<LocalDate, Int>,
+    months: List<YearMonth>
+
+) {
+    val listState = rememberLazyListState()
+    LaunchedEffect(Unit) {
+        listState.scrollToItem(months.lastIndex)
+    }
+    Card(
+        modifier = modifier
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            contentColor = Color.Unspecified,
+            containerColor = Color.Transparent
+        )
+    ) {
+        LazyRow(
+            modifier = Modifier,
+            state = listState,
+            horizontalArrangement = Arrangement
+                .spacedBy(32.dp),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            items(months, key = { it.monthValue }) { month ->
+                HeatMapMonth(
+                    month = month,
+                    data = statsMap
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun HeatMapMonth(
+    month: YearMonth,
+    data: Map<LocalDate, Int>
+) {
+
+    val daysInMonth = month.lengthOfMonth()
+    val firstDay = month.atDay(1)
+    val firstDayOffset = firstDay.dayOfWeek.value - 1
+    val today = LocalDate.now()
+
+    val totalCells = firstDayOffset + daysInMonth
+    val numberOfColumns = ceil(totalCells / 7f).toInt()
+
+    Column(
+
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(all = 8.dp),
+            text = month.month.getDisplayName(
+                TextStyle.SHORT,
+                Locale.getDefault(),
+            ),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            repeat(numberOfColumns) { week ->
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    repeat(7) { row ->
+                        val index = week * 7 + row
+                        val dayNumber = index - firstDayOffset + 1
+
+                        val date =
+                            if (dayNumber in 1..daysInMonth)
+                                firstDay.plusDays((dayNumber - 1).toLong())
+                            else null
+
+                        val count = date?.let { data[it] } ?: 0
+
+                        val color = when {
+                            date == null -> {
+                                Color.Transparent
+                            }
+
+                            count == 0 -> {
+                                Color.Gray.copy(alpha = 0.4f)
+                            }
+
+                            count == 1 -> {
+                                Color(0xFFbdffbd)
+                            }
+
+                            count == 2 -> {
+                                Color(0xFF94ff94)
+                            }
+
+                            count == 3 -> {
+                                Color(0xFF61ff61)
+                            }
+
+                            else -> {
+                                Color(0xFF0aff0a)
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .background(
+                                    color = color,
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                        ) {
+                            if (date == today) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(5.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.Red)
+                                        .align(Alignment.Center)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
 }

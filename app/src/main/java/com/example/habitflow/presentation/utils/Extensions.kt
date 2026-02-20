@@ -59,9 +59,9 @@ fun Map<Long, Int>.toWeeklyPairsFromDayBucket(
 ): List<Pair<LocalDate, Int>> {
 
     val today = LocalDate.now(zoneId)
-    val start = today.minusDays(30)
+    val start = today.minusDays(365)
 
-    return (0..30).map { offset ->
+    return (0..365).map { offset ->
         val date = start.plusDays(offset.toLong())
 
         val bucket = date
