@@ -49,6 +49,7 @@
     <string name="information_for_today_field">Information for today</string>
     <string name="information_for_today_morning">Morning</string>
     <string name="information_for_today_night">Night</string>
+    <string name="number_of_minutes">minutes</string>
     <string name="sign_out">Sign out</string>
 
 <!--Goals feature-->
@@ -73,6 +74,11 @@
     <string name="update_progress">Update progress</string>
 
 <!--Achievements feature-->
+
+    <string name="new_achievement_unlocked">New achievement unlocked</string>
+    <string name="go_to_achievements">Go to Achievements</string>
+
+
     <string name="achievements_nav_drawer">Achievements</string>
     <string name="achievements_screen">My Achievements</string>
     <string name="current_streak">Current streak</string>
@@ -148,6 +154,24 @@
 <!--Recently completed feature-->
     <string name="recently_completed_screen">Recently completed</string>
     <string name="recently_completed_naw_drawer">Recently Completed</string>
+
+
+
+<!--Auth feature-->
+    <string name="auth_welcome_back">Welcome back!</string>
+    <string name="auth_get_started">Get started now</string>
+    <string name="auth_email_address_field">Email address</string>
+    <string name="auth_email_address_field_placeholder">Enter your email</string>
+    <string name="auth_password_field">Password</string>
+    <string name="auth_password_field_placeholder">Enter your password</string>
+    <string name="auth_login_button">Login</string>
+    <string name="auth_sign_up_button">Sign up</string>
+    <string name="auth_or">or</string>
+    <string name="auth_sign_in_google_button">Sign in with Google</string>
+    <string name="auth_dont_have_account">Don\'t have an account?</string>
+    <string name="auth_from_login_to_sign_up">Sign up</string>
+    <string name="auth_invalid_email">Invalid email</string>
+    <string name="auth_invalid_password">Password must be at least 8 characters long</string>
 
     <string name="client_id" translatable="false">318248066212-aa90fhutnrgbnuqtibsull5sktt4jq2m.apps.googleusercontent.com</string>
 </resources>

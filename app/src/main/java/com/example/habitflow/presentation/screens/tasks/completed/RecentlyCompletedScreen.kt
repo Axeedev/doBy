@@ -148,7 +148,7 @@ fun CompletedTaskCard(
                     ) {
                         Text(
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                            text = completedTask.category.title,
+                            text = stringResource(completedTask.category.titleId),
                             color = Color.Black.copy(alpha = 0.4f),
                             fontSize = 14.sp
                         )

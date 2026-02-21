@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -92,8 +93,7 @@ fun TasksScreen(
             when (event) {
                 AchievementEvent.AchievementUnlocked -> {
                     snackbarHostState.showSnackbar(
-                        message = "New Achievement unlocked!",
-                        actionLabel = "Go to Achievements",
+                        message = "",
                         withDismissAction = true,
                         duration = SnackbarDuration.Short
                     )
@@ -220,7 +220,7 @@ fun TasksScreen(
                 CreateGoalTextFieldWithTitle(
                     value = state.description,
                     fieldTitle = stringResource(R.string.tasks_description_field),
-                    placeholderText = stringResource(R.string.description_field_placeholder),
+                    placeholderText = stringResource(R.string.tasks_description_placeholder),
                     minLines = 4
                 ) {
                     tasksViewModel.processCommand(TasksCommand.InputDescription(it))
@@ -265,7 +265,7 @@ fun TasksScreen(
                 }
                 CreateOrEditButton(
                     isSaveButtonEnabled = state.isButtonEnabled,
-                    text = state.buttonText
+                    text = if (state.taskId == null )stringResource(R.string.create_new_task) else stringResource(R.string.save_changes_button)
                 ) {
                     tasksViewModel.processCommand(TasksCommand.AddTask)
                     scope.launch {
@@ -310,7 +310,7 @@ fun TasksScreen(
                             )
                         ) {
                             Text(
-                                text = data.visuals.actionLabel ?: "Go to achievements",
+                                text = stringResource(R.string.go_to_achievements),
                                 fontWeight = FontWeight.Medium
                             )
                         }
@@ -320,7 +320,7 @@ fun TasksScreen(
                     shape = RoundedCornerShape(12.dp),
                 ) {
                     Text(
-                        text = data.visuals.message,
+                        text = stringResource(R.string.new_achievement_unlocked),
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -377,7 +377,7 @@ fun TasksScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = taskDeadlineSection.title,
+                                    text = stringResource(taskDeadlineSection.titleId),
                                     color = if (tasks.isNotEmpty()) Color.Black else Color(
                                         0xFF94A3B8
                                     ),
@@ -385,7 +385,11 @@ fun TasksScreen(
                                 )
                                 if (tasks.isNotEmpty()) {
                                     Text(
-                                        text = "tasks: ${tasks.size}",
+                                        text = pluralStringResource(
+                                            R.plurals.tasks_count,
+                                            tasks.size,
+                                            tasks.size
+                                        ),
                                         fontWeight = FontWeight.Medium,
                                         color = Color(0xFF94A3B8)
                                     )
@@ -483,7 +487,7 @@ fun TaskCard(
                     ) {
                         Text(
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                            text = task.category.title,
+                            text = stringResource(task.category.titleId),
                             color = Color.Black,
                             fontSize = 14.sp
                         )

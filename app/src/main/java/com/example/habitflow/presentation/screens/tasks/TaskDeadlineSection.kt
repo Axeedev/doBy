@@ -1,8 +1,10 @@
 package com.example.habitflow.presentation.screens.tasks
 
-enum class TaskDeadlineSection(val title : String) {
-    TODAY("Today"),
-    TOMORROW("Tomorrow"),
-    NEXT_WEEK("On a week"),
-    LATER("Later")
+import com.example.habitflow.R
+
+enum class TaskDeadlineSection(val titleId : Int) {
+    TODAY(R.string.tasks_today),
+    TOMORROW(R.string.tasks_tomorrow),
+    NEXT_WEEK(R.string.tasks_on_a_week),
+    LATER(R.string.tasks_later)
 }

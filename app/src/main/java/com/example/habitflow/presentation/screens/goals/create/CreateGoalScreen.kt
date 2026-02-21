@@ -536,7 +536,7 @@ fun FilterChips(
                 label = {
                     Text(
                         modifier = Modifier.padding(all = 8.dp),
-                        text = goalCategory.title
+                        text = stringResource(goalCategory.titleId),
                     )
                 },
                 shape = CircleShape,
@@ -659,7 +659,6 @@ fun CreateOrEditButton(
     text: String,
     content : @Composable () -> Unit = {},
     onClick: () -> Unit
-
 ) {
     Button(
         modifier = modifier

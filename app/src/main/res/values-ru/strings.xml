@@ -15,9 +15,11 @@
     <string name="tasks_later">Позже</string>
     <string name="tasks_nav_drawer">Задачи</string>
     <string name="information_for_today_night">Вечером</string>
+    <string name="number_of_minutes">минут</string>
     <string name="sign_out">Выйти из аккаунта</string>
     <string name="goals_nav_drawer">Цели</string>
     <string name="update_progress">Обновить прогресс</string>
+    <string name="go_to_achievements">В Достижения</string>
     <string name="achievements_nav_drawer">Достижения</string>
     <string name="filter_chip_all">Все</string>
     <string name="achievement_goal_master">Мастер</string>
@@ -28,8 +30,8 @@
     <string name="edit_task">Редактировать задачу</string>
     <string name="task_name_field">Название задачи</string>
     <string name="task_name_placeholder">Например: полить цветы</string>
-    <string name="set_time_field">Выберите время</string>
-    <string name="select_date_field">Выберите дату</string>
+    <string name="set_time_field">Время</string>
+    <string name="select_date_field">Дата</string>
     <string name="end_date_field">Дата окончания</string>
     <string name="tasks_description_placeholder">Добавьте детали задачи</string>
     <string name="category_field">Категория</string>
@@ -48,7 +50,7 @@
     <string name="completed_tasks_field">Завершённые задачи</string>
     <string name="completed_tasks_show_on_main">Показывать на главном экране</string>
     <string name="sync_with_calendar">Синхронизация с календарём</string>
-    <string name="show_events_from_calendar">Показывать события из календаря</string>
+    <string name="show_events_from_calendar">Показывать события</string>
     <string name="notifications_field">Уведомления</string>
     <string name="notifications_enable">Включить уведомления</string>
     <string name="notifications_notify_at">Напомнить в</string>
@@ -83,7 +85,7 @@
     <string name="analytics_heat_map">Карта активности</string>
     <string name="analytics_heat_map_less">Меньше</string>
     <string name="analytics_heat_map_more">Больше</string>
-    <string name="notifications_notify_before">Напомнить то</string>
+    <string name="notifications_notify_before">Напомнить за</string>
     <string name="tasks_description_field">Описание</string>
     <string name="achievement_decathlete">Десяточка</string>
     <string name="achievement_decathlete_description">Выполнить 10 задач</string>
@@ -115,4 +117,19 @@
     <string name="achievement_speedster">Сверхзвук</string>
     <string name="achievement_speedster_description">"Выполнить задачу менее чем через 5 минут после её создания "</string>
     <string name="achievement_first_blood">Первая кровь</string>
+    <string name="auth_welcome_back">С возвращением</string>
+    <string name="auth_get_started">Приступим прямо сейчас!</string>
+    <string name="auth_email_address_field">Адрес электронной почты</string>
+    <string name="auth_email_address_field_placeholder">Введите email</string>
+    <string name="auth_password_field">Пароль</string>
+    <string name="auth_password_field_placeholder">Введите пароль</string>
+    <string name="auth_login_button">Войти</string>
+    <string name="auth_sign_up_button">Зарегистрироваться</string>
+    <string name="auth_or">или</string>
+    <string name="auth_sign_in_google_button">Войти через Google</string>
+    <string name="auth_dont_have_account">Нет аккаунта?</string>
+    <string name="auth_from_login_to_sign_up">Зарегистрироваться</string>
+    <string name="auth_invalid_email">Неверный формат email</string>
+    <string name="auth_invalid_password">Длина пароля должна быть минимум 8 символов</string>
+    <string name="new_achievement_unlocked">Открыто новое достижение!</string>
 </resources>

@@ -208,7 +208,7 @@ fun SettingsScreen(
         containerColor = Color(0xFFF7F8FA),
         topBar = {
             CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor =  Color(0xFFF7F8FA)),
                 title = {
                     Text(
                         text = stringResource(R.string.settings_screen),
@@ -288,7 +288,7 @@ fun SettingsScreen(
             }
             item {
                 Text(
-                    text = stringResource(R.string.data_sync_field),
+                    text = stringResource(R.string.sync_with_calendar),
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
                 )
@@ -368,7 +368,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${state.notifyBeforeMinutes} minutes",
+                            text = "${state.notifyBeforeMinutes} ${stringResource(R.string.number_of_minutes)}",
                             color = Color.Gray
                         )
                         Icon(
@@ -616,7 +616,7 @@ fun NotifyBeforeItem(
         ) {
 
             Text(
-                text = "$minutes minutes"
+                text = "$minutes ${stringResource(R.string.number_of_minutes)}"
             )
 
             RadioButton(

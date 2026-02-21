@@ -115,7 +115,7 @@ fun AchievementsScreen(
                             },
                             label = {
                                 Text(
-                                    text = filterType.title
+                                    text = stringResource(filterType.titleId)
                                 )
                             },
                             border = BorderStroke(1.dp, Color(0XFFEBEBEB)),

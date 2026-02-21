@@ -2,6 +2,7 @@ package com.example.habitflow.presentation.screens.tasks.all
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskToCompletedUseCase
@@ -118,32 +119,32 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickCompleteTask -> {
-                _state.update { previous ->
-                    val previousList = previous.tasksMapSections[command.taskDeadlineSection]
-                        .orEmpty()
-                        .map { oldTask ->
-                            if (oldTask == command.task) {
-                                oldTask.copy(isCompleted = true)
-                            } else oldTask
+                if (command.task.category != GoalCategory.CALENDAR) {
+                    _state.update { previous ->
+                        val previousList = previous.tasksMapSections[command.taskDeadlineSection]
+                            .orEmpty()
+                            .map { oldTask ->
+                                if (oldTask == command.task) {
+                                    oldTask.copy(isCompleted = true)
+                                } else oldTask
+                            }
+                        val newMap = previous.tasksMapSections.toMutableMap()
+                        newMap[command.taskDeadlineSection] = previousList
+                        previous.copy(tasksMapSections = newMap)
+                    }
+                    viewModelScope.launch {
+                        if (command.task.isCompleted) {
+                            returnTaskUseCase(command.task.id)
+                        } else {
+                            addTaskToCompletedUseCase(command.task.id)
                         }
-                    val newMap = previous.tasksMapSections.toMutableMap()
-                    newMap[command.taskDeadlineSection] = previousList
-                    previous.copy(tasksMapSections = newMap)
-                }
-                viewModelScope.launch {
-
-                    if (command.task.isCompleted) {
-                        returnTaskUseCase(command.task.id)
-                    } else {
-                        addTaskToCompletedUseCase(command.task.id)
+                        val isAchieveUnlocked = if (!command.task.isReturned) {
+                            onTaskCompletedUseCase()
+                        } else false
+                        if (isAchieveUnlocked) {
+                            _unlockEvents.emit(AchievementEvent.AchievementUnlocked)
+                        }
                     }
-                    val isAchieveUnlocked = if (!command.task.isReturned) {
-                        onTaskCompletedUseCase()
-                    } else false
-                    if (isAchieveUnlocked) {
-                        _unlockEvents.emit(AchievementEvent.AchievementUnlocked)
-                    }
-
                 }
             }
 

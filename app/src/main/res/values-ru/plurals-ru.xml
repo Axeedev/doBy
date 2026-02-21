@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <plurals name="tasks_count">
+        <item quantity="one">%d задача</item>
+        <item quantity="few">%d задачи</item>
+        <item quantity="many">%d задач</item>
+        <item quantity="other">%d задачи</item>
+    </plurals>
+
+    <plurals name="goals_count">
+        <item quantity="one">%d активная цель</item>
+        <item quantity="few">%d активные цели</item>
+        <item quantity="many">%d активных целей</item>
+        <item quantity="other">%d активных цели</item>
+    </plurals>
+
+</resources>

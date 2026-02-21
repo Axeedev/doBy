@@ -14,7 +14,7 @@ data class TasksScreenState(
     val remindAtMinutesOfDay: TimeEntity? = null,
     val description: String = "",
     val priority: Priority = Priority.LOW,
-    val goalCategory: GoalCategory = GoalCategory.EDUCATION,
+    val goalCategory: GoalCategory = GoalCategory.SPORTS,
     val buttonText: String = "Create task"
 ) {
     val isButtonEnabled

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="tasks_count">
+        <item quantity="one">%d task</item>
+        <item quantity="other">%d tasks</item>
+    </plurals>
+
+    <plurals name="goals_count">
+        <item quantity="one">%d active goal</item>
+        <item quantity="other">%d active goals</item>
+    </plurals>
+
+
+</resources>

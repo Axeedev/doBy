@@ -1,8 +1,10 @@
 package com.example.habitflow.presentation.screens.achievements
 
-enum class FilterChipType(val title: String ) {
+import com.example.habitflow.R
 
-    IN_PROGRESS("In Progress"),
-    COMPLETED("Completed"),
-    ALL("All")
+enum class FilterChipType(val titleId: Int ) {
+
+    IN_PROGRESS(R.string.filter_chip_in_progress),
+    COMPLETED(R.string.filter_chip_completed),
+    ALL(R.string.filter_chip_all)
 }

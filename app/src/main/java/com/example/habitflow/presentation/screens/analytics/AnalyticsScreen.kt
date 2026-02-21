@@ -233,7 +233,7 @@ fun AnalyticsScreen(
                     modifier = Modifier.weight(1f)
                 ){
                     Text(
-                        text = state.selectedChartType.title,
+                        text = stringResource(state.selectedChartType.titleId) ,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -281,7 +281,7 @@ fun AnalyticsScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = item.chartType.title,
+                                            text = stringResource(item.chartType.titleId),
                                             color = Color.White
                                         )
                                     }

@@ -8,7 +8,6 @@ import com.example.habitflow.data.local.tasks.CompletedTaskEntity
 import com.example.habitflow.data.local.tasks.TaskEntity
 import com.example.habitflow.domain.entities.achievements.Achievement
 import com.example.habitflow.domain.entities.goals.Goal
-import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.domain.entities.tasks.CompletedTask
 import com.example.habitflow.domain.entities.tasks.Priority
@@ -23,7 +22,7 @@ fun Task.toTaskEntity(
         deadlineMillis = deadlineMillis ,
         note = note ,
         isCompleted = isCompleted,
-        category = category.title,
+        category = category,
         priority = priority.name,
         isReturned = false
     )
@@ -34,7 +33,7 @@ fun TaskEntity.toTask(): Task{
         title = title ,
         deadlineMillis = deadlineMillis,
         note = note,
-        category = GoalCategory.valueOf(this.category.uppercase()),
+        category = category,
         priority = Priority.valueOf(this.priority.uppercase()),
         isCompleted = isCompleted,
         isReturned = isReturned
@@ -53,7 +52,7 @@ fun Goal.toGoalEntity(coverUri: String? = null) : GoalEntity{
     return GoalEntity(
         id = id,
         title = title,
-        category = category.title,
+        category = category,
         startDate = goalStartDate,
         endDate = goalEndDate,
         description = description,
@@ -74,7 +73,7 @@ fun Milestone.toMilestoneEntity(goalId: Long) : MilestoneEntity{
 fun GoalWithMilestoneEntity.toGoal(): Goal {
     return Goal(
         id = goalEntity.id,
-        category = GoalCategory.valueOf(goalEntity.category.uppercase()),
+        category = goalEntity.category,
         title = goalEntity.title,
         description = goalEntity.description,
         goalStartDate = goalEntity.startDate,
@@ -115,7 +114,7 @@ fun CompletedTaskEntity.toCompletedTask() : CompletedTask{
         title = title,
         deadlineMillis = deadlineMillis,
         note = note,
-        category = GoalCategory.valueOf(category.uppercase()),
+        category = category,
         priority = Priority.valueOf(priority.uppercase()),
         isCompleted = isCompleted,
         completionDate = completedAt

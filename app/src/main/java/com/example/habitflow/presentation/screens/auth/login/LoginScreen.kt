@@ -2,7 +2,6 @@
 
 package com.example.habitflow.presentation.screens.auth.login
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -113,9 +113,7 @@ fun LoginScreen(
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                title = {
-
-                },
+                title = {},
                 navigationIcon = {
                     if (!isLogin) {
                         Icon(
@@ -151,13 +149,14 @@ fun LoginScreen(
                 Text(
                     fontSize = 28.sp,
                     fontWeight = FontWeight.SemiBold,
-                    text = if (isLogin) "Welcome back!" else "Get started now"
+                    lineHeight = 34.sp,
+                    text = if (isLogin) stringResource(R.string.auth_welcome_back) else stringResource(R.string.auth_get_started)
                 )
 
                 Spacer(Modifier.size(24.dp))
 
                 Text(
-                    text = "Email address",
+                    text = stringResource(R.string.auth_email_address_field) ,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
                 )
@@ -167,7 +166,7 @@ fun LoginScreen(
                 Column(modifier = Modifier.fillMaxWidth()) {
                     AuthTextField(
                         value = state.email,
-                        placeholderText = "Enter your email",
+                        placeholderText = stringResource(R.string.auth_email_address_field_placeholder),
                         isError = state.isEmailError,
                     ) {
                         viewModel.processCommand(AuthCommand.InputEmail(it))
@@ -175,7 +174,7 @@ fun LoginScreen(
                     if (state.isEmailError){
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "Invalid email",
+                            text = stringResource(R.string.auth_invalid_email),
                             color = Color.Red
                         )
                     }
@@ -184,7 +183,7 @@ fun LoginScreen(
                 Spacer(Modifier.size(24.dp))
 
                 Text(
-                    text = "Password",
+                    text = stringResource(R.string.auth_password_field),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
                 )
@@ -195,7 +194,7 @@ fun LoginScreen(
                     AuthTextField(
                         value = state.password,
                         visualTransformation = PasswordVisualTransformation(),
-                        placeholderText = "Enter your password",
+                        placeholderText = stringResource(R.string.auth_password_field_placeholder),
                         isError = state.isPasswordError,
                     ) {
                         viewModel.processCommand(AuthCommand.InputPassword(it))
@@ -203,7 +202,7 @@ fun LoginScreen(
                     if (state.isPasswordError) {
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "The password must be at least 8 characters long",
+                            text = stringResource(R.string.auth_invalid_password),
                             color = Color.Red
                         )
                     }
@@ -213,7 +212,7 @@ fun LoginScreen(
 
                 CreateOrEditButton(
                     isSaveButtonEnabled = state.isAuthButtonEnabled,
-                    text = if (isLogin) "Login" else "Sign up",
+                    text = if (isLogin) stringResource(R.string.auth_login_button) else stringResource(R.string.auth_sign_up_button),
                     content = {
                         if (state.isLoading){
                             Spacer(Modifier.width(16.dp))
@@ -241,7 +240,7 @@ fun LoginScreen(
                     Text(
                         modifier = Modifier
                             .padding(horizontal = 8.dp),
-                        text = "or"
+                        text = stringResource(R.string.auth_or)
                     )
 
                     HorizontalDivider(Modifier.weight(1f))
@@ -261,7 +260,7 @@ fun LoginScreen(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
                         Text(
-                            text = "Don't have an account?",
+                            text = stringResource(R.string.auth_dont_have_account),
                             fontWeight = FontWeight.Medium
                         )
                         Spacer(
@@ -276,7 +275,7 @@ fun LoginScreen(
                                 ){
                                     onSignupClick()
                                 },
-                            text = "Sign up",
+                            text = stringResource(R.string.auth_from_login_to_sign_up),
                             fontWeight = FontWeight.SemiBold,
                             color = Color(0xFF10B981)
                         )
@@ -301,12 +300,12 @@ fun GoogleSignInButton(
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_google),
-            contentDescription = "sign in with Google",
+            contentDescription = stringResource(R.string.auth_sign_in_google_button),
             tint = Color.Unspecified
         )
         Spacer(Modifier.size(16.dp))
         Text(
-            text = "Sign in with Google",
+            text = stringResource(R.string.auth_sign_in_google_button),
             color = Color.Black
         )
     }
