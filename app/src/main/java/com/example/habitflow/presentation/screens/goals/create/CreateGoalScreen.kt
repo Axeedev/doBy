@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -139,8 +140,8 @@ fun CreateGoalScreen(
             item {
                 CreateGoalTextFieldWithTitle(
                     value = state.title,
-                    fieldTitle = "Goal's name",
-                    placeholderText = "For example: to learn spanish"
+                    fieldTitle = stringResource(R.string.goal_title_field),
+                    placeholderText = stringResource(R.string.goal_title_placeholder)
                 ) {
                     viewModel.processCommand(CreateGoalCommand.InputTitle(it))
                 }
@@ -149,7 +150,7 @@ fun CreateGoalScreen(
 
             item {
                 Text(
-                    text = "Category",
+                    text = stringResource(R.string.category_field),
                 )
                 FilterChips(
                     stateGoalCategory = state.goalCategory
@@ -176,10 +177,10 @@ fun CreateGoalScreen(
 
             item {
                 CreateGoalTextFieldWithTitle(
-                    fieldTitle = "Description",
+                    fieldTitle = stringResource(R.string.goals_description_field),
                     minLines = 5,
                     value = state.description,
-                    placeholderText = "Describe why this goal is so important to you"
+                    placeholderText = stringResource(R.string.description_field_placeholder)
                 ) {
                     viewModel.processCommand(
                         CreateGoalCommand.InputDescription(it)
@@ -190,7 +191,7 @@ fun CreateGoalScreen(
 
             item {
                 Text(
-                    text = "Milestones",
+                    text = stringResource(R.string.milestones_field),
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.size(8.dp))
@@ -251,11 +252,11 @@ fun CreateGoalScreen(
                     isSaveButtonEnabled = state.isSaveButtonEnabled,
                     text = when (openReason) {
                         OpenReason.CREATE -> {
-                            "Create goal"
+                           stringResource(R.string.create_goal_button)
                         }
 
                         OpenReason.EDIT -> {
-                            "Save changes"
+                            stringResource(R.string.save_changes_button)
                         }
                     },
                 ) {
@@ -333,7 +334,7 @@ fun MilestoneCard(
                 onValueChange = onValueChange,
                 placeholder = {
                     Text(
-                        text = "Add milestone description"
+                        text = stringResource(R.string.milestone_description_placeholder)
                     )
                 }
             )
@@ -417,7 +418,7 @@ fun CreateAndEditGoalScreenTopBar(
             Text(
                 text = when (openReason) {
                     OpenReason.CREATE -> {
-                        "New Goal"
+                        stringResource(R.string.new_goal)
                     }
 
                     OpenReason.EDIT -> {
@@ -492,7 +493,7 @@ fun Photo(
                 }
                 Text(
                     color = MaterialTheme.colorScheme.onPrimary,
-                    text = "Add cover photo",
+                    text = stringResource(R.string.add_cover_photo),
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -572,7 +573,7 @@ fun DatePickerFields(
         CreateGoalTextFieldWithTitle(
             modifier = Modifier
                 .weight(1f),
-            fieldTitle = "Start date",
+            fieldTitle = stringResource(R.string.start_date_field),
             readOnly = true,
             value = DateFormatter.formatDate(startDate),
             enabled = false,
@@ -586,7 +587,7 @@ fun DatePickerFields(
         CreateGoalTextFieldWithTitle(
             modifier = Modifier
                 .weight(1f),
-            fieldTitle = "End date",
+            fieldTitle = stringResource(R.string.end_date_field),
             readOnly = true,
             enabled = false,
             value = DateFormatter.formatDate(endDate),
@@ -645,7 +646,7 @@ fun AddMilestoneButton(
         )
         Spacer(Modifier.size(8.dp))
         Text(
-            text = "Add milestone",
+            text = stringResource(R.string.add_milestone_button),
             fontWeight = FontWeight.SemiBold
         )
     }

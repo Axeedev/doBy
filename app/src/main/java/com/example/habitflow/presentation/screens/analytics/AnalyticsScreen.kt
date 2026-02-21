@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -104,7 +105,7 @@ fun AnalyticsScreen(
                     Text(
                         modifier = Modifier
                             .padding(start = 16.dp),
-                        text = "Your Activity",
+                        text = stringResource(R.string.analytics_screen),
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -150,7 +151,7 @@ fun AnalyticsScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "Tasks overall",
+                            text = stringResource(R.string.analytics_tasks_overall),
                             color = Color.Gray,
                             fontWeight = FontWeight.Medium
                         )
@@ -178,7 +179,7 @@ fun AnalyticsScreen(
                             )
                             Spacer(Modifier.size(8.dp))
                             Text(
-                                text = "$text${state.percentageDiffPastWeek}% past 7 days",
+                                text = "$text${state.percentageDiffPastWeek}% ${stringResource(R.string.analytics_past_7_days)}",
                                 fontWeight = FontWeight.Medium,
                                 color = color
                             )
@@ -201,7 +202,7 @@ fun AnalyticsScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "This week",
+                            text = stringResource(R.string.analytics_this_week),
                             color = Color.Gray,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -211,7 +212,7 @@ fun AnalyticsScreen(
                             fontSize = 28.sp
                         )
                         Text(
-                            text = "Tasks completed",
+                            text = stringResource(R.string.analytics_tasks_completed),
                             color = Color.Gray,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -242,7 +243,7 @@ fun AnalyticsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "Less"
+                                text = stringResource(R.string.analytics_heat_map_less)
                             )
                             intensityColors.forEach { color ->
                                 Box(
@@ -253,7 +254,7 @@ fun AnalyticsScreen(
                                 )
                             }
                             Text(
-                                text = "More"
+                                text = stringResource(R.string.analytics_heat_map_more)
                             )
                         }
                     }

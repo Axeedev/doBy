@@ -10,8 +10,8 @@ import com.example.habitflow.domain.entities.achievements.AchievementType
 data class AchievementEntity(
     @PrimaryKey
     val id: Int = 0,
-    val title: String,
-    val description: String,
+    val titleId: Int,
+    val descriptionId: Int,
     val targetGoal: Int,
     val currentProgress: Int = 0,
     val achievementType: AchievementType,

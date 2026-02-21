@@ -124,8 +124,8 @@ fun CompletedTaskEntity.toCompletedTask() : CompletedTask{
 
 fun AchievementEntity.toAchievement() = Achievement(
     id = id ,
-    title = title ,
-    description = description ,
+    titleId = titleId ,
+    descriptionId = descriptionId ,
     targetGoal = targetGoal ,
     currentScore = currentProgress ,
     iconResId = iconId,
@@ -133,8 +133,8 @@ fun AchievementEntity.toAchievement() = Achievement(
 )
 fun Achievement.toAchievementEntity() = AchievementEntity(
     id = id ,
-    title = title ,
-    description = description ,
+    titleId = titleId ,
+    descriptionId = descriptionId ,
     targetGoal = targetGoal ,
     currentProgress = currentScore ,
     iconId = iconResId,

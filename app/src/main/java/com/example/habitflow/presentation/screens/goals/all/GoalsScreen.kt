@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,7 +79,7 @@ fun GoalsScreen(
             },
                 title = {
                     Text(
-                        text = "My goals",
+                        text = stringResource(R.string.goals_screen),
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -114,7 +115,7 @@ fun GoalsScreen(
             }
             item {
                 Text(
-                    text = "Active goals",
+                    text = stringResource(R.string.active_goals),
                     color = MaterialTheme.colorScheme.onPrimaryFixedVariant
                 )
             }
@@ -198,7 +199,7 @@ fun GoalCard(
                 color = MaterialTheme.colorScheme.primaryFixed
             )
             Spacer(modifier = Modifier.size(16.dp))
-            Row() {
+            Row {
                 Icon(
                     painter = painterResource(R.drawable.ic_calendar),
                     contentDescription = "goal end date",
@@ -206,7 +207,7 @@ fun GoalCard(
                 )
                 Spacer(Modifier.size(8.dp))
                 Text(
-                    text = "Until ${DateFormatter.formatDate(goal.goalEndDate)}",
+                    text = "${stringResource(R.string.until)} ${DateFormatter.formatDate(goal.goalEndDate)}",
                     color = MaterialTheme.colorScheme.onPrimaryFixedVariant
                 )
             }
@@ -219,7 +220,7 @@ fun GoalCard(
                 ) {
                     Column {
                         Text(
-                            text = "Progress ${(progress * 100).roundToInt()} %",
+                            text = "${stringResource(R.string.progress)} ${(progress * 100).roundToInt()} %",
                             color = MaterialTheme.colorScheme.onPrimaryFixedVariant
                         )
                         Text(
@@ -255,7 +256,7 @@ fun GoalCard(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.secondary,
-                        text = "Upgrade Progress"
+                        text = stringResource(R.string.update_progress)
                     )
                 }
             }

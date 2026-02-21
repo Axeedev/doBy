@@ -1,4 +1,153 @@
 <resources>
     <string name="app_name">doBy</string>
-    <string name="client_id">318248066212-aa90fhutnrgbnuqtibsull5sktt4jq2m.apps.googleusercontent.com</string>
+
+<!--Tasks feature-->
+
+    <string name="tasks_nav_drawer">Tasks</string>
+    <string name="my_tasks_screen">My Tasks</string>
+    <string name="tasks_today">Today</string>
+    <string name="tasks_tomorrow">Tomorrow</string>
+    <string name="tasks_on_a_week">On a week</string>
+    <string name="tasks_later">Later</string>
+    <string name="create_new_task">Create new task</string>
+    <string name="edit_task">Edit task</string>
+    <string name="task_name_field">Task name</string>
+    <string name="task_name_placeholder">For example: to water the flowers</string>
+    <string name="select_date_field">Select date</string>
+    <string name="set_time_field">Set time</string>
+    <string name="tasks_description_field">Description</string>
+    <string name="tasks_description_placeholder">Add task details</string>
+    <string name="category_field">Category</string>
+    <string name="category_sports">Sports</string>
+    <string name="category_career">Career</string>
+    <string name="category_calendar">Calendar</string>
+    <string name="category_education">Education</string>
+    <string name="priority_field">Priority</string>
+    <string name="priority_low">Low</string>
+    <string name="priority_medium">Med</string>
+    <string name="priority_high">High</string>
+    <string name="button_create_task">Create task</string>
+    <string name="button_edit_task">Confirm changes</string>
+
+
+<!--Settings feature-->
+    <string name="settings_screen">Settings</string>
+    <string name="data_sync_field">Data sync</string>
+    <string name="data_sync_wifi_only">Wi-Fi only</string>
+    <string name="data_sync_sync_data_only_via_wifi">Sync data only via Wi-Fi</string>
+    <string name="completed_tasks_field">Completed tasks</string>
+    <string name="completed_tasks_show_on_main">Show on main screen</string>
+    <string name="sync_with_calendar">Sync with calendar</string>
+    <string name="show_events_from_calendar">Show events from calendar</string>
+    <string name="notifications_field">Notifications</string>
+    <string name="notifications_enable">Enable notifications</string>
+    <string name="notifications_notify_before">Notify before</string>
+    <string name="notifications_notify_at">Notify at</string>
+    <string name="notifications_back">Back</string>
+    <string name="notifications_done">Done</string>
+    <string name="notifications_remind_about_deadline">Remind about deadline</string>
+    <string name="information_for_today_field">Information for today</string>
+    <string name="information_for_today_morning">Morning</string>
+    <string name="information_for_today_night">Night</string>
+    <string name="sign_out">Sign out</string>
+
+<!--Goals feature-->
+    <string name="goals_nav_drawer">Goals</string>
+    <string name="goals_screen">My Goals</string>
+    <string name="active_goals">Active goals</string>
+    <string name="new_goal">New Goal</string>
+    <string name="add_cover_photo">Add cover photo</string>
+    <string name="goal_title_field">Goal\'s title</string>
+    <string name="goal_title_placeholder">For example: to learn spanish</string>
+    <string name="start_date_field">Start date</string>
+    <string name="end_date_field">End date</string>
+    <string name="goals_description_field">Description</string>
+    <string name="description_field_placeholder">Describe why this goal is so important to you</string>
+    <string name="milestones_field">Milestones</string>
+    <string name="milestone_description_placeholder">Add milestone description</string>
+    <string name="add_milestone_button">Add milestone</string>
+    <string name="create_goal_button">Create goal</string>
+    <string name="save_changes_button">Save changes</string>
+    <string name="until">Until</string>
+    <string name="progress">Progress</string>
+    <string name="update_progress">Update progress</string>
+
+<!--Achievements feature-->
+    <string name="achievements_nav_drawer">Achievements</string>
+    <string name="achievements_screen">My Achievements</string>
+    <string name="current_streak">Current streak</string>
+    <string name="current_streak_description">Complete tasks every day and raise your daily streak</string>
+    <string name="filter_chip_in_progress">In Progress</string>
+    <string name="filter_chip_completed">Completed</string>
+    <string name="filter_chip_all">All</string>
+
+    <string name="achievement_decathlete">Decathlete</string>
+    <string name="achievement_decathlete_description">Complete 10 tasks</string>
+
+    <string name="achievement_speedster">Speedster</string>
+    <string name="achievement_speedster_description">Complete a task within 5 mins of creating it</string>
+
+    <string name="achievement_first_blood">First blood</string>
+    <string name="achievement_first_blood_description">Complete 1 task</string>
+
+    <string name="achievement_centurion">Centurion</string>
+    <string name="achievement_centurion_description">Complete 100 tasks</string>
+
+    <string name="achievement_task_master">Task Master</string>
+    <string name="achievement_task_master_description">Complete 500 tasks</string>
+
+    <string name="achievement_hot_streak">Hot Streak</string>
+    <string name="achievement_hot_streak_description">Maintain a 3-day streak</string>
+
+    <string name="achievement_on_a_roll">On a Roll</string>
+    <string name="achievement_on_a_roll_description">Maintain a 7-day streak</string>
+
+    <string name="achievement_unstoppable">Unstoppable</string>
+    <string name="achievement_unstoppable_description">Maintain a 30-day streak</string>
+
+    <string name="achievement_overachiever">Overachiever</string>
+    <string name="achievement_overachiever_description">Complete 10 tasks in a single day</string>
+
+    <string name="achievement_early_bird">Early bird</string>
+    <string name="achievement_early_bird_description">Complete a task between 5:00 AM and 8:00 AM</string>
+
+    <string name="achievement_night_owl">Night owl</string>
+    <string name="achievement_night_owl_description">Complete a task between 0:00 AM and 4:00 AM</string>
+
+    <string name="achievement_clutch">Clutch</string>
+    <string name="achievement_clutch_description">Complete a task 1 minute before deadline</string>
+
+    <string name="achievement_monday_warrior">Monday Warrior</string>
+    <string name="achievement_monday_warrior_description">Complete 5 tasks on a Monday</string>
+
+    <string name="achievement_first_steps">First steps</string>
+    <string name="achievement_first_steps_description">Achieve 1 goal</string>
+
+    <string name="achievement_perfect_ten">Perfect ten</string>
+    <string name="achievement_perfect_ten_description">Achieve 10 goals</string>
+
+    <string name="achievement_goal_master">Goal Master</string>
+    <string name="achievement_goal_master_description">Achieve 100 goals</string>
+
+
+
+<!--Analytics feature-->
+    <string name="analytics_nav_drawer">Analytics</string>
+    <string name="analytics_screen">My Activity</string>
+    <string name="analytics_tasks_overall">Tasks overall</string>
+    <string name="analytics_this_week">This week</string>
+    <string name="analytics_past_7_days">Past 7 days</string>
+    <string name="analytics_tasks_completed">Tasks completed</string>
+    <string name="analytics_heat_map">Heat map</string>
+    <string name="analytics_heat_map_less">Less</string>
+    <string name="analytics_heat_map_more">More</string>
+    <string name="analytics_bar_chart">Bar chart</string>
+
+
+
+<!--Recently completed feature-->
+    <string name="recently_completed_screen">Recently completed</string>
+    <string name="recently_completed_naw_drawer">Recently Completed</string>
+
+    <string name="client_id" translatable="false">318248066212-aa90fhutnrgbnuqtibsull5sktt4jq2m.apps.googleusercontent.com</string>
 </resources>

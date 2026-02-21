@@ -1,40 +1,41 @@
 package com.example.habitflow.presentation.navigation
 
 import androidx.navigation3.runtime.NavKey
+import com.example.habitflow.R
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class Screen(val label: String) : NavKey {
+sealed class Screen(val labelId: Int) : NavKey {
 
     @Serializable
-    data object Tasks : Screen("Tasks")
+    data object Tasks : Screen(R.string.tasks_nav_drawer)
 
     @Serializable
-    data object Goals : Screen("Goals")
+    data object Goals : Screen(R.string.goals_nav_drawer)
 
     @Serializable
-    data class EditGoal(val id: Int) : Screen("Edit goal")
+    data class EditGoal(val id: Int) : Screen(R.string.goals_nav_drawer)
 
     @Serializable
-    data object CreateGoal : Screen("Create goal")
+    data object CreateGoal : Screen(R.string.goals_nav_drawer)
 
     @Serializable
-    data object Achievements : Screen("Achievements")
+    data object Achievements : Screen(R.string.achievements_nav_drawer)
 
     @Serializable
-    data object RecentlyCompleted : Screen("Recently completed")
+    data object RecentlyCompleted : Screen(R.string.recently_completed_naw_drawer)
 
     @Serializable
-    data object Settings : Screen("Settings")
+    data object Settings : Screen(R.string.settings_screen)
 
     @Serializable
-    data object Login : Screen("Login")
+    data object Login : Screen(R.string.settings_screen)
 
     @Serializable
-    data object Signup : Screen("Signup")
+    data object Signup : Screen(R.string.settings_screen)
 
     @Serializable
-    data object Analytics : Screen("Analytics")
+    data object Analytics : Screen(R.string.analytics_nav_drawer)
 
 }
 

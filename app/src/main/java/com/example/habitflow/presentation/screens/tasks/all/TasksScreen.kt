@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -132,7 +133,7 @@ fun TasksScreen(
                     Text(
                         modifier = Modifier
                             .weight(1f),
-                        text = if (state.taskId == null) "Create new task" else "Edit task",
+                        text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(R.string.edit_task),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -152,8 +153,8 @@ fun TasksScreen(
                 }
                 CreateGoalTextFieldWithTitle(
                     value = state.title,
-                    fieldTitle = "Task name",
-                    placeholderText = "For example: to water the flowers",
+                    fieldTitle = stringResource(R.string.task_name_field),
+                    placeholderText = stringResource(R.string.task_name_placeholder),
                     onValueChange = {
                         tasksViewModel.processCommand(TasksCommand.InputTitle(it))
                     }
@@ -198,7 +199,7 @@ fun TasksScreen(
                                 isDatePickerOpened = true
                             },
                         leadingIconId = R.drawable.ic_calendar_today,
-                        placeholderText = "Select date",
+                        placeholderText = stringResource(R.string.select_date_field),
                         value = state.date?.let {
                             DateFormatter.formatDate(it)
                         } ?: ""
@@ -212,20 +213,20 @@ fun TasksScreen(
                                 isTimePickerOpened = true
                             },
                         leadingIconId = R.drawable.ic_calendar,
-                        placeholderText = "Set time",
+                        placeholderText = stringResource(R.string.set_time_field),
                         value = deadline?.formatTime() ?: ""
                     )
                 }
                 CreateGoalTextFieldWithTitle(
                     value = state.description,
-                    fieldTitle = "Description",
-                    placeholderText = "Add task details",
+                    fieldTitle = stringResource(R.string.tasks_description_field),
+                    placeholderText = stringResource(R.string.description_field_placeholder),
                     minLines = 4
                 ) {
                     tasksViewModel.processCommand(TasksCommand.InputDescription(it))
                 }
                 Text(
-                    text = "Category"
+                    text = stringResource(R.string.category_field)
                 )
                 FilterChips(
                     stateGoalCategory = state.goalCategory
@@ -233,7 +234,7 @@ fun TasksScreen(
                     tasksViewModel.processCommand(TasksCommand.ChangeCategory(it))
                 }
                 Text(
-                    text = "Priority"
+                    text = stringResource(R.string.priority_field)
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -333,7 +334,7 @@ fun TasksScreen(
                         modifier = Modifier
                             .padding(start = 16.dp),
                         fontWeight = FontWeight.Bold,
-                        text = "My tasks"
+                        text = stringResource(R.string.my_tasks_screen)
                     )
                 },
                 navigationIcon = {
@@ -421,7 +422,6 @@ fun TasksScreen(
                             )
                         }
                     }
-
                 }
             }
 

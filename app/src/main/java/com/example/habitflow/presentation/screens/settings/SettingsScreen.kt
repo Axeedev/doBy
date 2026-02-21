@@ -51,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,15 +103,15 @@ fun SettingsScreen(
             },
             bottomSheetTitle = when (sheetType) {
                 BottomSheetType.MorningTimeNotification -> {
-                    "Notify at"
+                    stringResource(R.string.notifications_notify_at)
                 }
 
                 BottomSheetType.NightTimeNotification -> {
-                    "Notify at"
+                    stringResource(R.string.notifications_notify_at)
                 }
 
                 BottomSheetType.NotifyBefore -> {
-                    "Notify before"
+                    stringResource(R.string.notifications_notify_before)
                 }
             },
             onDoneClick = {
@@ -210,7 +211,7 @@ fun SettingsScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 title = {
                     Text(
-                        text = "Settings",
+                        text = stringResource(R.string.settings_screen),
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -236,14 +237,14 @@ fun SettingsScreen(
         ) {
             item {
                 Text(
-                    text = "Data sync",
+                    text = stringResource(R.string.data_sync_field),
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
                 )
                 Spacer(Modifier.size(8.dp))
                 SettingsField(
-                    mainText = "Wi-Fi only",
-                    secondaryText = "Sync data only via Wi-fi",
+                    mainText = stringResource(R.string.data_sync_wifi_only),
+                    secondaryText = stringResource(R.string.data_sync_sync_data_only_via_wifi),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Switch(
@@ -259,7 +260,7 @@ fun SettingsScreen(
 
             item {
                 Text(
-                    text = "Completed tasks",
+                    text = stringResource(R.string.completed_tasks_field),
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
                 )
@@ -267,7 +268,7 @@ fun SettingsScreen(
                 Spacer(Modifier.size(8.dp))
 
                 SettingsField(
-                    mainText = "Show on main screen",
+                    mainText = stringResource(R.string.recently_completed_screen),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Switch(
@@ -287,7 +288,7 @@ fun SettingsScreen(
             }
             item {
                 Text(
-                    text = "Sync with calendar",
+                    text = stringResource(R.string.data_sync_field),
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
                 )
@@ -295,7 +296,7 @@ fun SettingsScreen(
                 Spacer(Modifier.size(8.dp))
 
                 SettingsField(
-                    mainText = "Show events from calendar",
+                    mainText = stringResource(R.string.show_events_from_calendar),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Switch(
@@ -321,13 +322,13 @@ fun SettingsScreen(
             item {
 
                 Text(
-                    text = "Notifications",
+                    text = stringResource(R.string.notifications_field),
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
                 )
                 Spacer(Modifier.size(8.dp))
                 SettingsField(
-                    mainText = "Enable notifications",
+                    mainText = stringResource(R.string.notifications_enable),
                     shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
                 ) {
                     Switch(
@@ -359,8 +360,8 @@ fun SettingsScreen(
                                 )
                             )
                         },
-                    mainText = "Notify before",
-                    secondaryText = "Remind about deadline",
+                    mainText = stringResource(R.string.notifications_notify_before),
+                    secondaryText = stringResource(R.string.notifications_remind_about_deadline),
                     shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
                 ) {
                     Row(
@@ -384,7 +385,7 @@ fun SettingsScreen(
             }
             item {
                 Text(
-                    text = "Information for today",
+                    text = stringResource(R.string.information_for_today_field),
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray
                 )
@@ -401,7 +402,7 @@ fun SettingsScreen(
                                 )
                             )
                         },
-                    mainText = "Morning",
+                    mainText = stringResource(R.string.information_for_today_morning),
                     shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
                 ) {
                     Row(
@@ -429,7 +430,7 @@ fun SettingsScreen(
                                 )
                             )
                         },
-                    mainText = "Night",
+                    mainText = stringResource(R.string.information_for_today_night),
                     shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
                 ) {
                     Row(
@@ -477,7 +478,7 @@ fun SignOutButton(
             contentColor = Color.Red
         )
     ) {
-        Text(text = "Sign out")
+        Text(text = stringResource(R.string.sign_out))
     }
 }
 
@@ -560,7 +561,7 @@ fun BottomSheet(
                         ) {
                             onBackClick()
                         },
-                    text = "Back",
+                    text = stringResource(R.string.notifications_back),
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(Modifier.weight(1f))
@@ -582,7 +583,7 @@ fun BottomSheet(
                         ) {
                             onDoneClick()
                         },
-                    text = "Done",
+                    text = stringResource(R.string.notifications_done),
                     fontWeight = FontWeight.SemiBold
                 )
             }

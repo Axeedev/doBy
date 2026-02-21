@@ -2,8 +2,8 @@ package com.example.habitflow.domain.entities.achievements
 
 data class Achievement(
     val id: Int,
-    val title: String,
-    val description: String,
+    val titleId: Int,
+    val descriptionId: Int,
     val targetGoal: Int,
     val currentScore: Int,
     val achievementType: AchievementType,

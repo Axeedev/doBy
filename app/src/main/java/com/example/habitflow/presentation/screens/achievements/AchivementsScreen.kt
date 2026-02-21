@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,7 +67,7 @@ fun AchievementsScreen(
                     Text(
                         modifier = Modifier
                             .padding(start = 16.dp),
-                        text = "Achievements",
+                        text = stringResource(R.string.achievements_screen),
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -166,7 +167,7 @@ fun CurrentStreak(
                     .fillMaxHeight()
             ) {
                 Text(
-                    text = "Current streak",
+                    text = stringResource(R.string.current_streak),
                     color = Color(0xFF1680EC),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold
@@ -180,7 +181,7 @@ fun CurrentStreak(
                 )
                 Spacer(Modifier.size(16.dp))
                 Text(
-                    text = "Complete tasks every day and raise your daily streak",
+                    text = stringResource(R.string.current_streak_description),
                     fontSize = 14.sp,
                     color = Color(0xFF718095),
                     fontWeight = FontWeight.Medium
@@ -293,7 +294,7 @@ fun AchievementCard(
                         .padding(start = 16.dp),
                 ) {
                     Text(
-                        text = achievement.title,
+                        text = stringResource(achievement.titleId),
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = Color(0xFF181F32)
@@ -301,7 +302,7 @@ fun AchievementCard(
                     Spacer(Modifier.size(8.dp))
 
                     Text(
-                        text = achievement.description,
+                        text = stringResource(achievement.descriptionId),
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp,
                         color = Color(0xFF718095)

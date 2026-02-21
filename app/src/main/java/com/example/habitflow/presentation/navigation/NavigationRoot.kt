@@ -22,6 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -93,7 +94,7 @@ fun NavigationRoot() {
                             .padding(NavigationDrawerItemDefaults.ItemPadding),
                         label = {
                             Text(
-                                text = screenWithIcon.screen.label
+                                text = stringResource(screenWithIcon.screen.labelId)
                             )
                         },
                         selected = backStack.lastOrNull() == screenWithIcon.screen,
@@ -122,7 +123,7 @@ fun NavigationRoot() {
                     ),
                     label = {
                         Text(
-                            text = "Recently Completed"
+                            text = stringResource(R.string.recently_completed_naw_drawer)
                         )
                     },
                     onClick = {
