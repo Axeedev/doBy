@@ -414,6 +414,9 @@ fun CreateAndEditGoalScreenTopBar(
 ) {
     CenterAlignedTopAppBar(
         modifier = modifier,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color(0xFFF7F8FA)
+        ),
         title = {
             Text(
                 text = when (openReason) {
@@ -427,7 +430,6 @@ fun CreateAndEditGoalScreenTopBar(
                 }
             )
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         navigationIcon = {
             Icon(
                 modifier = Modifier

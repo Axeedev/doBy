@@ -173,5 +173,18 @@
     <string name="auth_invalid_email">Invalid email</string>
     <string name="auth_invalid_password">Password must be at least 8 characters long</string>
 
+
+
+    <!--Notifications feature-->
+    <string name="notifications_for_today">For today</string>
+    <string name="notifications_tasks_planned">Tasks planned:</string>
+    <string name="notifications_summary_for_today">Today\'s summary</string>
+    <string name="notifications_tasks_completed">Tasks completed:</string>
+    <string name="notifications_deadline_is_coming">The deadline is coming soon:</string>
+    <string name="notifications_advice_of_day">Advice for today:</string>
+
+
+
+
     <string name="client_id" translatable="false">318248066212-aa90fhutnrgbnuqtibsull5sktt4jq2m.apps.googleusercontent.com</string>
 </resources>

@@ -1,4 +1,5 @@
-package com.example.habitflow.data
+package com.example.habitflow.data.daily
+
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -9,50 +10,60 @@ import com.example.habitflow.domain.entities.settings.NotificationTime
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Calendar
 import javax.inject.Inject
 
-class AlarmScheduler @Inject constructor(
+class NightAlarmScheduler @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val alarmManager: AlarmManager?,
     private val getSettingsUseCase: GetSettingsUseCase
 ) {
-    suspend fun scheduleNextAlarm() {
-        val morningNotificationTime = getSettingsUseCase().first().morningInfoTime
+    suspend fun scheduleNextNightAlarm() {
+        val nightNotificationTime = getSettingsUseCase().first().nightInfoTime
 
+        Log.d("NightAlarmScheduler", "in alarm scheduler")
 
-        if (morningNotificationTime is NotificationTime) {
-            val intent = AlarmReceiver.newIntent(context)
+        if (nightNotificationTime is NotificationTime) {
+            val intent = NightAlarmReceiver.newIntent(context)
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                0,
+                1,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            val calendar = Calendar.getInstance().apply {
+            val calendarNight = Calendar.getInstance().apply {
                 timeInMillis = System.currentTimeMillis()
-                set(Calendar.HOUR_OF_DAY, morningNotificationTime.hour)
-                set(Calendar.MINUTE, morningNotificationTime.minute)
+                set(Calendar.HOUR_OF_DAY, 22)
+                set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
                 if (before(Calendar.getInstance())) {
                     add(Calendar.DAY_OF_YEAR, 1)
                 }
             }
+            val instant = calendarNight.toInstant()
+            val a = LocalDateTime.ofInstant(
+                instant,
+                ZoneId.systemDefault()
+            )
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     if (alarmManager?.canScheduleExactAlarms() == true) {
                         alarmManager.setExactAndAllowWhileIdle(
                             AlarmManager.RTC_WAKEUP,
-                            calendar.timeInMillis,
+                            calendarNight.timeInMillis,
                             pendingIntent
                         )
+
+                        Log.d("NightAlarmScheduler", "scheduled: ${a.dayOfWeek}, ${a.hour}:${a.minute}")
                     } else {
-                        Log.d("AlarmScheduler", "Exact alarms are not allowed")
+                        Log.d("NightAlarmScheduler", "Exact alarms are not allowed")
                     }
                 }
 
             } catch (e: SecurityException) {
-                Log.d("AlarmScheduler", "exception: ${e.toString()}")
+                Log.d("NightAlarmScheduler", "exception: ${e.toString()}")
             }
         }
 

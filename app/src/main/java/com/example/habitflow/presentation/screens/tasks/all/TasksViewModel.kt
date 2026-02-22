@@ -149,34 +149,38 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickTask -> {
-                viewModelScope.launch {
-                    _bottomSheetEvents.emit(BottomSheetEvent.OpenSheet)
-                }
-                _state.update { previous ->
-                    val zonedDateTime = command.task.deadlineMillis?.let { date ->
-                        Instant.ofEpochMilli(date)
-                            .atZone(ZoneId.systemDefault())
-                    }
-                    val date = zonedDateTime?.toLocalDate()?.atStartOfDay(ZoneId.systemDefault())
-                        ?.toInstant()?.toEpochMilli()
-                    val timeHour = zonedDateTime?.toLocalTime()?.hour
-                    val timeMinute = zonedDateTime?.toLocalTime()?.minute
-                    val remind = timeMinute?.let { minute ->
-                        timeHour?.let { hour ->
-                            TimeEntity(hour, minute)
-                        }
-                    }
+                if (command.task.category != GoalCategory.CALENDAR) {
 
-                    previous.copy(
-                        taskId = command.task.id,
-                        title = command.task.title,
-                        date = date,
-                        remindAtMinutesOfDay = remind,
-                        description = command.task.note,
-                        priority = command.task.priority,
-                        goalCategory = command.task.category,
-                        buttonText = "Confirm"
-                    )
+                    viewModelScope.launch {
+                        _bottomSheetEvents.emit(BottomSheetEvent.OpenSheet)
+                    }
+                    _state.update { previous ->
+                        val zonedDateTime = command.task.deadlineMillis?.let { date ->
+                            Instant.ofEpochMilli(date)
+                                .atZone(ZoneId.systemDefault())
+                        }
+                        val date =
+                            zonedDateTime?.toLocalDate()?.atStartOfDay(ZoneId.systemDefault())
+                                ?.toInstant()?.toEpochMilli()
+                        val timeHour = zonedDateTime?.toLocalTime()?.hour
+                        val timeMinute = zonedDateTime?.toLocalTime()?.minute
+                        val remind = timeMinute?.let { minute ->
+                            timeHour?.let { hour ->
+                                TimeEntity(hour, minute)
+                            }
+                        }
+
+                        previous.copy(
+                            taskId = command.task.id,
+                            title = command.task.title,
+                            date = date,
+                            remindAtMinutesOfDay = remind,
+                            description = command.task.note,
+                            priority = command.task.priority,
+                            goalCategory = command.task.category,
+                            buttonText = "Confirm"
+                        )
+                    }
                 }
 
             }

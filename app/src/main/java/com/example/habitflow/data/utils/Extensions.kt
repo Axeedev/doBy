@@ -2,6 +2,8 @@ package com.example.habitflow.data.utils
 
 import com.example.habitflow.data.local.NotificationsProvider
 import com.example.habitflow.domain.entities.tasks.Priority
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 fun Priority.toChannelImportance() : String{
     return when(this){
@@ -15,4 +17,11 @@ fun Priority.toChannelImportance() : String{
             NotificationsProvider.TASK_HIGH
         }
     }
+}
+
+
+fun LocalDateTime.toLong() : Long{
+    return atZone(ZoneId.systemDefault())
+        .toInstant()
+        .toEpochMilli()
 }

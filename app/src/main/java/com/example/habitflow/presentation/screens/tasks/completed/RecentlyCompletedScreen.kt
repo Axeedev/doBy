@@ -60,7 +60,8 @@ fun RecentlyCompletedScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
                 title = {
                     Text(
-                        text = stringResource(R.string.my_tasks_screen)
+                        text = stringResource(R.string.recently_completed_screen),
+                        fontWeight = FontWeight.Bold,
                     )
                 },
                 navigationIcon = {

@@ -1,9 +1,8 @@
-package com.example.habitflow.data
+package com.example.habitflow.data.daily
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.example.habitflow.data.local.NotificationsProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,20 +10,20 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AlarmReceiver : BroadcastReceiver() {
+class MorningAlarmReceiver : BroadcastReceiver() {
 
     @Inject
-    lateinit var notificationsProvider: NotificationsProvider
+    lateinit var dailyRemindManager: DailyRemindManager
 
     @Inject
-    lateinit var alarmScheduler: AlarmScheduler
+    lateinit var morningAlarmScheduler: MorningAlarmScheduler
 
     override fun onReceive(context: Context?, intent: Intent?) {
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                notificationsProvider.showTodaysTasksNotification(10) // TODO IMPLEMENT TODAYS TASKS SIZE
-                alarmScheduler.scheduleNextAlarm()
+                dailyRemindManager.getNotificationAboutTodaysTasks()
+                morningAlarmScheduler.scheduleNextMorningAlarm()
             } finally {
                 pendingResult.finish()
             }
@@ -33,7 +32,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
     companion object{
         fun newIntent(context: Context): Intent{
-            return Intent(context, AlarmReceiver::class.java)
+            return Intent(context, MorningAlarmReceiver::class.java)
         }
     }
 }

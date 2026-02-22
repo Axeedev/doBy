@@ -4,8 +4,8 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import com.example.habitflow.data.local.TaskDeadlineReceiver
+import com.example.habitflow.data.local.tasks.TasksDao
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
@@ -15,7 +15,8 @@ import javax.inject.Inject
 class TaskReminder @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val alarmManager: AlarmManager?,
-    private val getSettingsUseCase: GetSettingsUseCase
+    private val getSettingsUseCase: GetSettingsUseCase,
+    private val tasksDao: TasksDao
 ) {
     suspend fun schedule(
         taskId: Long,
@@ -54,6 +55,22 @@ class TaskReminder @Inject constructor(
             alarmManager?.cancel(it)
         }
     }
+
+    suspend fun rescheduleTasks(){
+        val scheduledTasks = tasksDao.getScheduledTasksWithFutureDeadline(
+            System.currentTimeMillis()
+        )
+        scheduledTasks.forEach { task ->
+            task.deadlineMillis?.let {deadline ->
+                schedule(
+                    task.id.toLong(),
+                    deadline
+                )
+            }
+        }
+
+    }
+
     companion object{
         const val TASK_ID = "TASK_ID"
     }

@@ -42,5 +42,21 @@ interface TasksDao {
     )
     suspend fun deleteTask(taskId: Int)
 
+    @Query("""
+        SELECT * FROM tasks
+        WHERE deadlineMillis > :currentTime
+    """)
+    suspend fun getScheduledTasksWithFutureDeadline(
+        currentTime: Long
+    ) : List<TaskEntity>
 
+
+    @Query("""
+        SELECT COUNT(*) FROM tasks
+        WHERE deadlineMillis BETWEEN :start AND :end
+    """)
+    suspend fun getCountOfScheduledTasksForPeriod(
+        start: Long,
+        end: Long
+    ) : Int
 }

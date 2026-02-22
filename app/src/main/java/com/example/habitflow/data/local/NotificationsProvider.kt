@@ -30,6 +30,7 @@ class NotificationsProvider @Inject constructor(
     init {
         createNotificationChannels()
     }
+
     fun createNotificationChannels(){
         val notificationChannelTodaysTasks = NotificationChannel(
             TODAYS_TASKS_CHANNEL_ID,
@@ -67,46 +68,34 @@ class NotificationsProvider @Inject constructor(
             NotificationManager.IMPORTANCE_DEFAULT
         )
         notificationManager?.createNotificationChannel(notificationChannelAdvice)
-    }
 
-    //TODO: Refactor code, implement only one function for showing notification
-
-
-    fun showNotification(
-        channelId: String,
-        smallIconId: Int,
-        contentTitle: String,
-        contentText: String,
-
-    ){
-        val intent = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-
+        val notificationChannelSummary = NotificationChannel(
+            TODAYS_SUMMARY,
+            "Today's summary",
+            NotificationManager.IMPORTANCE_DEFAULT
         )
-        val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(smallIconId)
-            .setContentTitle(contentTitle)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .setContentText(contentText)
-            .build()
-        Log.d("showTodaysTasksNotification", notification.toString())
-        notificationManager?.notify(NOTIFICATION_ID, notification)
-
+        notificationManager?.createNotificationChannel(notificationChannelSummary)
     }
-
     fun showTodaysTasksNotification(
         todaysTasksSize: Int
     ){
         val notification = NotificationCompat.Builder(context, TODAYS_TASKS_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_calendar_today)
-            .setContentTitle("На сегодня")
+            .setContentTitle(context.getString(R.string.notifications_for_today))
             .setContentIntent(pendingIntent)
-            .setContentText("Запланировано задач: $todaysTasksSize")
+            .setContentText("${context.getString(R.string.notifications_tasks_planned)} $todaysTasksSize")
+            .build()
+        Log.d("showTodaysTasksNotification", notification.toString())
+        notificationManager?.notify(NOTIFICATION_ID, notification)
+    }
+    fun showTodaysCompletedTasksNotification(
+        todaysTasksSize: Int
+    ){
+        val notification = NotificationCompat.Builder(context, TODAYS_SUMMARY)
+            .setSmallIcon(R.drawable.ic_calendar_today)
+            .setContentTitle(context.getString(R.string.notifications_summary_for_today))
+            .setContentIntent(pendingIntent)
+            .setContentText("${context.getString(R.string.notifications_tasks_completed)} $todaysTasksSize")
             .build()
         Log.d("showTodaysTasksNotification", notification.toString())
         notificationManager?.notify(NOTIFICATION_ID, notification)
@@ -119,7 +108,7 @@ class NotificationsProvider @Inject constructor(
         val channelIdImportance = taskPriority.toChannelImportance()
         val notification = NotificationCompat.Builder(context, channelIdImportance)
             .setSmallIcon(R.drawable.ic_task_app)
-            .setContentTitle("Скоро дедлайн")
+            .setContentTitle(context.getString(R.string.notifications_deadline_is_coming))
             .setContentText(taskTitle)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
@@ -131,7 +120,7 @@ class NotificationsProvider @Inject constructor(
     fun showAdviceForTheDay(advice: String){
         val notification = NotificationCompat.Builder(context,ADVICE_FOR_THE_DAY_ID)
             .setSmallIcon(R.drawable.ic_advice)
-            .setContentTitle("Совет дня")
+            .setContentTitle(context.getString(R.string.notifications_advice_of_day))
             .setContentText(advice)
             .setContentIntent(pendingIntent)
             .build()
@@ -143,6 +132,7 @@ class NotificationsProvider @Inject constructor(
 
         private const val TODAYS_TASKS_CHANNEL_ID = "today tasks"
         private const val ADVICE_FOR_THE_DAY_ID = "advice for the day"
+        private const val TODAYS_SUMMARY = "today summary"
         const val TASK_LOW = "Low priority tasks"
         const val TASK_MED = "Medium priority tasks"
         const val TASK_HIGH = "High priority tasks"

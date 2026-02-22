@@ -2,7 +2,7 @@
 
 package com.example.habitflow.presentation.screens.goals.all
 
-import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,8 +19,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -65,7 +65,7 @@ fun GoalsScreen(
         containerColor = Color(0xFFF7F8FA),
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF7F8FA)),
                 navigationIcon = {
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_back),
@@ -144,13 +144,13 @@ fun GoalCard(
     onDeleteClick:() -> Unit,
     onGoalClick: () -> Unit
 ) {
-    ElevatedCard(
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.onPrimary,
+    Card(
+        colors = CardDefaults.cardColors(
+            contentColor = Color.Unspecified,
+            containerColor = Color.White
         ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp)
+        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
     ) {
-        Log.d("GoalCard", goal.toString())
 
         goal.coverUri?.let { uri ->
             AsyncImage(

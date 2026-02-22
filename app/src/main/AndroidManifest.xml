@@ -28,11 +28,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="com.example.habitflow.data.AlarmReceiver" />
-        <receiver android:name="com.example.habitflow.data.BootReceiver" />
+        <receiver android:name="com.example.habitflow.data.daily.MorningAlarmReceiver" />
+        <receiver android:name="com.example.habitflow.data.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
         <receiver android:name="com.example.habitflow.data.local.TaskDeadlineReceiver" />
-        <!-- If you want to disable android.startup completely. -->
-        <!-- If you want to disable android.startup completely. -->
+        <receiver android:name="com.example.habitflow.data.daily.NightAlarmReceiver" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

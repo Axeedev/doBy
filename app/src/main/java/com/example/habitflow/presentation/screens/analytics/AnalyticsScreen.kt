@@ -334,6 +334,8 @@ fun AnalyticsScreen(
 
                     ChartType.HEATMAP -> {
                         HeatmapGrid(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp),
                             statsMap = state.statsMap,
                             months = state.months,
                         )
@@ -490,7 +492,6 @@ fun HeatmapGrid(
     modifier: Modifier = Modifier,
     statsMap: Map<LocalDate, Int>,
     months: List<YearMonth>
-
 ) {
     val listState = rememberLazyListState()
     LaunchedEffect(Unit) {

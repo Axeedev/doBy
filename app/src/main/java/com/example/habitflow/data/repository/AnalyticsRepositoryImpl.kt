@@ -19,17 +19,20 @@ class AnalyticsRepositoryImpl @Inject constructor(
 
     override fun getWeeklyDifferencePercentage(): Flow<Int> {
         val endTime = LocalDate.now()
+
         val aWeekAgo = endTime.minusWeeks(1)
         val twoWeeksAgo = endTime.minusWeeks(2)
 
         val endTimeMillis = getMillisByLocalDate(endTime)
         val aWeekAgoMillis = getMillisByLocalDate(aWeekAgo)
+
         val twoWeeksAgoMillis = getMillisByLocalDate(twoWeeksAgo)
-        val previousWeekCount = completedTasksDao.getCountOfTasksForPeriod(
+        val previousWeekCount = completedTasksDao.getCountOfTasksForPeriodFlow(
             start = twoWeeksAgoMillis,
             end = aWeekAgoMillis
         )
-        val thisWeekCount = completedTasksDao.getCountOfTasksForPeriod(
+
+        val thisWeekCount = completedTasksDao.getCountOfTasksForPeriodFlow(
             start = aWeekAgoMillis,
             end = endTimeMillis
         )
@@ -57,7 +60,7 @@ class AnalyticsRepositoryImpl @Inject constructor(
 
         val startTimeMillis = getMillisByLocalDate(startTime)
 
-        return completedTasksDao.getCountOfTasksForPeriod(startTimeMillis, endTimeMillis)
+        return completedTasksDao.getCountOfTasksForPeriodFlow(startTimeMillis, endTimeMillis)
     }
 
     private fun getMillisByLocalDate(date: LocalDate): Long{

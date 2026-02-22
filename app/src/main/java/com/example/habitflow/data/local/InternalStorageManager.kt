@@ -10,7 +10,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 class InternalStorageManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) {
     private val rootDirectory = context.filesDir
 

@@ -1,13 +1,14 @@
 package com.example.habitflow.data.repository
 
-import com.example.habitflow.data.calendar.SystemCalendarManager
 import com.example.habitflow.data.TaskReminder
+import com.example.habitflow.data.calendar.SystemCalendarManager
 import com.example.habitflow.data.local.tasks.CompletedTasksDao
 import com.example.habitflow.data.local.tasks.TasksDao
 import com.example.habitflow.data.mappers.toCompletedTask
 import com.example.habitflow.data.mappers.toCompletedTaskEntity
 import com.example.habitflow.data.mappers.toTask
 import com.example.habitflow.data.mappers.toTaskEntity
+import com.example.habitflow.data.utils.toLong
 import com.example.habitflow.domain.entities.tasks.CompletedTask
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.repository.TaskRepository
@@ -16,6 +17,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(
@@ -44,26 +49,66 @@ class TaskRepositoryImpl @Inject constructor(
 
             val tasksDomain = tasksFromDao.map { it.toTask() }
 
-            if (appSettings.showCalendarEvents){
+            if (appSettings.showCalendarEvents) {
                 tasksDomain + eventsFromCalendar
-            }
-            else{
+            } else {
                 tasksDomain
             }
         }
     }
 
     override suspend fun addTask(task: Task) {
+        val adjustedDeadline = adjustTaskDeadline(task.deadlineMillis)
+
+        val adjustedTask = task.copy(
+            deadlineMillis = adjustedDeadline
+        )
+
         val taskId = tasksDao.addTask(
-            taskEntity = task.toTaskEntity(
+            taskEntity = adjustedTask.toTaskEntity(
                 taskId = task.id
             )
         )
+
         if (task.id != 0) {
             taskReminder.cancelTask(taskId)
         }
-        task.deadlineMillis?.let { deadline ->
-            taskReminder.schedule(taskId, deadline)
+        adjustedDeadline?.let { deadline ->
+            taskReminder.schedule(
+                taskId,
+                deadline
+            )
+        }
+    }
+
+    private fun adjustTaskDeadline(deadlineMillis: Long?): Long? {
+        return deadlineMillis?.let { deadline ->
+            val now = System.currentTimeMillis()
+            if (deadline < now) {
+                val instant = Instant.ofEpochMilli(deadline)
+                val timeOfDeadline = LocalDateTime.ofInstant(
+                    instant,
+                    ZoneId.systemDefault()
+                )
+                val localTime = LocalDateTime.now()
+                if (timeOfDeadline.hour > localTime.hour) {
+                    val localDateNow = LocalDate.now()
+                        .atStartOfDay()
+                        .plusHours(timeOfDeadline.hour.toLong())
+                        .plusMinutes(timeOfDeadline.minute.toLong())
+                    localDateNow
+                        .toLong()
+                } else {
+                    LocalDate.now()
+                        .atStartOfDay()
+                        .plusDays(1)
+                        .plusHours(timeOfDeadline.hour.toLong())
+                        .plusMinutes(timeOfDeadline.minute.toLong())
+                        .toLong()
+                }
+            } else {
+                deadline
+            }
         }
     }
 
@@ -73,16 +118,20 @@ class TaskRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTask(task: Task) {
-        tasksDao.addTask(task.toTaskEntity(task.id))
+        addTask(task)
     }
 
     override suspend fun completeTask(taskId: Int) {
         val task = tasksDao.getTaskById(taskId)
+
         val appSettings = getSettingsUseCase().first()
+
         if (!appSettings.showCompletedTasksOnMainScreen) {
             tasksDao.deleteTask(taskId)
         }
+
         taskReminder.cancelTask(taskId.toLong())
+
         completedTasksDao.addTaskToCompleted(
             completedTaskEntity = task.toCompletedTaskEntity(
                 dateOfCompletion = System.currentTimeMillis()
@@ -93,8 +142,8 @@ class TaskRepositoryImpl @Inject constructor(
     override suspend fun returnTask(taskId: Int) {
         val task = completedTasksDao.getTaskById(taskId)
         completedTasksDao.deleteCompletedTaskById(taskId)
-        tasksDao.addTask(
-            taskEntity = task.toTaskEntity()
+        addTask(
+            task.toTaskEntity().toTask()
         )
     }
 

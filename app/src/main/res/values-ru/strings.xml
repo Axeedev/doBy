@@ -132,4 +132,10 @@
     <string name="auth_invalid_email">Неверный формат email</string>
     <string name="auth_invalid_password">Длина пароля должна быть минимум 8 символов</string>
     <string name="new_achievement_unlocked">Открыто новое достижение!</string>
+    <string name="notifications_for_today">На сегодня</string>
+    <string name="notifications_tasks_planned">Запланировано задач</string>
+    <string name="notifications_summary_for_today">Сводка за сегодня</string>
+    <string name="notifications_tasks_completed">Выполнено задач</string>
+    <string name="notifications_deadline_is_coming">Скоро дедлайн:</string>
+    <string name="notifications_advice_of_day">Совет дня</string>
 </resources>

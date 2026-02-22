@@ -9,14 +9,12 @@ import com.example.habitflow.data.background.TaskReminderWorker
 
 class TaskDeadlineReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("TaskDeadlineReceiver", "Broadcast receiver: context:$context, intent:$intent")
         context?.let { context ->
             intent?.let { intent ->
                 val taskId = intent.getLongExtra(TaskReminder.TASK_ID, -1L)
                 if (taskId == -1L) return
                 TaskReminderWorker.enqueue(context, taskId)
 
-                Log.d("TaskDeadlineReceiver", "Broadcast receiver: work enqueued")
             }
         }
     }

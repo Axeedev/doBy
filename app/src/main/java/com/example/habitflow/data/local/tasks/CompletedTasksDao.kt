@@ -75,6 +75,12 @@ interface CompletedTasksDao {
         SELECT COUNT(*) FROM completedTasks
         WHERE completedAt BETWEEN :start AND :end
     """)
-    fun getCountOfTasksForPeriod(start: Long, end: Long) : Flow<Int>
+    fun getCountOfTasksForPeriodFlow(start: Long, end: Long) : Flow<Int>
+
+    @Query("""
+        SELECT COUNT(*) FROM completedTasks
+        WHERE completedAt BETWEEN :start AND :end
+    """)
+    suspend fun getCountOfTasksForPeriod(start: Long, end: Long) : Int
 
 }
