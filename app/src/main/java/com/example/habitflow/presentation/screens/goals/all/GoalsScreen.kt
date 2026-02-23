@@ -22,7 +22,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +35,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -71,18 +69,18 @@ fun GoalsScreen(
                     containerColor = MaterialTheme.colorScheme.background
                 ),
                 navigationIcon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_arrow_back),
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .clip(CircleShape)
-                        .clickable {
-                            onBackClick()
-                        },
-                    contentDescription = "go back",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            },
+                    Icon(
+                        painter = painterResource(R.drawable.ic_arrow_back),
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .clip(CircleShape)
+                            .clickable {
+                                onBackClick()
+                            },
+                        contentDescription = "go back",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                },
                 title = {
                     Text(
                         text = stringResource(R.string.goals_screen),
@@ -105,30 +103,59 @@ fun GoalsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = paddingValues
         ) {
-            item {
-                Text(
-                    text = pluralStringResource(
-                        R.plurals.goals_count,
-                        state.goals.size,
-                        state.goals.size
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            item {
-                Text(
-                    text = stringResource(R.string.active_goals),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            items(items = state.goals, key = { it.id }) { goal ->
-                GoalCard(
-                    goal = goal,
-                    onDeleteClick = {
-                        viewModel.processCommand(GoalsCommand.DeleteCommand(goal.id))
+            if (state.goals.isEmpty()) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 40.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .size(120.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryFixed,
+                            painter = painterResource(R.drawable.ic_no_goals),
+                            contentDescription = "no goals yet"
+                        )
+                        Spacer(Modifier.size(16.dp))
+                        Text(
+                            text = stringResource(R.string.no_active_goals_yet),
+                            color = MaterialTheme.colorScheme.onPrimaryFixed,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 18.sp
+                        )
+
                     }
-                ) {
-                    onEditGoalClick(goal.id)
+                }
+            } else {
+
+
+                item {
+                    Text(
+                        text = pluralStringResource(
+                            R.plurals.goals_count,
+                            state.goals.size,
+                            state.goals.size
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                item {
+                    Text(
+                        text = stringResource(R.string.active_goals),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                items(items = state.goals, key = { it.id }) { goal ->
+                    GoalCard(
+                        goal = goal,
+                        onDeleteClick = {
+                            viewModel.processCommand(GoalsCommand.DeleteCommand(goal.id))
+                        }
+                    ) {
+                        onEditGoalClick(goal.id)
+                    }
                 }
             }
         }
@@ -138,7 +165,7 @@ fun GoalsScreen(
 @Composable
 fun GoalCard(
     goal: Goal,
-    onDeleteClick:() -> Unit,
+    onDeleteClick: () -> Unit,
     onGoalClick: () -> Unit
 ) {
     Card(
@@ -215,7 +242,7 @@ fun GoalCard(
             Spacer(Modifier.size(16.dp))
             if (goal.milestones.isNotEmpty()) {
                 val completed = goal.milestones.count { it.isCompleted }
-                val progress = (completed.toFloat()/goal.milestones.size.toFloat())
+                val progress = (completed.toFloat() / goal.milestones.size.toFloat())
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {

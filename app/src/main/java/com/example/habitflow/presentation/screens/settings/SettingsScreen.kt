@@ -650,7 +650,7 @@ fun TimeItem(
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
-        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint)
     ) {
         Row(
             modifier = Modifier

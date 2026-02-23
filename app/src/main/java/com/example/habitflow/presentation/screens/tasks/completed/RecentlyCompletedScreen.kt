@@ -8,8 +8,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -51,7 +54,7 @@ import java.time.format.DateTimeFormatter
 fun RecentlyCompletedScreen(
     viewModel: CompletedTasksViewModel = hiltViewModel(),
     onBackClick: () -> Unit
-){
+) {
     val state by viewModel.state.collectAsState()
 
     Scaffold(
@@ -81,25 +84,52 @@ fun RecentlyCompletedScreen(
                 }
             )
         }
-    ) {paddingValues ->
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.padding(horizontal = 16.dp),
             contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
-            itemsIndexed(items = state.completedTasks){index, completedTask ->
-                CompletedTaskCard(
-                    completedTask = completedTask
-                ){
-                    viewModel.processCommand(CompletedTasksCommand.ClickReturnTask(completedTask.id))
+            if (state.completedTasks.isEmpty()) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 40.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .size(120.dp),
+                            painter = painterResource(R.drawable.no_completed_yet),
+                            contentDescription = "no completed tasks yet",
+                            tint = MaterialTheme.colorScheme.onPrimaryFixed,
+                        )
+                        Spacer(Modifier.size(16.dp))
+                        Text(
+                            text = stringResource(R.string.no_completed_tasks_yet),
+                            color = MaterialTheme.colorScheme.onPrimaryFixed,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp
+                        )
+
+                    }
                 }
-                if (index != state.completedTasks.lastIndex){
-                    HorizontalDivider(
-                        modifier = Modifier.padding(top = 8.dp),
-                        thickness = 0.8.dp,
-                        color = MaterialTheme.colorScheme.onTertiary
-                    )
+            } else {
+                itemsIndexed(items = state.completedTasks) { index, completedTask ->
+                    CompletedTaskCard(
+                        completedTask = completedTask
+                    ) {
+                        viewModel.processCommand(CompletedTasksCommand.ClickReturnTask(completedTask.id))
+                    }
+                    if (index != state.completedTasks.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(top = 8.dp),
+                            thickness = 0.8.dp,
+                            color = MaterialTheme.colorScheme.onTertiary
+                        )
+                    }
                 }
             }
         }
@@ -111,7 +141,7 @@ fun CompletedTaskCard(
     modifier: Modifier = Modifier,
     completedTask: CompletedTask,
     onRadioButtonClick: () -> Unit
-){
+) {
     Card(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
@@ -138,7 +168,7 @@ fun CompletedTaskCard(
             )
             Column {
                 Text(
-                    textDecoration = TextDecoration.LineThrough ,
+                    textDecoration = TextDecoration.LineThrough,
                     text = completedTask.title,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onPrimary,

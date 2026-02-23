@@ -3,6 +3,7 @@
 package com.example.habitflow.presentation.screens.tasks
 
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -74,12 +75,14 @@ fun TimePickerDial(
     )
 
     TimePickerDialog(
-        containerColor = MaterialTheme.colorScheme.onPrimary,
         onDismissRequest = {
             onDismiss()
         },
         confirmButton = {
             Button(
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.scrim
+                ),
                 onClick = {
                     onConfirm(
                         TimeEntity(
@@ -91,7 +94,7 @@ fun TimePickerDial(
             ) {
                 Text(
                     text = stringResource(R.string.time_picker_confirm_time),
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.outline
                 )
             }
         },
@@ -105,8 +108,8 @@ fun TimePickerDial(
         TimePicker(
             state = timePickerState,
             colors = TimePickerDefaults.colors(
-                periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.onPrimary,
-                timeSelectorSelectedContainerColor = Color.Transparent,
+                containerColor = MaterialTheme.colorScheme.inverseSurface,
+                periodSelectorSelectedContainerColor = MaterialTheme.colorScheme.scrim,
                 timeSelectorSelectedContentColor = MaterialTheme.colorScheme.onPrimary,
                 timeSelectorUnselectedContentColor = MaterialTheme.colorScheme.onPrimary,
                 timeSelectorUnselectedContainerColor = Color.Transparent

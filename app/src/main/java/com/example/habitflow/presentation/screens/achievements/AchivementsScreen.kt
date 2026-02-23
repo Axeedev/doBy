@@ -134,11 +134,40 @@ fun AchievementsScreen(
 
                 }
             }
-            items(
-                items = state.achievements,
-                key = { it.id }
-            ) { achievement ->
-                AchievementCard(achievement = achievement)
+            if (state.achievements.isEmpty()) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 40.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .size(120.dp),
+                            painter = painterResource(R.drawable.ic_achievements),
+                            contentDescription = "no achievements",
+                            tint = MaterialTheme.colorScheme.surfaceBright
+                        )
+                        Spacer(Modifier.size(16.dp))
+                        Text(
+                            text = stringResource(R.string.no_achievements_in_this_section),
+                            color = MaterialTheme.colorScheme.onPrimaryFixed,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 18.sp
+                        )
+
+                    }
+                }
+            } else {
+
+
+                items(
+                    items = state.achievements,
+                    key = { it.id }
+                ) { achievement ->
+                    AchievementCard(achievement = achievement)
+                }
             }
         }
     }
@@ -148,13 +177,14 @@ fun AchievementsScreen(
 fun CurrentStreakCard(
     modifier: Modifier = Modifier,
     streak: String
-){
+) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary,
         ),
-        border = BorderStroke(1.dp,
+        border = BorderStroke(
+            1.dp,
             MaterialTheme.colorScheme.surfaceTint,
         ),
         shape = RoundedCornerShape(12.dp),
@@ -204,7 +234,6 @@ fun CurrentStreakCard(
         }
     }
 }
-
 
 
 @Composable

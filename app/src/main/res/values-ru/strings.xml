@@ -23,7 +23,7 @@
     <string name="achievements_nav_drawer">Достижения</string>
     <string name="filter_chip_all">Все</string>
     <string name="achievement_goal_master">Мастер</string>
-    <string name="achievement_goal_master_description">Достигни 100 целей</string>
+    <string name="achievement_goal_master_description">Достигнуть 100 целей</string>
     <string name="analytics_nav_drawer">Аналитика</string>
     <string name="recently_completed_naw_drawer">Недавно завершённые</string>
     <string name="create_new_task">Создать новую задачу</string>
@@ -89,7 +89,7 @@
     <string name="tasks_description_field">Описание</string>
     <string name="achievement_decathlete">Десяточка</string>
     <string name="achievement_decathlete_description">Выполнить 10 задач</string>
-    <string name="achievement_first_blood_description">Выполни 1 задачу</string>
+    <string name="achievement_first_blood_description">Выполнить 1 задачу</string>
     <string name="achievement_centurion">Сотня</string>
     <string name="achievement_centurion_description">Выполнить 100 задач</string>
     <string name="achievement_task_master">Вершина горы</string>
@@ -100,20 +100,20 @@
     <string name="achievement_on_a_roll_description">Выполнять задачи 7 дней подряд</string>
     <string name="achievement_unstoppable">Неудержимый</string>
     <string name="achievement_unstoppable_description">Выполнять задачи 30 дней подряд</string>
-    <string name="achievement_overachiever_description">Выполни 10 задач за 1 день</string>
+    <string name="achievement_overachiever_description">Выполнить 10 задач за 1 день</string>
     <string name="achievement_early_bird">Жаворонок</string>
-    <string name="achievement_early_bird_description">Выполни задачу в промежуток между 5:00 и 8:00</string>
+    <string name="achievement_early_bird_description">Выполнить задачу в промежуток между 5:00 и 8:00</string>
     <string name="achievement_night_owl">Ночной дозор</string>
-    <string name="achievement_night_owl_description">Выполни задачу в промежуток между 0:00 и 4:00</string>
+    <string name="achievement_night_owl_description">Выполнить задачу в промежуток между 0:00 и 4:00</string>
     <string name="achievement_overachiever">Марафонец</string>
     <string name="achievement_clutch">В последний вагон</string>
-    <string name="achievement_clutch_description">Выполни задачу за 1 минуту до дедлайна</string>
+    <string name="achievement_clutch_description">Выполнить задачу за 1 минуту до дедлайна</string>
     <string name="achievement_monday_warrior">Ударный понедельник</string>
-    <string name="achievement_monday_warrior_description">Выполни 5 задач в понедельник</string>
+    <string name="achievement_monday_warrior_description">Выполнить 5 задач в понедельник</string>
     <string name="achievement_first_steps">Первые шаги</string>
-    <string name="achievement_first_steps_description">Достигни 1 цели</string>
+    <string name="achievement_first_steps_description">Достигнуть 1 цели</string>
     <string name="achievement_perfect_ten">Десятка</string>
-    <string name="achievement_perfect_ten_description">Достигни 10 целей</string>
+    <string name="achievement_perfect_ten_description">Достигнуть 10 целей</string>
     <string name="achievement_speedster">Сверхзвук</string>
     <string name="achievement_speedster_description">"Выполнить задачу менее чем через 5 минут после её создания "</string>
     <string name="achievement_first_blood">Первая кровь</string>
@@ -145,4 +145,8 @@
     <string name="complete_goal_dialog">Завершить цель</string>
     <string name="complete_goal_cancel_button">Отменить</string>
     <string name="complete_goal_complete_button">Завершить</string>
+    <string name="no_tasks_scheduled">Нет запланированных задач</string>
+    <string name="no_achievements_in_this_section">Здесь пока нет достижений</string>
+    <string name="no_completed_tasks_yet">Список завершённых задач пуст</string>
+    <string name="no_active_goals_yet">Пока нет активных целей</string>
 </resources>

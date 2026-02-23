@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -103,10 +104,11 @@ fun TasksScreen(
     }
     LaunchedEffect(Unit) {
         tasksViewModel.bottomSheetEvents.collect { event ->
-            when(event){
+            when (event) {
                 BottomSheetEvent.CloseSheet -> {
                     showBottomSheet = false
                 }
+
                 BottomSheetEvent.OpenSheet -> {
                     showBottomSheet = true
                 }
@@ -134,7 +136,9 @@ fun TasksScreen(
                     Text(
                         modifier = Modifier
                             .weight(1f),
-                        text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(R.string.edit_task),
+                        text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(
+                            R.string.edit_task
+                        ),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimary
@@ -266,7 +270,9 @@ fun TasksScreen(
                 }
                 CreateOrEditButton(
                     isSaveButtonEnabled = state.isButtonEnabled,
-                    text = if (state.taskId == null )stringResource(R.string.create_new_task) else stringResource(R.string.save_changes_button)
+                    text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(
+                        R.string.save_changes_button
+                    )
                 ) {
                     tasksViewModel.processCommand(TasksCommand.AddTask)
                     scope.launch {
@@ -279,7 +285,7 @@ fun TasksScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.primary,
         floatingActionButton = {
-            AppFAB{
+            AppFAB {
                 tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
             }
 
@@ -289,7 +295,7 @@ fun TasksScreen(
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
                 hostState = snackbarHostState
-            ) { data ->
+            ) { _ ->
                 Snackbar(
                     modifier = Modifier,
                     action = {
@@ -389,7 +395,27 @@ fun TasksScreen(
                                     )
                                 }
                             }
-
+                        }
+                        if (state.tasksMapSections.isEmpty() && taskDeadlineSection == TaskDeadlineSection.TODAY) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(100.dp),
+                                    painter = painterResource(R.drawable.ic_no_tasks),
+                                    contentDescription = "no tasks",
+                                    tint = MaterialTheme.colorScheme.onPrimaryFixed
+                                )
+                                Text(
+                                    text = stringResource(R.string.no_tasks_scheduled),
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 20.sp,
+                                    color = MaterialTheme.colorScheme.onPrimaryFixed
+                                )
+                            }
                         }
 
                     }
@@ -460,7 +486,7 @@ fun TaskCard(
                     selectedColor = MaterialTheme.colorScheme.scrim
                 )
             )
-            Column{
+            Column {
                 Text(
                     text = task.title,
                     fontWeight = FontWeight.Bold,
@@ -528,7 +554,7 @@ fun TaskCard(
 fun AppFAB(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
-){
+) {
     FloatingActionButton(
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.tertiary,

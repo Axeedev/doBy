@@ -31,10 +31,12 @@ private val DarkColorScheme = darkColorScheme(
     onSecondaryFixedVariant = blue100,
     onSecondaryFixed = blue500,
     secondaryFixed = blue400,
-    surfaceVariant = grey150
+    surfaceVariant = grey150,
+    inverseSurface = blue400
 )
 
 private val LightColorScheme = lightColorScheme(
+    inverseSurface = blue400,
     surfaceVariant = white,
     secondaryFixed = white,
     onSecondaryFixedVariant = blue500,

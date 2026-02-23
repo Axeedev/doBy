@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -143,6 +144,13 @@ fun NavigationRoot() {
                             backStack.add(Screen.RecentlyCompleted)
                         }
                     },
+                    colors = NavigationDrawerItemDefaults.colors(
+                        selectedContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                        selectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        selectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
                     icon = {
                         Icon(
                             painter = painterResource(R.drawable.ic_done),
@@ -155,6 +163,8 @@ fun NavigationRoot() {
         }
     ) {
         NavDisplay(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background),
             backStack = backStack,
             transitionSpec = {
                 slideIntoContainer(

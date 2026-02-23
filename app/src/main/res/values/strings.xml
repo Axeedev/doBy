@@ -198,4 +198,8 @@
 
 
     <string name="client_id" translatable="false">318248066212-aa90fhutnrgbnuqtibsull5sktt4jq2m.apps.googleusercontent.com</string>
+    <string name="no_tasks_scheduled">No tasks scheduled</string>
+    <string name="no_achievements_in_this_section">No achievements in this section</string>
+    <string name="no_completed_tasks_yet">No completed tasks yet</string>
+    <string name="no_active_goals_yet">No active goals yet</string>
 </resources>
