@@ -26,6 +26,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -57,18 +58,19 @@ fun AchievementsScreen(
     val state by viewModel.state.collectAsState()
 
     Scaffold(
-        containerColor = Color(0xFFF7F8FA),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFF7F8FA),
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
                 title = {
                     Text(
                         modifier = Modifier
                             .padding(start = 16.dp),
                         text = stringResource(R.string.achievements_screen),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
                 navigationIcon = {
@@ -80,7 +82,8 @@ fun AchievementsScreen(
                                 onBackClick()
                             },
                         painter = painterResource(R.drawable.ic_arrow_back),
-                        contentDescription = "go back"
+                        contentDescription = "go back",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             )
@@ -94,7 +97,7 @@ fun AchievementsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                CurrentStreak(streak = state.currentStreak.toString())
+                CurrentStreakCard(streak = state.currentStreak.toString())
             }
             item {
                 Row(
@@ -118,12 +121,13 @@ fun AchievementsScreen(
                                     text = stringResource(filterType.titleId)
                                 )
                             },
-                            border = BorderStroke(1.dp, Color(0XFFEBEBEB)),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF0F172A),
+                                selectedContainerColor = MaterialTheme.colorScheme.onSecondaryFixedVariant,
                                 selectedLabelColor = Color.White,
                                 disabledLabelColor = Color(0xFF4C5A6D),
-                                disabledContainerColor = Color.White
+                                disabledContainerColor = Color.White,
+                                containerColor = MaterialTheme.colorScheme.onSecondaryFixed
                             )
                         )
                     }
@@ -141,17 +145,18 @@ fun AchievementsScreen(
 }
 
 @Composable
-fun CurrentStreak(
+fun CurrentStreakCard(
     modifier: Modifier = Modifier,
     streak: String
 ){
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-            contentColor = Color.Unspecified
+            containerColor = MaterialTheme.colorScheme.primary,
         ),
-        border = BorderStroke(1.dp, Color(0XFFEBEBEB)),
+        border = BorderStroke(1.dp,
+            MaterialTheme.colorScheme.surfaceTint,
+        ),
         shape = RoundedCornerShape(12.dp),
     ) {
         Row(
@@ -168,7 +173,7 @@ fun CurrentStreak(
             ) {
                 Text(
                     text = stringResource(R.string.current_streak),
-                    color = Color(0xFF1680EC),
+                    color = MaterialTheme.colorScheme.surfaceBright,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -176,14 +181,14 @@ fun CurrentStreak(
                 Text(
                     text = streak,
                     fontSize = 30.sp,
-                    color = Color(0xFF181F32),
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontWeight = FontWeight.ExtraBold
                 )
                 Spacer(Modifier.size(16.dp))
                 Text(
                     text = stringResource(R.string.current_streak_description),
                     fontSize = 14.sp,
-                    color = Color(0xFF718095),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium
                 )
             }
@@ -216,10 +221,9 @@ fun AchievementCard(
                 spotColor = Color.Gray.copy(alpha = 0.6f)
             ),
         colors = CardDefaults.cardColors(
-            contentColor = Color.Unspecified,
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.onPrimaryContainer
         ),
-        border = BorderStroke(1.dp, Color(0XFFEBEBEB)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint),
         shape = RoundedCornerShape(12.dp),
     ) {
         Column(
@@ -297,7 +301,7 @@ fun AchievementCard(
                         text = stringResource(achievement.titleId),
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        color = Color(0xFF181F32)
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                     Spacer(Modifier.size(8.dp))
 

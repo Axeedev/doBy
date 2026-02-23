@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -97,16 +99,17 @@ fun AnalyticsScreen(
     val state by viewModel.state.collectAsState()
 
     Scaffold(
-        containerColor = Color(0xFFF7F8FA),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF7F8FA)),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 title = {
                     Text(
                         modifier = Modifier
                             .padding(start = 16.dp),
                         text = stringResource(R.string.analytics_screen),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
                 navigationIcon = {
@@ -118,7 +121,8 @@ fun AnalyticsScreen(
                                 onBackClick()
                             },
                         painter = painterResource(R.drawable.ic_arrow_back),
-                        contentDescription = "go back"
+                        contentDescription = "go back",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             )
@@ -141,10 +145,9 @@ fun AnalyticsScreen(
                         .weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        contentColor = Color.Unspecified,
-                        containerColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
-                    border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint)
                 ) {
                     Column(
                         modifier = Modifier.padding(all = 16.dp),
@@ -152,13 +155,14 @@ fun AnalyticsScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.analytics_tasks_overall),
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
                             text = state.completedTasksOverall.toString(),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 28.sp
+                            fontSize = 28.sp,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                         val currentPercentage = state.percentageDiffPastWeek
 
@@ -192,10 +196,9 @@ fun AnalyticsScreen(
                         .weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
-                        contentColor = Color.Unspecified,
-                        containerColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
-                    border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint)
                 ) {
                     Column(
                         modifier = Modifier.padding(all = 16.dp),
@@ -203,17 +206,18 @@ fun AnalyticsScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.analytics_this_week),
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontWeight = FontWeight.SemiBold
                         )
                         Text(
                             text = state.completedTasksThisWeek.toString(),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 28.sp
+                            fontSize = 28.sp,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                         Text(
                             text = stringResource(R.string.analytics_tasks_completed),
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -235,7 +239,8 @@ fun AnalyticsScreen(
                     Text(
                         text = stringResource(state.selectedChartType.titleId) ,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                     if (state.selectedChartType == ChartType.HEATMAP) {
                         Row(
@@ -243,7 +248,8 @@ fun AnalyticsScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = stringResource(R.string.analytics_heat_map_less)
+                                text = stringResource(R.string.analytics_heat_map_less),
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                             intensityColors.forEach { color ->
                                 Box(
@@ -254,7 +260,8 @@ fun AnalyticsScreen(
                                 )
                             }
                             Text(
-                                text = stringResource(R.string.analytics_heat_map_more)
+                                text = stringResource(R.string.analytics_heat_map_more),
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
@@ -268,7 +275,7 @@ fun AnalyticsScreen(
                         onDismissRequest = {
                             expanded = false
                         },
-                        containerColor = Color.Gray.copy(alpha = 0.887f),
+                        containerColor = MaterialTheme.colorScheme.tertiaryFixedDim.copy(alpha = 0.887f),
                         shape = RoundedCornerShape(20.dp),
                         border = null,
                         shadowElevation = 0.dp,
@@ -282,7 +289,7 @@ fun AnalyticsScreen(
                                     ) {
                                         Text(
                                             text = stringResource(item.chartType.titleId),
-                                            color = Color.White
+                                            color = MaterialTheme.colorScheme.onPrimary
                                         )
                                     }
                                 },
@@ -290,7 +297,7 @@ fun AnalyticsScreen(
                                     Icon(
                                         painter = painterResource(item.iconId),
                                         contentDescription = "type of bar",
-                                        tint = Color.White
+                                        tint = MaterialTheme.colorScheme.onPrimary
                                     )
 
                                 },
@@ -313,7 +320,7 @@ fun AnalyticsScreen(
                             },
                         painter = painterResource(R.drawable.ic_menu),
                         contentDescription = "open menu",
-                        tint = Color.Black
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -355,15 +362,16 @@ fun WeeklyBarChart(
 ) {
     val numberOfGridLines = maxValue / 2 + 1
 
+
     Card(
         modifier = modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
             contentColor = Color.Unspecified
         ),
-        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint)
     ) {
         var screenWidth by remember { mutableFloatStateOf(0f) }
         var contentWidth by remember { mutableFloatStateOf(0f) }
@@ -391,6 +399,7 @@ fun WeeklyBarChart(
             scrolledBy = (scrolledBy + panChange.x)
                 .coerceIn(minScroll, maxScroll)
         }
+        val dateColor = if (isSystemInDarkTheme()) android.graphics.Color.LTGRAY else android.graphics.Color.BLACK
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -452,7 +461,7 @@ fun WeeklyBarChart(
 
                     drawContext.canvas.nativeCanvas.apply {
                         val paint = Paint().apply {
-                            color = android.graphics.Color.BLACK
+                            color = dateColor
                             textSize = 28f
                             textAlign = Paint.Align.CENTER
                             isAntiAlias = true
@@ -501,10 +510,9 @@ fun HeatmapGrid(
         modifier = modifier
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            contentColor = Color.Unspecified,
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.onPrimaryContainer
         ),
-        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint)
     ) {
         LazyRow(
             modifier = Modifier
@@ -539,7 +547,6 @@ fun HeatMapMonth(
     val numberOfColumns = ceil(totalCells / 7f).toInt()
 
     Column(
-
         horizontalAlignment = Alignment.Start
     ) {
         Text(
@@ -550,7 +557,8 @@ fun HeatMapMonth(
                 Locale.getDefault(),
             ),
             fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onPrimary
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp)

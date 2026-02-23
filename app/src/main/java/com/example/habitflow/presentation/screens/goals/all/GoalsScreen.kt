@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -49,6 +50,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.goals.Goal
+import com.example.habitflow.presentation.screens.tasks.all.AppFAB
 import com.example.habitflow.presentation.utils.DateFormatter
 import kotlin.math.roundToInt
 
@@ -62,10 +64,12 @@ fun GoalsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     Scaffold(
-        containerColor = Color(0xFFF7F8FA),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF7F8FA)),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 navigationIcon = {
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_back),
@@ -75,29 +79,22 @@ fun GoalsScreen(
                         .clickable {
                             onBackClick()
                         },
-                    contentDescription = "go back"
+                    contentDescription = "go back",
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             },
                 title = {
                     Text(
                         text = stringResource(R.string.goals_screen),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onCreateButtonClick,
-                containerColor = MaterialTheme.colorScheme.primaryFixedDim,
-                contentColor = Color.White
-            ) {
-                Icon(
-
-                    painter = painterResource(R.drawable.ic_add),
-                    contentDescription = "add goal"
-                )
-
+            AppFAB {
+                onCreateButtonClick()
             }
         },
     ) { paddingValues ->
@@ -115,13 +112,13 @@ fun GoalsScreen(
                         state.goals.size,
                         state.goals.size
                     ),
-                    color = MaterialTheme.colorScheme.onPrimaryFixedVariant
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             item {
                 Text(
                     text = stringResource(R.string.active_goals),
-                    color = MaterialTheme.colorScheme.onPrimaryFixedVariant
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             items(items = state.goals, key = { it.id }) { goal ->
@@ -146,10 +143,9 @@ fun GoalCard(
 ) {
     Card(
         colors = CardDefaults.cardColors(
-            contentColor = Color.Unspecified,
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
         ),
-        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint)
     ) {
 
         goal.coverUri?.let { uri ->
@@ -201,19 +197,19 @@ fun GoalCard(
                 text = goal.title,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.primaryFixed
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Spacer(modifier = Modifier.size(16.dp))
             Row {
                 Icon(
                     painter = painterResource(R.drawable.ic_calendar),
                     contentDescription = "goal end date",
-                    tint = MaterialTheme.colorScheme.onPrimaryFixedVariant
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
                 Spacer(Modifier.size(8.dp))
                 Text(
                     text = "${stringResource(R.string.until)} ${DateFormatter.formatDate(goal.goalEndDate)}",
-                    color = MaterialTheme.colorScheme.onPrimaryFixedVariant
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
             Spacer(Modifier.size(16.dp))
@@ -226,15 +222,19 @@ fun GoalCard(
                     Column {
                         Text(
                             text = "${stringResource(R.string.progress)} ${(progress * 100).roundToInt()} %",
-                            color = MaterialTheme.colorScheme.onPrimaryFixedVariant
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                         Text(
                             text = "$completed of ${goal.milestones.size} steps",
-                            color = MaterialTheme.colorScheme.onPrimaryFixedVariant
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                     LinearProgressIndicator(
-                        progress = { progress }
+                        modifier = Modifier.padding(all = 4.dp),
+                        progress = { progress },
+                        color = MaterialTheme.colorScheme.scrim,
+                        strokeCap = StrokeCap.Round,
+                        gapSize = 0.dp
                     )
                 }
                 Spacer(modifier = Modifier.size(16.dp))
@@ -249,7 +249,8 @@ fun GoalCard(
                         .weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF7F8FA)
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+
                     ),
                     onClick = {
                         onGoalClick()
@@ -260,7 +261,7 @@ fun GoalCard(
                             .padding(vertical = 4.dp),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.secondary,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         text = stringResource(R.string.update_progress)
                     )
                 }

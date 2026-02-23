@@ -1,6 +1,5 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +23,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -59,13 +59,13 @@ import com.example.habitflow.R
 import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
+import com.example.habitflow.presentation.screens.goals.create.AppTextField
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalTextFieldWithTitle
 import com.example.habitflow.presentation.screens.goals.create.CreateOrEditButton
 import com.example.habitflow.presentation.screens.goals.create.FilterChips
-import com.example.habitflow.presentation.screens.goals.create.MyTextField
+import com.example.habitflow.presentation.screens.tasks.DatePickerModal
 import com.example.habitflow.presentation.screens.tasks.TaskDeadlineSection
-import com.example.habitflow.presentation.screens.tasks.creation.DatePickerModal
-import com.example.habitflow.presentation.screens.tasks.creation.TimePickerDial
+import com.example.habitflow.presentation.screens.tasks.TimePickerDial
 import com.example.habitflow.presentation.utils.DateFormatter
 import com.example.habitflow.presentation.utils.DateFormatter.formatTime
 import kotlinx.coroutines.launch
@@ -119,6 +119,7 @@ fun TasksScreen(
             onDismissRequest = {
                 tasksViewModel.processCommand(TasksCommand.CloseBottomSheet)
             },
+            containerColor = MaterialTheme.colorScheme.background,
             sheetState = sheetState
         ) {
             Column(
@@ -135,7 +136,8 @@ fun TasksScreen(
                             .weight(1f),
                         text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(R.string.edit_task),
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                     val taskId = state.taskId
                     if (taskId != null && state.goalCategory != GoalCategory.CALENDAR) {
@@ -191,7 +193,7 @@ fun TasksScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    MyTextField(
+                    AppTextField(
                         modifier = Modifier
                             .weight(1f)
                             .clip(RoundedCornerShape(12.dp))
@@ -205,7 +207,7 @@ fun TasksScreen(
                         } ?: ""
                     )
                     val deadline = state.remindAtMinutesOfDay
-                    MyTextField(
+                    AppTextField(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
                             .weight(1f)
@@ -254,11 +256,10 @@ fun TasksScreen(
                             },
                             shape = CircleShape,
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFF10B981),
-                                selectedLabelColor = Color.White,
-                                containerColor = Color.White,
-                                disabledLabelColor = Color(0xFF065F54),
-                                disabledContainerColor = Color.White,
+                                selectedContainerColor = MaterialTheme.colorScheme.tertiary,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryFixedVariant,
+                                containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
                         )
                     }
@@ -276,20 +277,12 @@ fun TasksScreen(
         }
     }
     Scaffold(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.primary,
         floatingActionButton = {
-            FloatingActionButton(
-                containerColor = Color(0xFF10B981),
-                contentColor = Color.White,
-                onClick = {
-                    tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
-                }
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_add),
-                    contentDescription = "Add task"
-                )
+            AppFAB{
+                tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
             }
+
         },
         snackbarHost = {
             SnackbarHost(
@@ -334,6 +327,7 @@ fun TasksScreen(
                         modifier = Modifier
                             .padding(start = 16.dp),
                         fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         text = stringResource(R.string.my_tasks_screen)
                     )
                 },
@@ -346,7 +340,8 @@ fun TasksScreen(
                                 onOpenMenuClick()
                             },
                         painter = painterResource(R.drawable.ic_menu),
-                        contentDescription = "open menu"
+                        contentDescription = "open menu",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             )
@@ -378,9 +373,8 @@ fun TasksScreen(
                             ) {
                                 Text(
                                     text = stringResource(taskDeadlineSection.titleId),
-                                    color = if (tasks.isNotEmpty()) Color.Black else Color(
-                                        0xFF94A3B8
-                                    ),
+                                    color = if (tasks.isNotEmpty()) MaterialTheme.colorScheme.onPrimary
+                                    else MaterialTheme.colorScheme.onPrimaryFixed,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 if (tasks.isNotEmpty()) {
@@ -391,7 +385,7 @@ fun TasksScreen(
                                             tasks.size
                                         ),
                                         fontWeight = FontWeight.Medium,
-                                        color = Color(0xFF94A3B8)
+                                        color = MaterialTheme.colorScheme.onPrimaryFixed
                                     )
                                 }
                             }
@@ -401,11 +395,7 @@ fun TasksScreen(
                     }
                     itemsIndexed(items = tasks) { index, task ->
                         TaskCard(
-                            modifier = Modifier
-                                .animateItem(
-                                    fadeOutSpec = tween(300),
-                                    fadeInSpec = tween(300)
-                                ),
+                            modifier = Modifier,
                             task = task,
                             taskDeadlineSection = taskDeadlineSection,
                             onTaskClick = {
@@ -422,7 +412,8 @@ fun TasksScreen(
                         if (index != tasks.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(top = 8.dp),
-                                thickness = 0.8.dp
+                                thickness = 0.8.dp,
+                                color = MaterialTheme.colorScheme.surfaceTint
                             )
                         }
                     }
@@ -451,7 +442,7 @@ fun TaskCard(
             }
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.Unspecified
         ),
         shape = RoundedCornerShape(12.dp),
@@ -466,13 +457,14 @@ fun TaskCard(
                 selected = task.isCompleted,
                 onClick = onRadioButtonClick,
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = Color(0xFF10B981)
+                    selectedColor = MaterialTheme.colorScheme.scrim
                 )
             )
             Column{
                 Text(
                     text = task.title,
                     fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = 16.sp
                 )
 
@@ -483,12 +475,12 @@ fun TaskCard(
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .background(Color(0XFFF1F5F9))
+                            .background(MaterialTheme.colorScheme.onTertiary)
                     ) {
                         Text(
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                             text = stringResource(task.category.titleId),
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 14.sp
                         )
                     }
@@ -522,7 +514,7 @@ fun TaskCard(
                         Text(
                             text = taskTime,
                             fontWeight = FontWeight.W400,
-                            color = Color(0XFF94A3B8)
+                            color = MaterialTheme.colorScheme.onPrimaryFixed
                         )
                     }
 
@@ -532,3 +524,20 @@ fun TaskCard(
     }
 }
 
+@Composable
+fun AppFAB(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+){
+    FloatingActionButton(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.tertiary,
+        contentColor = Color.White,
+        onClick = onClick
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_add),
+            contentDescription = "Add"
+        )
+    }
+}

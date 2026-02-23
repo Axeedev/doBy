@@ -11,6 +11,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -64,8 +65,11 @@ fun NavigationRoot() {
     ModalNavigationDrawer(
         gesturesEnabled = currentScreen != Screen.Login && currentScreen != Screen.Signup && currentScreen != Screen.Analytics,
         drawerState = drawerState,
+        scrimColor = MaterialTheme.colorScheme.background,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                drawerContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+            ) {
                 NavigationDrawerItem(
                     modifier = Modifier.padding(
                         NavigationDrawerItemDefaults.ItemPadding
@@ -109,7 +113,14 @@ fun NavigationRoot() {
                                 painter = painterResource(screenWithIcon.iconId),
                                 contentDescription = ""
                             )
-                        }
+                        },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            selectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            selectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
                 }
                 HorizontalDivider(

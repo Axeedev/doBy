@@ -4,17 +4,23 @@ import android.content.ContentResolver
 import android.content.Context
 import android.provider.CalendarContract
 import com.example.habitflow.domain.entities.tasks.Task
+import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class SystemCalendarManager @Inject constructor(
-    @param:ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
+    private val getSettingsUseCase: GetSettingsUseCase
 ) {
 
     fun getEventsAsTasks() : Flow<List<Task>> = flow {
-        emit(fetchUpcomingEvents().map { it.toTask() })
+        getSettingsUseCase().collect {
+            if (it.showCalendarEvents){
+                emit(fetchUpcomingEvents().map { it.toTask() })
+            }
+        }
     }
 
     private fun fetchUpcomingEvents(): List<CalendarEvent> {

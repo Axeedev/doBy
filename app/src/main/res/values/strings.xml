@@ -185,6 +185,17 @@
 
 
 
+    <!--Utils-->
+    <string name="date_picker_ok">OK</string>
+    <string name="date_picker_cancel">Cancel</string>
+    <string name="time_picker_confirm_time">Confirm time</string>
+    <string name="time_picker_title_choose_time">Choose time</string>
+    <string name="complete_goal_dialog">Complete goal?</string>
+    <string name="complete_goal_cancel_button">Cancel</string>
+    <string name="complete_goal_complete_button">Complete</string>
+
+
+
 
     <string name="client_id" translatable="false">318248066212-aa90fhutnrgbnuqtibsull5sktt4jq2m.apps.googleusercontent.com</string>
 </resources>

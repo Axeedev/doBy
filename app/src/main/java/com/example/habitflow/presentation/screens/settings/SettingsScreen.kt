@@ -7,7 +7,6 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -30,6 +29,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -205,14 +205,18 @@ fun SettingsScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFFF7F8FA),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor =  Color(0xFFF7F8FA)),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 title = {
                     Text(
                         text = stringResource(R.string.settings_screen),
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 },
                 navigationIcon = {
@@ -247,13 +251,14 @@ fun SettingsScreen(
                     secondaryText = stringResource(R.string.data_sync_sync_data_only_via_wifi),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Switch(
-                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF10B981)),
-                        checked = state.wifiOnly,
-                        onCheckedChange = {
-                            settingsViewModel.processCommand(SettingsCommand.ChangeWifiOnly(it))
-                        }
-                    )
+
+                    AppSwitch(
+                        checked = state.wifiOnly
+                    ) {
+                        settingsViewModel.processCommand(SettingsCommand.ChangeWifiOnly(it))
+
+                    }
+
                 }
                 Spacer(Modifier.size(24.dp))
             }
@@ -271,17 +276,16 @@ fun SettingsScreen(
                     mainText = stringResource(R.string.recently_completed_screen),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Switch(
-                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF10B981)),
-                        checked = state.showCompletedTasks,
-                        onCheckedChange = {
-                            settingsViewModel.processCommand(
-                                SettingsCommand.ChangeShowCompletedTasks(
-                                    it
-                                )
+
+                    AppSwitch(
+                        checked = state.showCompletedTasks
+                    ) {
+                        settingsViewModel.processCommand(
+                            SettingsCommand.ChangeShowCompletedTasks(
+                                it
                             )
-                        }
-                    )
+                        )
+                    }
                 }
                 Spacer(Modifier.size(24.dp))
 
@@ -299,21 +303,20 @@ fun SettingsScreen(
                     mainText = stringResource(R.string.show_events_from_calendar),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Switch(
-                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF10B981)),
-                        checked = state.showEventsFromCalendar,
-                        onCheckedChange = {
-                            if (it) {
-                                readCalendarLauncher.launch(Manifest.permission.READ_CALENDAR)
-                            } else {
-                                settingsViewModel.processCommand(
-                                    SettingsCommand.ChangeShowCalendarEvents(
-                                        it
-                                    )
+
+                    AppSwitch(
+                        checked = state.showEventsFromCalendar
+                    ) {
+                        if (it) {
+                            readCalendarLauncher.launch(Manifest.permission.READ_CALENDAR)
+                        } else {
+                            settingsViewModel.processCommand(
+                                SettingsCommand.ChangeShowCalendarEvents(
+                                    it
                                 )
-                            }
+                            )
                         }
-                    )
+                    }
                 }
                 Spacer(Modifier.size(24.dp))
 
@@ -331,21 +334,19 @@ fun SettingsScreen(
                     mainText = stringResource(R.string.notifications_enable),
                     shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
                 ) {
-                    Switch(
-                        colors = SwitchDefaults.colors(checkedTrackColor = Color(0xFF10B981)),
-                        checked = state.notificationsEnabled,
-                        onCheckedChange = {
-                            if (it && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                notificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            } else {
-                                settingsViewModel.processCommand(
-                                    SettingsCommand.ChangeNotificationsEnabled(
-                                        it
-                                    )
+                    AppSwitch(
+                        checked = state.notificationsEnabled
+                    ) {
+                        if (it && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            settingsViewModel.processCommand(
+                                SettingsCommand.ChangeNotificationsEnabled(
+                                    it
                                 )
-                            }
+                            )
                         }
-                    )
+                    }
                 }
             }
 
@@ -369,13 +370,13 @@ fun SettingsScreen(
                     ) {
                         Text(
                             text = "${state.notifyBeforeMinutes} ${stringResource(R.string.number_of_minutes)}",
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                         Icon(
                             modifier = Modifier.clip(CircleShape),
                             painter = painterResource(R.drawable.ic_arrow_right),
                             contentDescription = "Open notify before settings",
-                            tint = Color.Gray
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -410,13 +411,13 @@ fun SettingsScreen(
                     ) {
                         Text(
                             text = state.morningTimeFormatted,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                         Icon(
                             modifier = Modifier.clip(CircleShape),
                             painter = painterResource(R.drawable.ic_arrow_right),
                             contentDescription = "Open notify before settings",
-                            tint = Color.Gray
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -438,13 +439,13 @@ fun SettingsScreen(
                     ) {
                         Text(
                             text = state.nightTimeFormatted,
-                            color = Color.Gray
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                         Icon(
                             modifier = Modifier.clip(CircleShape),
                             painter = painterResource(R.drawable.ic_arrow_right),
                             contentDescription = "Open notify before settings",
-                            tint = Color.Gray
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -474,7 +475,7 @@ fun SignOutButton(
         shape = RoundedCornerShape(12.dp),
 
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
             contentColor = Color.Red
         )
     ) {
@@ -497,10 +498,9 @@ fun SettingsField(
             .clip(shape),
         shape = shape,
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-            contentColor = Color.Unspecified
+            containerColor = MaterialTheme.colorScheme.onPrimaryContainer
         ),
-        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint)
     ) {
         Row(
             modifier = Modifier
@@ -513,14 +513,15 @@ fun SettingsField(
                 Text(
                     text = mainText,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
                 if (secondaryText.isNotEmpty()) {
                     Spacer(Modifier.size(8.dp))
                     Text(
                         text = secondaryText,
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -544,7 +545,7 @@ fun BottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = Color(0xFFF7F8FA),
+        containerColor = MaterialTheme.colorScheme.background,
     ) {
         Column(
             modifier = modifier
@@ -604,12 +605,15 @@ fun NotifyBeforeItem(
     Card(
         modifier = modifier,
         shape = shape,
-        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -621,7 +625,7 @@ fun NotifyBeforeItem(
 
             RadioButton(
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = Color(0xFF10B981)
+                    selectedColor = MaterialTheme.colorScheme.scrim
                 ),
                 selected = isSelected,
                 onClick = onSelectedChange
@@ -642,12 +646,15 @@ fun TimeItem(
     Card(
         modifier = modifier,
         shape = shape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        ),
         border = BorderStroke(1.dp, Color(0XFFEBEBEB))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -664,7 +671,7 @@ fun TimeItem(
 
             RadioButton(
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = Color(0xFF10B981)
+                    selectedColor = MaterialTheme.colorScheme.scrim
                 ),
                 selected = isSelected,
                 onClick = onSelectedChange
@@ -711,4 +718,23 @@ fun TimeList(
             }
         }
     }
+}
+
+@Composable
+fun AppSwitch(
+    modifier: Modifier = Modifier,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Switch(
+        modifier = modifier,
+        colors = SwitchDefaults.colors(
+            uncheckedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            uncheckedIconColor = MaterialTheme.colorScheme.onPrimary,
+            checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+            checkedThumbColor = MaterialTheme.colorScheme.onTertiaryFixedVariant
+        ),
+        checked = checked,
+        onCheckedChange = onCheckedChange
+    )
 }

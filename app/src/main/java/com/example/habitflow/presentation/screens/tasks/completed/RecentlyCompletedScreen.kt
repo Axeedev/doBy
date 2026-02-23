@@ -19,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
@@ -54,18 +55,22 @@ fun RecentlyCompletedScreen(
     val state by viewModel.state.collectAsState()
 
     Scaffold(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.primary,
         topBar = {
             TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
                 title = {
                     Text(
                         text = stringResource(R.string.recently_completed_screen),
                         fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 },
                 navigationIcon = {
                     Icon(
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .clip(CircleShape)
@@ -92,7 +97,8 @@ fun RecentlyCompletedScreen(
                 if (index != state.completedTasks.lastIndex){
                     HorizontalDivider(
                         modifier = Modifier.padding(top = 8.dp),
-                        thickness = 0.8.dp
+                        thickness = 0.8.dp,
+                        color = MaterialTheme.colorScheme.onTertiary
                     )
                 }
             }
@@ -112,7 +118,7 @@ fun CompletedTaskCard(
             .clickable {}
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.Unspecified.copy(alpha = 0.4f)
         ),
         shape = RoundedCornerShape(12.dp),
@@ -127,14 +133,15 @@ fun CompletedTaskCard(
                 selected = completedTask.isCompleted,
                 onClick = onRadioButtonClick,
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = Color(0xFF10B981)
+                    selectedColor = MaterialTheme.colorScheme.scrim
                 )
             )
             Column {
                 Text(
-                    textDecoration = TextDecoration.LineThrough,
+                    textDecoration = TextDecoration.LineThrough ,
                     text = completedTask.title,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = 16.sp
                 )
 
@@ -145,17 +152,18 @@ fun CompletedTaskCard(
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .background(Color(0XFFF1F5F9))
+                            .background(MaterialTheme.colorScheme.onTertiary)
                     ) {
                         Text(
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                             text = stringResource(completedTask.category.titleId),
-                            color = Color.Black.copy(alpha = 0.4f),
-                            fontSize = 14.sp
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.4f),
                         )
                     }
                     Text(
                         text = DateFormatter.formatDate(completedTask.completionDate),
+                        color = MaterialTheme.colorScheme.onPrimaryFixed
                     )
                     completedTask.deadlineMillis?.let { deadline ->
 
@@ -166,7 +174,7 @@ fun CompletedTaskCard(
                         Text(
                             text = time,
                             fontWeight = FontWeight.W400,
-                            color = Color(0XFF94A3B8)
+                            color = MaterialTheme.colorScheme.onPrimaryFixed
                         )
                     }
 

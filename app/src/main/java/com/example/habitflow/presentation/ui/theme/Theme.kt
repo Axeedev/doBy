@@ -1,43 +1,65 @@
 package com.example.habitflow.presentation.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = blue300,
-    secondary = blue100,
-    tertiary = grey100,
-    background = grey350,
-    primaryContainer = white,
-    scrim = white,
-    onSecondaryContainer = pink50,
-    onPrimaryContainer = pink100,
-    onPrimaryFixed = grey200,
-    primaryFixedDim = blue900,
-    onPrimaryFixedVariant = grey400,
-    primaryFixed = black
+    primary = blue500,
+    background = blue500,
+    secondaryContainer = blue400,
+    onPrimaryContainer = blue400,
+    onPrimary = grey150,
+    tertiary = blue300,
+    onPrimaryFixed = grey400,
+    onTertiary = blue400,
+    surfaceTint = grey800,
+    onTertiaryFixedVariant = blue100,
+    onSurface = grey300,
+    onSecondaryContainer = blue500,
+    onSurfaceVariant = grey150,
+    tertiaryContainer = blue400,
+    onPrimaryFixedVariant = grey100,
+    scrim = blue100,
+    surfaceContainer = blue300,
+    tertiaryFixedDim = blue300,
+    outline = grey150,
+    surfaceBright = blue100,
+    surfaceDim = orange500,
+    onSecondaryFixedVariant = blue100,
+    onSecondaryFixed = blue500,
+    secondaryFixed = blue400,
+    surfaceVariant = grey150
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = blue300,
-    secondary = blue100,
-    tertiary = grey100,
-    background = grey350,
-    scrim = white,
-    onSecondaryContainer = pink50,
-    onPrimaryContainer = pink100,
-    primaryContainer = white,
-    primaryFixedDim = blue900,
-    onPrimaryFixed = grey200,
-    onPrimaryFixedVariant = grey400,
-    primaryFixed = black
+    surfaceVariant = white,
+    secondaryFixed = white,
+    onSecondaryFixedVariant = blue500,
+    onSecondaryFixed = white,
+    surfaceDim = orange500,
+    outline = grey100,
+    surfaceBright = blue100,
+    tertiaryFixedDim = green100,
+    scrim = green500,
+    onTertiaryFixedVariant = white,
+    onSurfaceVariant = grey700,
+    primary = white,
+    onPrimaryFixedVariant = white,
+    secondaryContainer = pink300,
+    onSecondaryContainer = pink400,
+    onPrimaryContainer = white,
+    tertiaryContainer = white,
+    background = grey100,
+    surfaceContainer = grey100,
+    onPrimary = black,
+    onPrimaryFixed = grey400,
+    tertiary = green500,
+    onTertiary = grey250,
+    surfaceTint = grey200,
+    onSurface = grey300
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

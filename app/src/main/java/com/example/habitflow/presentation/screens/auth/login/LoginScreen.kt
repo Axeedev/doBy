@@ -23,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -103,13 +104,12 @@ fun LoginScreen(
                 Snackbar(
                     snackbarData = snackbarData,
                     shape = RoundedCornerShape(12.dp),
-                    containerColor = Color.White,
-                    contentColor = Color.Black
+                    containerColor = MaterialTheme.colorScheme.onPrimary,
+                    contentColor = MaterialTheme.colorScheme.primary
                 )
             }
         },
-        containerColor = Color.White,
-        contentColor = Color.Unspecified,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
@@ -124,7 +124,8 @@ fun LoginScreen(
                                     onBackClick()
                                 },
                             painter = painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = "go back"
+                            contentDescription = "go back",
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -150,6 +151,7 @@ fun LoginScreen(
                     fontSize = 28.sp,
                     fontWeight = FontWeight.SemiBold,
                     lineHeight = 34.sp,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     text = if (isLogin) stringResource(R.string.auth_welcome_back) else stringResource(R.string.auth_get_started)
                 )
 
@@ -158,7 +160,8 @@ fun LoginScreen(
                 Text(
                     text = stringResource(R.string.auth_email_address_field) ,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
 
                 Spacer(Modifier.size(16.dp))
@@ -185,7 +188,8 @@ fun LoginScreen(
                 Text(
                     text = stringResource(R.string.auth_password_field),
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
 
                 Spacer(Modifier.size(16.dp))
@@ -218,7 +222,7 @@ fun LoginScreen(
                             Spacer(Modifier.width(16.dp))
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
-                                color = Color.White
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -235,15 +239,22 @@ fun LoginScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    HorizontalDivider(Modifier.weight(1f))
+                    HorizontalDivider(
+                        Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.surfaceTint
+                    )
 
                     Text(
                         modifier = Modifier
                             .padding(horizontal = 8.dp),
-                        text = stringResource(R.string.auth_or)
+                        text = stringResource(R.string.auth_or),
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
 
-                    HorizontalDivider(Modifier.weight(1f))
+                    HorizontalDivider(
+                        Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.surfaceTint
+                        )
                 }
 
                 Spacer(Modifier.size(16.dp))
@@ -261,7 +272,8 @@ fun LoginScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.auth_dont_have_account),
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                         Spacer(
                             Modifier
@@ -277,7 +289,7 @@ fun LoginScreen(
                                 },
                             text = stringResource(R.string.auth_from_login_to_sign_up),
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF10B981)
+                            color = MaterialTheme.colorScheme.scrim
                         )
                     }
                 }
@@ -294,19 +306,21 @@ fun GoogleSignInButton(
     Button(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, Color(0xFFD9D9D9)),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent
+        ),
         onClick = onClick
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_google),
             contentDescription = stringResource(R.string.auth_sign_in_google_button),
-            tint = Color.Unspecified
+            tint = Color.Unspecified,
         )
         Spacer(Modifier.size(16.dp))
         Text(
             text = stringResource(R.string.auth_sign_in_google_button),
-            color = Color.Black
+            color = MaterialTheme.colorScheme.onPrimary,
         )
     }
 }
@@ -323,7 +337,7 @@ fun AuthTextField(
     TextField(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, Color(0xFFD9D9D9), RoundedCornerShape(12.dp)),
+            .border(1.dp, MaterialTheme.colorScheme.surfaceTint, RoundedCornerShape(12.dp)),
         value = value,
         singleLine = true,
         onValueChange = onValueChange,
@@ -335,9 +349,11 @@ fun AuthTextField(
         isError = isError,
         textStyle = TextStyle(
             fontWeight = FontWeight.SemiBold,
-            fontSize = 15.sp
+            fontSize = 15.sp,
+            color = MaterialTheme.colorScheme.onPrimary
         ),
         colors = TextFieldDefaults.colors(
+            cursorColor = MaterialTheme.colorScheme.onPrimary,
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
             focusedIndicatorColor = Color.Transparent,

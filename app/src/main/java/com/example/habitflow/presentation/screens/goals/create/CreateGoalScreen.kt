@@ -66,14 +66,14 @@ import com.example.habitflow.R
 import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.presentation.screens.goals.OpenReason
-import com.example.habitflow.presentation.screens.tasks.creation.DatePickerModal
+import com.example.habitflow.presentation.screens.tasks.DatePickerModal
 import com.example.habitflow.presentation.utils.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateGoalScreen(
     viewModel: CreateGoalViewModel = hiltViewModel(
-        creationCallback = {factory: CreateGoalViewModel.ViewModelFactory ->
+        creationCallback = { factory: CreateGoalViewModel.ViewModelFactory ->
             factory.create(null)
         }
     ),
@@ -105,7 +105,7 @@ fun CreateGoalScreen(
         }
     }
     Scaffold(
-        containerColor = Color(0xFFF8FAFC),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             CreateAndEditGoalScreenTopBar(
                 openReason = openReason,
@@ -196,6 +196,12 @@ fun CreateGoalScreen(
                 )
                 Spacer(Modifier.size(8.dp))
             }
+            item {
+                AddMilestoneButton {
+                    viewModel.processCommand(CreateGoalCommand.ClickAddMilestone)
+                }
+                Spacer(Modifier.size(16.dp))
+            }
 
             itemsIndexed(state.milestones) { index, milestone ->
                 MilestoneCard(
@@ -233,14 +239,9 @@ fun CreateGoalScreen(
                 }
             }
 
+
             item {
                 Spacer(Modifier.size(16.dp))
-                AddMilestoneButton {
-                    viewModel.processCommand(CreateGoalCommand.ClickAddMilestone)
-                }
-                Spacer(Modifier.size(16.dp))
-            }
-            item {
                 HorizontalDivider(
                     color = Color(0xFFB4C0C2)
                 )
@@ -252,7 +253,7 @@ fun CreateGoalScreen(
                     isSaveButtonEnabled = state.isSaveButtonEnabled,
                     text = when (openReason) {
                         OpenReason.CREATE -> {
-                           stringResource(R.string.create_goal_button)
+                            stringResource(R.string.create_goal_button)
                         }
 
                         OpenReason.EDIT -> {
@@ -287,10 +288,11 @@ fun MilestoneCard(
 ) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ),
         shape = shape,
-        border = BorderStroke(1.dp, Color(0XFFEBEBEB))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint)
 
     ) {
         Row(
@@ -301,7 +303,7 @@ fun MilestoneCard(
             RadioButton(
                 modifier = Modifier
                     .clip(CircleShape),
-                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF10B981)),
+                colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.scrim),
                 selected = milestone.isCompleted,
                 onClick = {
                     onRadioButtonClick()
@@ -320,10 +322,15 @@ fun MilestoneCard(
                                 onRemoveMilestoneClick()
                             },
                         painter = painterResource(R.drawable.ic_close),
-                        contentDescription = "remove milestone"
+                        contentDescription = "remove milestone",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 },
-                textStyle = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 16.sp),
+                textStyle = TextStyle(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onPrimary
+                ),
                 value = milestone.title,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -361,7 +368,8 @@ fun CreateGoalTextFieldWithTitle(
     ) {
         Text(
             text = fieldTitle,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onPrimary
         )
         Spacer(Modifier.size(8.dp))
         TextField(
@@ -370,7 +378,7 @@ fun CreateGoalTextFieldWithTitle(
                 .clickable { onTextFieldClick() }
                 .fillMaxWidth()
                 .border(
-                    BorderStroke(1.dp, Color(0xFFEBEBEB)),
+                    BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint),
                     shape = RoundedCornerShape(12.dp)
                 ),
             enabled = enabled,
@@ -380,23 +388,30 @@ fun CreateGoalTextFieldWithTitle(
             shape = RoundedCornerShape(12.dp),
             onValueChange = onValueChange,
             colors = TextFieldDefaults.colors(
-                disabledContainerColor = Color.White,
-                disabledIndicatorColor = Color.White,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                unfocusedIndicatorColor = Color.White,
-                focusedIndicatorColor = Color.White,
+                disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                disabledIndicatorColor = Color.Transparent,
+                focusedContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                unfocusedContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                disabledTextColor = MaterialTheme.colorScheme.onPrimary,
+                cursorColor = MaterialTheme.colorScheme.onPrimary
+
             ),
             placeholder = {
                 Text(
-                    text = placeholderText
+                    text = placeholderText,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             },
             trailingIcon = {
                 trailingIconId?.let {
                     Icon(
                         painter = painterResource(it),
-                        contentDescription = "icon"
+                        contentDescription = "icon",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             },
@@ -415,7 +430,7 @@ fun CreateAndEditGoalScreenTopBar(
     CenterAlignedTopAppBar(
         modifier = modifier,
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color(0xFFF7F8FA)
+            containerColor = MaterialTheme.colorScheme.background
         ),
         title = {
             Text(
@@ -427,7 +442,8 @@ fun CreateAndEditGoalScreenTopBar(
                     OpenReason.EDIT -> {
                         title
                     }
-                }
+                },
+                color = MaterialTheme.colorScheme.onPrimary
             )
         },
         navigationIcon = {
@@ -439,7 +455,8 @@ fun CreateAndEditGoalScreenTopBar(
                         onFinished()
                     },
                 painter = painterResource(R.drawable.ic_arrow_back),
-                contentDescription = "go back"
+                contentDescription = "go back",
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         },
         actions = {
@@ -451,7 +468,8 @@ fun CreateAndEditGoalScreenTopBar(
                         onCompleteGoalClick()
                     },
                 painter = painterResource(R.drawable.ic_task_app),
-                contentDescription = "more options"
+                contentDescription = "more options",
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
     )
@@ -490,11 +508,12 @@ fun Photo(
                         modifier = Modifier
                             .padding(all = 8.dp),
                         painter = painterResource(R.drawable.ic_photo_camera),
-                        contentDescription = "add picture"
+                        contentDescription = "add picture",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
                 Text(
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.outline,
                     text = stringResource(R.string.add_cover_photo),
                     fontWeight = FontWeight.SemiBold
                 )
@@ -546,11 +565,10 @@ fun FilterChips(
                     onChipClick(goalCategory)
                 },
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = Color(0xFF10B981),
-                    selectedLabelColor = Color.White,
-                    containerColor = Color.White,
-                    disabledLabelColor = Color(0xFF065F54),
-                    disabledContainerColor = Color.White,
+                    selectedContainerColor = MaterialTheme.colorScheme.tertiary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryFixedVariant,
+                    containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             )
         }
@@ -635,8 +653,8 @@ fun AddMilestoneButton(
     Button(
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFE1F4EF),
-            contentColor = Color(0xFF10B981)
+            containerColor = MaterialTheme.colorScheme.tertiaryFixedDim,
+            contentColor = MaterialTheme.colorScheme.scrim
         ),
         onClick = {
             onClick()
@@ -659,7 +677,7 @@ fun CreateOrEditButton(
     modifier: Modifier = Modifier,
     isSaveButtonEnabled: Boolean,
     text: String,
-    content : @Composable () -> Unit = {},
+    content: @Composable () -> Unit = {},
     onClick: () -> Unit
 ) {
     Button(
@@ -668,8 +686,8 @@ fun CreateOrEditButton(
         enabled = isSaveButtonEnabled,
         shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF10B981),
-            contentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.tertiary,
+            contentColor = MaterialTheme.colorScheme.surfaceVariant
         ),
         onClick = {
             onClick()
@@ -685,36 +703,44 @@ fun CreateOrEditButton(
 }
 
 @Composable
-fun MyTextField(
+fun AppTextField(
     modifier: Modifier = Modifier,
     placeholderText: String,
     leadingIconId: Int,
     value: String,
 ) {
     TextField(
-        modifier = modifier,
+        modifier = modifier
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint),
+                shape = RoundedCornerShape(12.dp)
+            ),
         shape = RoundedCornerShape(12.dp),
         enabled = false,
         onValueChange = {},
         value = value,
         colors = TextFieldDefaults.colors(
-            disabledContainerColor = Color.White,
-            disabledIndicatorColor = Color.White,
-            disabledTextColor = Color.Unspecified,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White,
-            unfocusedIndicatorColor = Color.White,
-            focusedIndicatorColor = Color.White,
+            disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            disabledIndicatorColor = Color.Transparent,
+            focusedContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unfocusedContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+            focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+            unfocusedIndicatorColor = Color.Transparent,
+            focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+            disabledTextColor = MaterialTheme.colorScheme.onPrimary,
         ),
         placeholder = {
             Text(
-                text = placeholderText
+                text = placeholderText,
+                color = MaterialTheme.colorScheme.onPrimary
             )
         },
         leadingIcon = {
             Icon(
                 painter = painterResource(leadingIconId),
-                contentDescription = "set time"
+                contentDescription = "set time",
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
     )
@@ -732,7 +758,9 @@ fun CompleteDialog(
             modifier = Modifier
                 .size(width = 500.dp, height = 300.dp)
                 .clip(RoundedCornerShape(32.dp))
-                .background(Color(0xFFF1F5F9)),
+                .background(
+                    MaterialTheme.colorScheme.secondaryContainer
+                ),
         ) {
             Column(
                 modifier = Modifier
@@ -743,51 +771,57 @@ fun CompleteDialog(
                 Icon(
                     modifier = Modifier.size(64.dp),
                     painter = painterResource(R.drawable.ic_task_app),
-                    contentDescription = "complete goal?"
+                    contentDescription = "complete goal dialog",
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
 
                 Spacer(Modifier.size(24.dp))
 
                 Text(
-                    text = "Complete Goal",
+                    text = stringResource(R.string.complete_goal_dialog),
                     fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
 
                 Spacer(Modifier.size(16.dp))
-                Text(
-                    text = "All completed goals can be found in \"Goal's Diary\"",
-                    fontSize = 18.sp
-                )
-                Spacer(Modifier.weight(1f))
-                Row(
+
+
+                Button(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f),
+                    )
                 ) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    Button(
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Text(
-                            text = "Cancel"
-                        )
-                    }
-                    Button(
-                        onClick = onComplete,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Text(
-                            text = "Complete"
-                        )
-                    }
+                    Text(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        text = stringResource(R.string.complete_goal_cancel_button),
+                        color = MaterialTheme.colorScheme.outline
+                    )
                 }
+                Spacer(Modifier.size(8.dp))
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape( bottomStart = 12.dp, bottomEnd = 12.dp),
+                    onClick = onComplete,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f),
+                    )
+
+                ) {
+                    Text(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        text = stringResource(R.string.complete_goal_complete_button),
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+
             }
         }
     }
