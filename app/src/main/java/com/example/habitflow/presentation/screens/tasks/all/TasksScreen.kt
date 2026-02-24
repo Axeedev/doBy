@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -131,7 +132,8 @@ fun TasksScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         modifier = Modifier
@@ -349,6 +351,13 @@ fun TasksScreen(
                         contentDescription = "open menu",
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
+                },
+                actions = {
+                    if (state.isRefreshLoading) {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.onPrimaryFixed
+                        )
+                    }
                 }
             )
         }

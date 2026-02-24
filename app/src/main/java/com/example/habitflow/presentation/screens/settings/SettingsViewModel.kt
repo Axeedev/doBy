@@ -2,6 +2,7 @@ package com.example.habitflow.presentation.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.habitflow.data.local.AppDatabase
 import com.example.habitflow.domain.entities.settings.SendNotificationBeforeDeadline
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateMorningTimeInfoUseCase
@@ -48,14 +49,16 @@ class SettingsViewModel @Inject constructor(
                             notifyBeforeMinutes = settings.sendNotificationBeforeDeadline.beforeMinutes,
                             showCompletedTasks = settings.showCompletedTasksOnMainScreen,
                             showEventsFromCalendar = settings.showCalendarEvents,
-                            selectedNotifyBeforeIndex = SendNotificationBeforeDeadline.entries.indexOf(settings.sendNotificationBeforeDeadline),
+                            selectedNotifyBeforeIndex = SendNotificationBeforeDeadline.entries.indexOf(
+                                settings.sendNotificationBeforeDeadline
+                            ),
                         )
                     }
                 }
         }
     }
 
-    fun processCommand(settingsCommand: SettingsCommand){
+    fun processCommand(settingsCommand: SettingsCommand) {
         viewModelScope.launch {
             when (settingsCommand) {
                 is SettingsCommand.ChangeNotificationsEnabled -> {
@@ -98,6 +101,7 @@ class SettingsViewModel @Inject constructor(
                         it.copy(selectedMorningTimeIndex = settingsCommand.index)
                     }
                 }
+
                 is SettingsCommand.ClickNightTimeItem -> {
                     _state.update {
                         it.copy(selectedNightTimeIndex = settingsCommand.index)
@@ -107,9 +111,11 @@ class SettingsViewModel @Inject constructor(
                 is SettingsCommand.ChangeMorningTimeInfo -> {
                     updateMorningTimeInfoUseCase(settingsCommand.notificationTime)
                 }
+
                 is SettingsCommand.ChangeNightTimeInfo -> {
                     updateNightTimeInfoUseCase(settingsCommand.notificationTime)
                 }
+
                 SettingsCommand.SignOut -> {
                     _state.update { it.copy(isSignedOut = true) }
                     firebaseAuth.signOut()

@@ -9,8 +9,6 @@ interface GoalRepository {
 
     suspend fun editGoal(goal: Goal)
 
-    suspend fun saveGoalAsDraft(goal: Goal)
-
     suspend fun removeGoal(goalId: Int)
 
     suspend fun completeGoal(goalId: Int)

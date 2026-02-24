@@ -1,13 +1,18 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import com.example.habitflow.data.background.DataSyncWorker
 import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskToCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.DeleteTaskUseCase
+import com.example.habitflow.domain.usecases.tasks.EditTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
 import com.example.habitflow.domain.usecases.tasks.ReturnTaskUseCase
 import com.example.habitflow.presentation.screens.tasks.TimeEntity
@@ -27,10 +32,12 @@ import javax.inject.Inject
 class TasksViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
+    private val editTaskUseCase: EditTaskUseCase,
     private val addTaskToCompletedUseCase: AddTaskToCompletedUseCase,
     private val returnTaskUseCase: ReturnTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
-    private val onTaskCompletedUseCase: OnTaskCompletedUseCase
+    private val onTaskCompletedUseCase: OnTaskCompletedUseCase,
+    private val workManager: WorkManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TasksScreenState())
@@ -55,6 +62,24 @@ class TasksViewModel @Inject constructor(
                     previousState.copy(tasksMapSections = mapTasks)
                 }
             }
+        }
+        viewModelScope.launch {
+            workManager.getWorkInfosByTagFlow(
+                DataSyncWorker.DATA_SYNC_TAG
+            ).collect { workInfos ->
+                workInfos.forEach { workInfo ->
+                    if (workInfo.state != WorkInfo.State.SUCCEEDED && workInfo.state != WorkInfo.State.FAILED) {
+                        _state.update {
+                            it.copy(isRefreshLoading = true)
+                        }
+                    } else {
+                        _state.update {
+                            it.copy(isRefreshLoading = false)
+                        }
+                    }
+                }
+            }
+
         }
     }
 
@@ -98,16 +123,30 @@ class TasksViewModel @Inject constructor(
                             combineDateAndTime(date, it.hours, it.minutes)
                         } ?: combineDateAndTime(date, 18, 0)
                     }
-                    addTaskUseCase(
-                        Task(
-                            id = finalTask.taskId ?: 0,
-                            title = finalTask.title,
-                            deadlineMillis = deadlineMillis,
-                            note = finalTask.description,
-                            category = finalTask.goalCategory,
-                            priority = finalTask.priority
+                    if (finalTask.taskId == null) {
+                        addTaskUseCase(
+                            Task(
+                                id = 0,
+                                title = finalTask.title,
+                                deadlineMillis = deadlineMillis,
+                                note = finalTask.description,
+                                category = finalTask.goalCategory,
+                                priority = finalTask.priority
+                            )
                         )
-                    )
+                    } else {
+                        editTaskUseCase(
+                            Task(
+                                id = finalTask.taskId,
+                                title = finalTask.title,
+                                deadlineMillis = deadlineMillis,
+                                note = finalTask.description,
+                                category = finalTask.goalCategory,
+                                priority = finalTask.priority
+                            )
+                        )
+                    }
+
                     _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
                 }
             }
@@ -196,8 +235,12 @@ class TasksViewModel @Inject constructor(
 
             is TasksCommand.DeleteTask -> {
                 viewModelScope.launch {
-                    deleteTaskUseCase(command.taskId)
-                    _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
+                    launch {
+                        deleteTaskUseCase(command.taskId)
+                    }
+                    launch {
+                        _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
+                    }
                 }
             }
 

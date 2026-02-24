@@ -15,7 +15,8 @@ data class TasksScreenState(
     val description: String = "",
     val priority: Priority = Priority.LOW,
     val goalCategory: GoalCategory = GoalCategory.SPORTS,
-    val buttonText: String = "Create task"
+    val buttonText: String = "Create task",
+    val isRefreshLoading: Boolean = false,
 ) {
     val isButtonEnabled
         get() = title.trim().isNotEmpty()

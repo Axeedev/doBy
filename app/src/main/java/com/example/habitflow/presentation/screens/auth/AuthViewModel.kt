@@ -2,9 +2,11 @@ package com.example.habitflow.presentation.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.habitflow.domain.AuthResult
+import com.example.habitflow.domain.usecases.auth.SignInWithEmailAndPasswordUseCase
 import com.example.habitflow.domain.usecases.auth.SignInWithGoogleUseCase
+import com.example.habitflow.domain.usecases.auth.SignUpWithEmailAndPasswordUseCase
 import com.example.habitflow.presentation.utils.AuthValidator
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -15,13 +17,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val firebaseAuth: FirebaseAuth,
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
+    private val signInWithEmailAndPasswordUseCase: SignInWithEmailAndPasswordUseCase,
+    private val signUpWithEmailAndPasswordUseCase: SignUpWithEmailAndPasswordUseCase,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AuthScreenState())
@@ -90,36 +92,38 @@ class AuthViewModel @Inject constructor(
             _state.update { it.copy(isPasswordError = true, isLoading = false) }
             return
         }
-
-        runCatching {
-            when(authType){
-                AuthType.LOGIN -> {
-                    firebaseAuth.signInWithEmailAndPassword(email, password).await()
-                }
-                AuthType.SIGNUP -> {
-                    firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-                }
+        val authResult = when(authType){
+            AuthType.LOGIN -> {
+                signInWithEmailAndPasswordUseCase(email, password)
             }
-
-        }.onSuccess {
-            _state.update { it.copy(isAuthSuccess = true) }
-        }.onFailure { exception ->
-            _state.update { it.copy(isLoading = false) }
-            when (exception) {
-                is FirebaseAuthInvalidCredentialsException ->{
-                    _errorEvents.emit(ErrorEvent.InvalidErrorOrPassword("Invalid email or password."))
-                }
-                is FirebaseAuthInvalidUserException ->{
-                    _errorEvents.emit(ErrorEvent.UserNotFound("User with given credentials not found"))
-                }
-                is FirebaseAuthUserCollisionException ->{
-                    _errorEvents.emit(ErrorEvent.UserExists("User with given credentials already exists"))
-                }
-                else -> {
-                    _errorEvents.emit(ErrorEvent.Other("Something went wrong. Check your Internet connection"))
-                }
+            AuthType.SIGNUP -> {
+                signUpWithEmailAndPasswordUseCase(email, password)
             }
         }
+        when(authResult){
+            is AuthResult.Failure -> {
+                _state.update { it.copy(isLoading = false) }
+                when (authResult.exception) {
+                    is FirebaseAuthInvalidCredentialsException ->{
+                        _errorEvents.emit(ErrorEvent.InvalidErrorOrPassword("Invalid email or password."))
+                    }
+                    is FirebaseAuthInvalidUserException ->{
+                        _errorEvents.emit(ErrorEvent.UserNotFound("User with given credentials not found"))
+                    }
+                    is FirebaseAuthUserCollisionException ->{
+                        _errorEvents.emit(ErrorEvent.UserExists("User with given credentials already exists"))
+                    }
+                    else -> {
+                        _errorEvents.emit(ErrorEvent.Other("Something went wrong. Check your Internet connection"))
+                    }
+                }
+
+            }
+            AuthResult.Success -> {
+                _state.update { it.copy(isAuthSuccess = true) }
+            }
+        }
+
     }
 
     private suspend fun login(

@@ -3,25 +3,18 @@ package com.example.habitflow
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.example.habitflow.data.StreakManager
-import com.example.habitflow.data.background.RandomAdviceWorker
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltAndroidApp
-class MyApp : Application(),  Configuration.Provider{
+class MyApp : Application(),  Configuration.Provider {
 
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
     @Inject
-    lateinit var streakManager: StreakManager
-
-    private val scope = CoroutineScope(Dispatchers.IO)
+    lateinit var appInitializers: AppInitializers
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -30,11 +23,7 @@ class MyApp : Application(),  Configuration.Provider{
 
     override fun onCreate() {
         super.onCreate()
-        RandomAdviceWorker.enqueue(this)
-        scope.launch {
-            streakManager.checkStreakExpiration()
-        }
+        appInitializers.init(this)
+
     }
-
-
 }

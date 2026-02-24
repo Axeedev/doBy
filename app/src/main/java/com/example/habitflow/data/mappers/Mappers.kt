@@ -6,8 +6,10 @@ import com.example.habitflow.data.local.goals.GoalWithMilestoneEntity
 import com.example.habitflow.data.local.goals.MilestoneEntity
 import com.example.habitflow.data.local.tasks.CompletedTaskEntity
 import com.example.habitflow.data.local.tasks.TaskEntity
+import com.example.habitflow.data.sync.TaskDto
 import com.example.habitflow.domain.entities.achievements.Achievement
 import com.example.habitflow.domain.entities.goals.Goal
+import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.domain.entities.tasks.CompletedTask
 import com.example.habitflow.domain.entities.tasks.Priority
@@ -138,4 +140,32 @@ fun Achievement.toAchievementEntity() = AchievementEntity(
     currentProgress = currentScore ,
     iconId = iconResId,
     achievementType = achievementType
+)
+
+fun TaskEntity.toDto(remoteId: String? = null) = TaskDto(
+    id = remoteId,
+    title = title,
+    deadlineMillis = deadlineMillis,
+    note = note,
+    category = category.name,
+    priority = priority,
+    completed = isCompleted,
+    returned = isReturned,
+    updatedAt = updatedAt,
+    deleted = isDeleted
+)
+
+fun TaskDto.toEntity(existingLocalId: Int? = null) = TaskEntity(
+    id = existingLocalId ?: 0,
+    remoteId = id,
+    title = title,
+    deadlineMillis = deadlineMillis,
+    note = note,
+    category = GoalCategory.valueOf(category.uppercase()),
+    priority = priority,
+    isCompleted = completed,
+    isReturned = returned,
+    updatedAt = updatedAt,
+    isDeleted = deleted,
+    isSynced = true
 )

@@ -9,6 +9,8 @@ interface SettingsRepository {
 
     fun getSettings() : Flow<AppSettings>
 
+    fun getNetworkType() : Flow<Boolean>
+
     suspend fun updateWifiOnly(wifiOnly: Boolean)
 
     suspend fun updateSendNotificationBeforeDeadline(beforeMinutes: Int)
@@ -22,4 +24,6 @@ interface SettingsRepository {
     suspend fun updateNightTimeInfo(notificationTime: NotificationTime)
 
     suspend fun updateShowEventsFromCalendar(show: Boolean)
+
+    fun clearAllTables()
 }

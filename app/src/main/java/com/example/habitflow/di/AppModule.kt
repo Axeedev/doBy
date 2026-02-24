@@ -6,6 +6,7 @@ import android.content.Context
 import androidx.core.content.getSystemService
 import androidx.credentials.CredentialManager
 import androidx.room.Room
+import androidx.work.WorkManager
 import com.example.habitflow.data.local.AppDatabase
 import com.example.habitflow.data.local.NotificationsProvider
 import com.example.habitflow.data.local.achievements.AchievementsDao
@@ -19,16 +20,19 @@ import com.example.habitflow.data.repository.AnalyticsRepositoryImpl
 import com.example.habitflow.data.repository.AuthRepositoryImpl
 import com.example.habitflow.data.repository.GoalRepositoryImpl
 import com.example.habitflow.data.repository.SettingsRepositoryImpl
+import com.example.habitflow.data.repository.SyncRepositoryImpl
 import com.example.habitflow.data.repository.TaskRepositoryImpl
 import com.example.habitflow.domain.repository.AchievementRepository
 import com.example.habitflow.domain.repository.AnalyticsRepository
 import com.example.habitflow.domain.repository.AuthRepository
 import com.example.habitflow.domain.repository.GoalRepository
 import com.example.habitflow.domain.repository.SettingsRepository
+import com.example.habitflow.domain.repository.SyncRepository
 import com.example.habitflow.domain.repository.TaskRepository
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -72,6 +76,10 @@ interface AppModule {
     @Singleton
     @Binds
     fun bindAchievementRepository(achievementRepositoryImpl: AchievementRepositoryImpl): AchievementRepository
+
+    @Singleton
+    @Binds
+    fun bindSyncRepository(syncRepositoryImpl: SyncRepositoryImpl): SyncRepository
 
     companion object {
 
@@ -160,6 +168,12 @@ interface AppModule {
 
         @Singleton
         @Provides
+        fun provideFirestore() : FirebaseFirestore{
+            return FirebaseFirestore.getInstance()
+        }
+
+        @Singleton
+        @Provides
         fun provideCompletedTasksDao(appDatabase: AppDatabase): CompletedTasksDao {
             return appDatabase.completedTasksDao()
         }
@@ -205,5 +219,9 @@ interface AppModule {
         fun provideCredentialManager(@ApplicationContext context: Context): CredentialManager {
             return CredentialManager.create(context)
         }
+
+        @Provides
+        @Singleton
+        fun provideWorkManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
     }
 }

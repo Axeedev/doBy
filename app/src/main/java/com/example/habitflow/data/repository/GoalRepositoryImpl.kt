@@ -39,11 +39,6 @@ class GoalRepositoryImpl @Inject constructor(
         Log.d("editGoal", id.toString())
         goalsDao.updateMilestones(goal.milestones.map { it.toMilestoneEntity(id)})
     }
-
-    override suspend fun saveGoalAsDraft(goal: Goal) {
-        TODO()
-    }
-
     override suspend fun removeGoal(goalId: Int) {
         goalsDao.deleteGoal(goalId)
     }

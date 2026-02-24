@@ -11,6 +11,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.habitflow.data.background.RandomAdviceWorker
 import com.example.habitflow.data.dataStore
+import com.example.habitflow.data.local.AppDatabase
 import com.example.habitflow.domain.entities.settings.AppSettings
 import com.example.habitflow.domain.entities.settings.NotificationTime
 import com.example.habitflow.domain.entities.settings.toSendBefore
@@ -23,7 +24,8 @@ import javax.inject.Inject
 
 
 class SettingsRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val database: AppDatabase
 ) : SettingsRepository {
 
     private val wifiOnlyKey = booleanPreferencesKey("wifi_only")
@@ -110,6 +112,7 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
 
+
     override suspend fun updateShowCompletedTasksOnMainScreen(shouldShow: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[showCompletedTasksOnMainScreenKey] = shouldShow
@@ -128,5 +131,16 @@ class SettingsRepositoryImpl @Inject constructor(
             preferences[nightNotificationHourKey] = notificationTime.hour
             preferences[nightNotificationMinuteKey] = notificationTime.hour
         }
+    }
+
+    override fun getNetworkType() : Flow<Boolean>{
+        return context.dataStore.data.map {
+            it[wifiOnlyKey] ?: false
+        }
+    }
+
+
+    override fun clearAllTables() {
+        database.clearAllTables()
     }
 }

@@ -11,7 +11,9 @@ interface TasksDao {
 
     @Query(
         """
-            SELECT * FROM Tasks ORDER BY deadlineMillis ASC
+            SELECT * FROM Tasks 
+            WHERE isDeleted = 0
+            ORDER BY deadlineMillis ASC
         """
     )
     fun getTasks() : Flow<List<TaskEntity>>
@@ -59,4 +61,33 @@ interface TasksDao {
         start: Long,
         end: Long
     ) : Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFromRemoteToLocal(taskEntity: TaskEntity) : Long
+
+    @Query("""
+        SELECT * FROM tasks
+        WHERE remoteId = :remoteId
+    """)
+    suspend fun getByIdRemote(remoteId: String) : TaskEntity?
+
+    @Query("""
+        UPDATE tasks
+        SET isSynced = 1, remoteId = :remoteId
+        WHERE id = :localId
+    """)
+    suspend fun updateRemoteId(remoteId: String, localId: Int)
+
+    @Query("""
+        SELECT * FROM tasks
+        WHERE isSynced = 0
+    """)
+    suspend fun getUnsyncedTasks() : List<TaskEntity>
+
+    @Query("""
+        UPDATE tasks
+        SET isSynced = 1
+        WHERE id == :localId
+    """)
+    suspend fun markTaskAsSynced(localId: Int)
 }

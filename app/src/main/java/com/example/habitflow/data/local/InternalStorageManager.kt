@@ -32,6 +32,5 @@ class InternalStorageManager @Inject constructor(
             File(rootDirectory, filePath).delete()
         }
     }
-//TODO 
     fun isInternal(s: String) : Boolean = s.startsWith(rootDirectory.absolutePath)
 }
