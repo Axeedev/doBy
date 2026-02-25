@@ -11,11 +11,14 @@ import com.example.habitflow.domain.entities.goals.GoalCategory
 data class CompletedTaskEntity(
     @PrimaryKey
     val id: Int,
+    val remoteId: String? = null,
     val title: String,
     val deadlineMillis: Long?,
     val note: String,
-    val category: GoalCategory,
+    val category: String,
     val priority: String,
     val isCompleted: Boolean = true,
-    val completedAt: Long
+    val completedAt: Long,
+    val updatedAt: Long = System.currentTimeMillis(),
+    val isSynced: Boolean = false,
 )

@@ -67,6 +67,8 @@ import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.presentation.screens.goals.OpenReason
 import com.example.habitflow.presentation.screens.tasks.DatePickerModal
+import com.example.habitflow.presentation.screens.tasks.all.AddCategoryDialog
+import com.example.habitflow.presentation.screens.tasks.all.CategoryChips
 import com.example.habitflow.presentation.utils.DateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,7 +125,6 @@ fun CreateGoalScreen(
                 .padding(horizontal = 16.dp),
             contentPadding = paddingValues
         ) {
-
             item {
                 Photo(
                     coverUri = state.coverUri,
@@ -135,9 +136,7 @@ fun CreateGoalScreen(
                 }
 
                 Spacer(Modifier.size(16.dp))
-            }
 
-            item {
                 CreateGoalTextFieldWithTitle(
                     value = state.title,
                     fieldTitle = stringResource(R.string.goal_title_field),
@@ -146,23 +145,65 @@ fun CreateGoalScreen(
                     viewModel.processCommand(CreateGoalCommand.InputTitle(it))
                 }
                 Spacer(Modifier.size(16.dp))
-            }
 
-            item {
-                Text(
-                    text = stringResource(R.string.category_field),
-                )
-                FilterChips(
-                    stateGoalCategory = state.goalCategory
+                var isDialogOpened by remember { mutableStateOf(false) }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.category_field)
+                    )
+                    Button(
+                        onClick = {
+                            isDialogOpened = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_add),
+                            contentDescription = "add category",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Text(
+                            text = stringResource(R.string.add_your_category),
+                        )
+                    }
+
+                }
+
+                if (isDialogOpened) {
+                    AddCategoryDialog(
+                        categoryName = state.newCategoryName,
+                        isAddCategoryButtonEnabled = state.isAddCategoryButtonEnabled,
+                        onDismiss = {
+                            isDialogOpened = false
+                        },
+                        onValueChange = {
+                            viewModel.processCommand(CreateGoalCommand.InputCategoryName(it))
+                        }
+                    ) {
+                        viewModel.processCommand(CreateGoalCommand.AddNewCategory(it))
+                        isDialogOpened = false
+                    }
+                }
+                CategoryChips(
+                    categories = state.categories,
+                    selectedCategory = state.goalCategory
                 ) {
                     viewModel.processCommand(
-                        CreateGoalCommand.ChangeGoalCategory(it)
+                        CreateGoalCommand.ChangeGoalCategory(
+                            GoalCategory(
+                                it
+                            )
+                        )
                     )
                 }
-                Spacer(Modifier.size(16.dp))
-            }
-
-            item {
                 DatePickerFields(
                     startDate = state.startDate,
                     endDate = state.endDate,
@@ -173,9 +214,8 @@ fun CreateGoalScreen(
                     viewModel.processCommand(CreateGoalCommand.ChooseEndDate(it))
                 }
                 Spacer(Modifier.size(16.dp))
-            }
 
-            item {
+
                 CreateGoalTextFieldWithTitle(
                     fieldTitle = stringResource(R.string.goals_description_field),
                     minLines = 5,
@@ -187,22 +227,20 @@ fun CreateGoalScreen(
                     )
                 }
                 Spacer(Modifier.size(16.dp))
-            }
 
-            item {
+
                 Text(
                     text = stringResource(R.string.milestones_field),
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.size(8.dp))
-            }
-            item {
+
                 AddMilestoneButton {
                     viewModel.processCommand(CreateGoalCommand.ClickAddMilestone)
                 }
                 Spacer(Modifier.size(16.dp))
-            }
 
+            }
             itemsIndexed(state.milestones) { index, milestone ->
                 MilestoneCard(
                     milestone = milestone,
@@ -239,16 +277,14 @@ fun CreateGoalScreen(
                 }
             }
 
-
             item {
                 Spacer(Modifier.size(16.dp))
                 HorizontalDivider(
                     color = Color(0xFFB4C0C2)
                 )
                 Spacer(Modifier.size(16.dp))
-            }
 
-            item {
+
                 CreateOrEditButton(
                     isSaveButtonEnabled = state.isSaveButtonEnabled,
                     text = when (openReason) {
@@ -273,7 +309,9 @@ fun CreateGoalScreen(
                     onFinished()
                 }
             }
+
         }
+
     }
 }
 
@@ -551,13 +589,13 @@ fun FilterChips(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        GoalCategory.entries.forEach { goalCategory ->
+        GoalCategory.defaultCategories.forEach { goalCategory ->
             FilterChip(
                 selected = stateGoalCategory == goalCategory,
                 label = {
                     Text(
                         modifier = Modifier.padding(all = 8.dp),
-                        text = stringResource(goalCategory.titleId),
+                        text = goalCategory.name,
                     )
                 },
                 shape = CircleShape,
@@ -786,7 +824,6 @@ fun CompleteDialog(
 
                 Spacer(Modifier.size(16.dp))
 
-
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -808,7 +845,7 @@ fun CompleteDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape( bottomStart = 12.dp, bottomEnd = 12.dp),
+                    shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
                     onClick = onComplete,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f),
@@ -821,7 +858,6 @@ fun CompleteDialog(
                         color = MaterialTheme.colorScheme.outline
                     )
                 }
-
             }
         }
     }

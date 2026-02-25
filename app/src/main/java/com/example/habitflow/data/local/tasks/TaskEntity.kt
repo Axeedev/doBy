@@ -12,7 +12,7 @@ data class TaskEntity(
     val title: String,
     val deadlineMillis: Long?,
     val note: String,
-    val category: GoalCategory,
+    val category: String,
     val priority: String,
     val isCompleted: Boolean,
     val isReturned: Boolean,

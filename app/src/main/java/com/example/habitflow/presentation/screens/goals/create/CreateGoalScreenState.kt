@@ -9,12 +9,17 @@ data class CreateGoalScreenState(
     val goalId: Int? = null,
     val title: String = "",
     val coverUri: Uri? = null,
-    val goalCategory: GoalCategory = GoalCategory.SPORTS,
+    val goalCategory: GoalCategory = GoalCategory.defaultCategories.first(),
     val description: String = "",
     val startDate: Long = System.currentTimeMillis(),
     val endDate: Long = System.currentTimeMillis(),
-    val milestones: List<Milestone> = listOf()
+    val milestones: List<Milestone> = listOf(),
+    val categories: List<GoalCategory> = GoalCategory.defaultCategories,
+    val newCategoryName: String = ""
 ){
     val isSaveButtonEnabled: Boolean
         get() = title.isNotEmpty() && milestones.all { it.title.isNotEmpty() }
+
+    val isAddCategoryButtonEnabled
+        get() = newCategoryName.trim().isNotEmpty()
 }

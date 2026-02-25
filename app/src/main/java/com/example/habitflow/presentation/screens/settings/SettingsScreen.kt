@@ -241,6 +241,29 @@ fun SettingsScreen(
         ) {
             item {
                 Text(
+                    text = stringResource(R.string.theme),
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Gray
+                )
+
+                Spacer(Modifier.size(8.dp))
+                SettingsField(
+                    mainText = stringResource(R.string.dark_theme),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+
+                    AppSwitch(
+                        checked = state.isDarkTheme
+                    ) {
+                        settingsViewModel.processCommand(SettingsCommand.ClickChangeTheme(it))
+
+                    }
+
+                }
+                Spacer(Modifier.size(24.dp))
+            }
+            item {
+                Text(
                     text = stringResource(R.string.data_sync_field),
                     fontWeight = FontWeight.SemiBold,
                     color = Color.Gray

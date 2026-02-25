@@ -1,11 +1,8 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
-import com.example.habitflow.data.background.DataSyncWorker
 import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
@@ -63,24 +60,24 @@ class TasksViewModel @Inject constructor(
                 }
             }
         }
-        viewModelScope.launch {
-            workManager.getWorkInfosByTagFlow(
-                DataSyncWorker.DATA_SYNC_TAG
-            ).collect { workInfos ->
-                workInfos.forEach { workInfo ->
-                    if (workInfo.state != WorkInfo.State.SUCCEEDED && workInfo.state != WorkInfo.State.FAILED) {
-                        _state.update {
-                            it.copy(isRefreshLoading = true)
-                        }
-                    } else {
-                        _state.update {
-                            it.copy(isRefreshLoading = false)
-                        }
-                    }
-                }
-            }
-
-        }
+//        viewModelScope.launch {
+//            workManager.getWorkInfosByTagFlow(
+//                DataSyncWorker.DATA_SYNC_TAG
+//            ).collect { workInfos ->
+//                workInfos.forEach { workInfo ->
+//                    if (workInfo.state != WorkInfo.State.SUCCEEDED && workInfo.state != WorkInfo.State.FAILED) {
+//                        _state.update {
+//                            it.copy(isRefreshLoading = true)
+//                        }
+//                    } else {
+//                        _state.update {
+//                            it.copy(isRefreshLoading = false)
+//                        }
+//                    }
+//                }
+//            }
+//
+//        }
     }
 
     fun processCommand(command: TasksCommand) {
@@ -158,7 +155,7 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickCompleteTask -> {
-                if (command.task.category != GoalCategory.CALENDAR) {
+                if (command.task.category.name != GoalCategory.CALENDAR_NAME) {
                     _state.update { previous ->
                         val previousList = previous.tasksMapSections[command.taskDeadlineSection]
                             .orEmpty()
@@ -188,7 +185,7 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickTask -> {
-                if (command.task.category != GoalCategory.CALENDAR) {
+                if (command.task.category.name != GoalCategory.CALENDAR_NAME) {
 
                     viewModelScope.launch {
                         _bottomSheetEvents.emit(BottomSheetEvent.OpenSheet)
@@ -209,6 +206,10 @@ class TasksViewModel @Inject constructor(
                             }
                         }
 
+                        val taskCategory = command.task.category
+
+                        val newList = GoalCategory.defaultCategories + taskCategory
+
                         previous.copy(
                             taskId = command.task.id,
                             title = command.task.title,
@@ -217,6 +218,7 @@ class TasksViewModel @Inject constructor(
                             description = command.task.note,
                             priority = command.task.priority,
                             goalCategory = command.task.category,
+                            categories = newList,
                             buttonText = "Confirm"
                         )
                     }
@@ -248,6 +250,21 @@ class TasksViewModel @Inject constructor(
                 viewModelScope.launch {
                     _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
                 }
+            }
+
+            is TasksCommand.AddNewCategory -> {
+                _state.update {
+                    val newList = GoalCategory.defaultCategories + GoalCategory(command.categoryName)
+                    it.copy(
+                        categories = newList,
+                        newCategoryName = "",
+                        goalCategory = newList.last()
+                    )
+                }
+            }
+
+            is TasksCommand.InputCategoryName -> {
+                _state.update { it.copy(newCategoryName = command.name) }
             }
         }
     }

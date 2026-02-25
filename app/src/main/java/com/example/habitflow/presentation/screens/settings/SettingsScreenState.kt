@@ -22,7 +22,8 @@ data class SettingsScreenState(
     ),
     val showEventsFromCalendar: Boolean = AppSettings.SHOW_CALENDAR_EVENTS_DEFAULT,
     val bottomSheetType: BottomSheetType? = null,
-    val isSignedOut: Boolean = false
+    val isSignedOut: Boolean = false,
+    val isDarkTheme: Boolean = AppSettings.IS_DARK_THEME_DEFAULT
 ){
     val morningTimeFormatted = String.format(
         Locale.getDefault(),

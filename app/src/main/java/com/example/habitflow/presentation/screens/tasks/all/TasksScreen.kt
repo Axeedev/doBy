@@ -1,19 +1,30 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.habitflow.presentation.screens.tasks.all
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,6 +46,8 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -54,6 +67,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -64,7 +78,6 @@ import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.presentation.screens.goals.create.AppTextField
 import com.example.habitflow.presentation.screens.goals.create.CreateGoalTextFieldWithTitle
 import com.example.habitflow.presentation.screens.goals.create.CreateOrEditButton
-import com.example.habitflow.presentation.screens.goals.create.FilterChips
 import com.example.habitflow.presentation.screens.tasks.DatePickerModal
 import com.example.habitflow.presentation.screens.tasks.TaskDeadlineSection
 import com.example.habitflow.presentation.screens.tasks.TimePickerDial
@@ -129,7 +142,7 @@ fun TasksScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -146,7 +159,7 @@ fun TasksScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                     val taskId = state.taskId
-                    if (taskId != null && state.goalCategory != GoalCategory.CALENDAR) {
+                    if (taskId != null && state.goalCategory.name != GoalCategory.CALENDAR_NAME) {
                         Icon(
                             modifier = Modifier
                                 .padding(end = 16.dp)
@@ -233,14 +246,61 @@ fun TasksScreen(
                 ) {
                     tasksViewModel.processCommand(TasksCommand.InputDescription(it))
                 }
-                Text(
-                    text = stringResource(R.string.category_field)
-                )
-                FilterChips(
-                    stateGoalCategory = state.goalCategory
+
+                var isDialogOpened by remember { mutableStateOf(false) }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    tasksViewModel.processCommand(TasksCommand.ChangeCategory(it))
+                    Text(
+                        text = stringResource(R.string.category_field)
+                    )
+                    Button(
+                        onClick = {
+                            isDialogOpened = true
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_add),
+                            contentDescription = "add category",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Text(
+                            text = stringResource(R.string.add_your_category),
+                        )
+                    }
+
                 }
+
+                if (isDialogOpened) {
+                    AddCategoryDialog(
+                        categoryName = state.newCategoryName,
+                        isAddCategoryButtonEnabled = state.isAddCategoryButtonEnabled,
+                        onDismiss = {
+                            isDialogOpened = false
+                        },
+                        onValueChange = {
+                            tasksViewModel.processCommand(TasksCommand.InputCategoryName(it))
+                        },
+                    ) {
+                        tasksViewModel.processCommand(TasksCommand.AddNewCategory(it))
+                        isDialogOpened = false
+                    }
+                }
+                CategoryChips(
+                    categories = state.categories,
+                    selectedCategory = state.goalCategory
+                ) {
+                    tasksViewModel.processCommand(TasksCommand.ChangeCategory(GoalCategory(it)))
+                }
+
+
                 Text(
                     text = stringResource(R.string.priority_field)
                 )
@@ -514,7 +574,7 @@ fun TaskCard(
                     ) {
                         Text(
                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
-                            text = stringResource(task.category.titleId),
+                            text = task.category.name,
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 14.sp
                         )
@@ -574,5 +634,165 @@ fun AppFAB(
             painter = painterResource(R.drawable.ic_add),
             contentDescription = "Add"
         )
+    }
+}
+
+@Composable
+fun AddCategoryDialog(
+    categoryName: String,
+    isAddCategoryButtonEnabled: Boolean,
+    onDismiss: () -> Unit,
+    onValueChange: (String) -> Unit,
+    onComplete: (String) -> Unit
+) {
+
+
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(width = 500.dp, height = 300.dp)
+                .clip(RoundedCornerShape(32.dp))
+                .background(
+                    MaterialTheme.colorScheme.secondaryContainer
+                ),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 16.dp, horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Spacer(Modifier.size(24.dp))
+
+                Text(
+                    text = stringResource(R.string.enter_category_s_name),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                TextField(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp)
+                        .border(
+                            BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint),
+                            shape = RoundedCornerShape(12.dp)
+                        ),
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.category)
+                        )
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    onValueChange = onValueChange,
+                    value = categoryName,
+                    colors = TextFieldDefaults.colors(
+                        disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        disabledIndicatorColor = Color.Transparent,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledTextColor = MaterialTheme.colorScheme.onPrimary,
+                        cursorColor = MaterialTheme.colorScheme.onPrimary
+
+                    ),
+                )
+
+                Spacer(Modifier.size(16.dp))
+
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f),
+                    )
+                ) {
+                    Text(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        text = stringResource(R.string.cancel),
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+                Spacer(Modifier.size(8.dp))
+                Button(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
+                    onClick = {
+                        onComplete(categoryName)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.4f),
+                    ),
+                    enabled = isAddCategoryButtonEnabled
+                ) {
+                    Text(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        text = stringResource(R.string.add),
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CategoryChips(
+    categories: List<GoalCategory>,
+    selectedCategory: GoalCategory,
+    onClick: (String) -> Unit
+){
+    LazyVerticalGrid(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp),
+        columns = GridCells.Fixed(2),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        userScrollEnabled = false
+    ) {
+        items(
+            items = categories,
+            key = {
+                it.id
+            }
+        ) { category ->
+            FilterChip(
+                selected = selectedCategory.name == category.name,
+                onClick = {
+                    onClick(category.name)
+                },
+                label = {
+                    Text(
+                        text = category.name.replaceFirstChar {
+                            it.uppercase()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        textAlign = TextAlign.Center
+                    )
+                },
+                shape = CircleShape,
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.tertiary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryFixedVariant,
+                    containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            )
+        }
     }
 }

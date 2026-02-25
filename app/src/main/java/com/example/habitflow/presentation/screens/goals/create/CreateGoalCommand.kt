@@ -32,4 +32,9 @@ sealed interface CreateGoalCommand {
     data class AddPhoto(val uri: Uri) : CreateGoalCommand
 
     data object ClickDeletePhoto : CreateGoalCommand
+
+    data class InputCategoryName(val name: String) : CreateGoalCommand
+
+    data class AddNewCategory(val categoryName: String) : CreateGoalCommand
+
 }

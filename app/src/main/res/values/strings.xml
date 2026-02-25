@@ -180,7 +180,7 @@
     <string name="notifications_tasks_planned">Tasks planned:</string>
     <string name="notifications_summary_for_today">Today\'s summary</string>
     <string name="notifications_tasks_completed">Tasks completed:</string>
-    <string name="notifications_deadline_is_coming">The deadline is coming soon:</string>
+    <string name="notifications_deadline_is_coming">The deadline is coming soon</string>
     <string name="notifications_advice_of_day">Advice for today:</string>
 
 
@@ -202,4 +202,11 @@
     <string name="no_achievements_in_this_section">No achievements in this section</string>
     <string name="no_completed_tasks_yet">No completed tasks yet</string>
     <string name="no_active_goals_yet">No active goals yet</string>
+    <string name="add_your_category">Add your category</string>
+    <string name="theme">Theme</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="cancel">Cancel</string>
+    <string name="enter_category_s_name">Enter category\'s name</string>
+    <string name="add">Add</string>
+    <string name="category">Category</string>
 </resources>

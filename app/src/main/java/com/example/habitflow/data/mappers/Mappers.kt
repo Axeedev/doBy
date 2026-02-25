@@ -6,6 +6,7 @@ import com.example.habitflow.data.local.goals.GoalWithMilestoneEntity
 import com.example.habitflow.data.local.goals.MilestoneEntity
 import com.example.habitflow.data.local.tasks.CompletedTaskEntity
 import com.example.habitflow.data.local.tasks.TaskEntity
+import com.example.habitflow.data.sync.CompletedTaskDto
 import com.example.habitflow.data.sync.TaskDto
 import com.example.habitflow.domain.entities.achievements.Achievement
 import com.example.habitflow.domain.entities.goals.Goal
@@ -22,9 +23,9 @@ fun Task.toTaskEntity(
         id = taskId ,
         title = title ,
         deadlineMillis = deadlineMillis ,
-        note = note ,
+        note = note,
         isCompleted = isCompleted,
-        category = category,
+        category = category.name,
         priority = priority.name,
         isReturned = false
     )
@@ -35,7 +36,7 @@ fun TaskEntity.toTask(): Task{
         title = title ,
         deadlineMillis = deadlineMillis,
         note = note,
-        category = category,
+        category = GoalCategory(category),
         priority = Priority.valueOf(this.priority.uppercase()),
         isCompleted = isCompleted,
         isReturned = isReturned
@@ -54,7 +55,7 @@ fun Goal.toGoalEntity(coverUri: String? = null) : GoalEntity{
     return GoalEntity(
         id = id,
         title = title,
-        category = category,
+        category = category.name,
         startDate = goalStartDate,
         endDate = goalEndDate,
         description = description,
@@ -75,7 +76,7 @@ fun Milestone.toMilestoneEntity(goalId: Long) : MilestoneEntity{
 fun GoalWithMilestoneEntity.toGoal(): Goal {
     return Goal(
         id = goalEntity.id,
-        category = goalEntity.category,
+        category = GoalCategory(goalEntity.category),
         title = goalEntity.title,
         description = goalEntity.description,
         goalStartDate = goalEntity.startDate,
@@ -116,7 +117,7 @@ fun CompletedTaskEntity.toCompletedTask() : CompletedTask{
         title = title,
         deadlineMillis = deadlineMillis,
         note = note,
-        category = category,
+        category = GoalCategory(category),
         priority = Priority.valueOf(priority.uppercase()),
         isCompleted = isCompleted,
         completionDate = completedAt
@@ -147,7 +148,7 @@ fun TaskEntity.toDto(remoteId: String? = null) = TaskDto(
     title = title,
     deadlineMillis = deadlineMillis,
     note = note,
-    category = category.name,
+    category = category,
     priority = priority,
     completed = isCompleted,
     returned = isReturned,
@@ -161,11 +162,40 @@ fun TaskDto.toEntity(existingLocalId: Int? = null) = TaskEntity(
     title = title,
     deadlineMillis = deadlineMillis,
     note = note,
-    category = GoalCategory.valueOf(category.uppercase()),
+    category = category,
     priority = priority,
     isCompleted = completed,
     isReturned = returned,
     updatedAt = updatedAt,
     isDeleted = deleted,
+    isSynced = true
+)
+
+fun CompletedTaskEntity.toDto(remoteId: String?): CompletedTaskDto{
+    return CompletedTaskDto(
+        id = remoteId,
+        title = title,
+        deadlineMillis = deadlineMillis,
+        note = note,
+        category = category,
+        priority = priority,
+        completed = isCompleted,
+        updatedAt = updatedAt,
+        completedAt = completedAt
+    )
+}
+
+
+fun CompletedTaskDto.toEntity(existingLocalId: Int? = null) = CompletedTaskEntity(
+    id = existingLocalId ?: 0,
+    remoteId = id,
+    title = title,
+    deadlineMillis = deadlineMillis,
+    note = note,
+    category = category,
+    priority = priority,
+    isCompleted = completed,
+    completedAt = completedAt,
+    updatedAt = updatedAt,
     isSynced = true
 )

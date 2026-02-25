@@ -1,5 +1,7 @@
 package com.example.habitflow.data.repository
 
+import android.util.Log
+import androidx.room.Transaction
 import com.example.habitflow.data.TaskReminder
 import com.example.habitflow.data.background.DataSyncScheduler
 import com.example.habitflow.data.calendar.SystemCalendarManager
@@ -69,6 +71,7 @@ class TaskRepositoryImpl @Inject constructor(
         val adjustedTask = task.copy(
             deadlineMillis = adjustedDeadline
         )
+        Log.d("addTask", task.category.name)
 
         val taskId = tasksDao.addTask(
             taskEntity = adjustedTask.toTaskEntity(
@@ -121,6 +124,7 @@ class TaskRepositoryImpl @Inject constructor(
 
     override suspend fun deleteTask(taskId: Int) {
         val taskToDelete = tasksDao.getTaskById(taskId)
+//        tasksDao.deleteTask(taskId)
         tasksDao.addTask(
             taskToDelete.copy(
                 isDeleted = true,
@@ -142,9 +146,15 @@ class TaskRepositoryImpl @Inject constructor(
         )
 
         val taskId = tasksDao.addTask(
-            taskEntity = adjustedTask.toTaskEntity(task.id).copy(remoteId = taskEntity.remoteId)
+            taskEntity = adjustedTask
+                .toTaskEntity(task.id)
+                .copy(remoteId = taskEntity.remoteId)
         )
-
+//        val taskId = tasksDao.addTask(
+//            adjustedTask.toTaskEntity(
+//                task.id
+//            )
+//        )
         taskReminder.cancelTask(taskId)
         adjustedDeadline?.let { deadline ->
             taskReminder.schedule(
@@ -155,22 +165,23 @@ class TaskRepositoryImpl @Inject constructor(
         startRefresh()
     }
 
+    @Transaction
     override suspend fun completeTask(taskId: Int) {
         val task = tasksDao.getTaskById(taskId)
 
         val appSettings = getSettingsUseCase().first()
 
-        if (!appSettings.showCompletedTasksOnMainScreen) {
-            tasksDao.deleteTask(taskId)
-        }
-
-        taskReminder.cancelTask(taskId.toLong())
-
+//        if (!appSettings.showCompletedTasksOnMainScreen) {
+//            tasksDao.deleteTask(taskId)
+//        }
         completedTasksDao.addTaskToCompleted(
             completedTaskEntity = task.toCompletedTaskEntity(
                 dateOfCompletion = System.currentTimeMillis()
-            )
+            ).copy(isSynced = false)
         )
+        deleteTask(taskId)
+
+        Log.d("TaskRepositoryImpl", "deleted")
     }
 
     override suspend fun returnTask(taskId: Int) {

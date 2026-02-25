@@ -61,7 +61,6 @@ class DataSyncScheduler @Inject constructor(
     private suspend fun enqueueRequest(requestType: RequestType) {
         settingsRepository.getNetworkType()
             .collect { wifiOnly ->
-                Log.d("enqueueRequest", "$wifiOnly")
                 val constraints = Constraints.Builder()
                     .setRequiredNetworkType(
                         if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED

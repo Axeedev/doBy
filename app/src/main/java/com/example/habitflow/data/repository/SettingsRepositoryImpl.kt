@@ -37,7 +37,7 @@ class SettingsRepositoryImpl @Inject constructor(
     private val nightNotificationMinuteKey = intPreferencesKey("night_minute")
     private val nightNotificationHourKey = intPreferencesKey("night_hour")
     private val showCalendarEventsKey = booleanPreferencesKey("show_calendar_events")
-
+    private val isDarkThemeKey = booleanPreferencesKey("dark_theme")
 
     override fun getSettings(): Flow<AppSettings> {
         return context.dataStore.data.map { preferences ->
@@ -51,6 +51,7 @@ class SettingsRepositoryImpl @Inject constructor(
             val morningNotificationTime = NotificationTime(morningNotificationTimeHour, morningNotificationTimeMinute)
             val showCalendarEvents = preferences[showCalendarEventsKey] ?: AppSettings.SHOW_CALENDAR_EVENTS_DEFAULT
 
+            val isDarkTheme = preferences[isDarkThemeKey] ?: AppSettings.IS_DARK_THEME_DEFAULT
             val nightNotificationTimeHour = preferences[nightNotificationHourKey] ?: AppSettings.nightInfoTimeDefault.hour
             val nightNotificationTimeMinute = preferences[nightNotificationMinuteKey] ?: AppSettings.nightInfoTimeDefault.minute
             val nightNotificationTime = NotificationTime(nightNotificationTimeHour, nightNotificationTimeMinute)
@@ -62,7 +63,8 @@ class SettingsRepositoryImpl @Inject constructor(
                 showCompletedTasksOnMainScreen = showCompletedTasks,
                 morningInfoTime = morningNotificationTime,
                 nightInfoTime = nightNotificationTime,
-                showCalendarEvents = showCalendarEvents
+                showCalendarEvents = showCalendarEvents,
+                isDarkTheme = isDarkTheme
             )
 
         }
@@ -71,6 +73,12 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun updateShowEventsFromCalendar(show: Boolean) {
         context.dataStore.edit {preferences ->
             preferences[showCalendarEventsKey] = show
+        }
+    }
+
+    override suspend fun updateIsDarkTheme(isDarkTheme: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[isDarkThemeKey] = isDarkTheme
         }
     }
 
@@ -139,6 +147,11 @@ class SettingsRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getIsDarkTheme(): Flow<Boolean> {
+        return context.dataStore.data.map {
+            it[isDarkThemeKey] ?: AppSettings.IS_DARK_THEME_DEFAULT
+        }
+    }
 
     override fun clearAllTables() {
         database.clearAllTables()

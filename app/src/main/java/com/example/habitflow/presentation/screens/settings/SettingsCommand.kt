@@ -17,6 +17,8 @@ sealed interface SettingsCommand {
 
     data class ClickMorningTimeItem(val index: Int) : SettingsCommand
 
+    data class ClickChangeTheme(val isDarkTheme: Boolean) : SettingsCommand
+
     data class ClickNightTimeItem(val index: Int) : SettingsCommand
 
     data class ChangeShowCompletedTasks(val shouldShow: Boolean) : SettingsCommand

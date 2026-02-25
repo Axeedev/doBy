@@ -26,6 +26,10 @@ sealed interface TasksCommand {
         val taskDeadlineSection: TaskDeadlineSection
     ) : TasksCommand
 
+    data class InputCategoryName(val name: String) : TasksCommand
+
+    data class AddNewCategory(val categoryName: String) : TasksCommand
+
     data class DeleteTask(
         val taskId: Int
     ) : TasksCommand

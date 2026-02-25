@@ -90,4 +90,5 @@ interface TasksDao {
         WHERE id == :localId
     """)
     suspend fun markTaskAsSynced(localId: Int)
+
 }

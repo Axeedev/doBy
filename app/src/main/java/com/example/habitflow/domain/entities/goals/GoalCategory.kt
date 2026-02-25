@@ -1,9 +1,18 @@
 package com.example.habitflow.domain.entities.goals
 
-import com.example.habitflow.R
+import java.util.UUID
 
-enum class GoalCategory(val titleId: Int)  {
-    SPORTS(R.string.category_sports), CAREER(R.string.category_career),
-    CALENDAR(R.string.category_calendar),
-//    EDUCATION(R.string.category_education)
+data class GoalCategory(
+    val name: String,
+    val id: String = UUID.randomUUID().toString()
+) {
+    companion object {
+        const val CALENDAR_NAME = "Calendar"
+        val defaultCategories = listOf(
+            GoalCategory("Career"),
+            GoalCategory("Education"),
+            GoalCategory("Health"),
+        )
+
+    }
 }

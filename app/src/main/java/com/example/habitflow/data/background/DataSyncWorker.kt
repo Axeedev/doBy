@@ -23,17 +23,17 @@ class DataSyncWorker @AssistedInject constructor(
         return try {
             when(requestType){
                 RequestType.PULL -> {
-                    syncRepository.pullRemoteChanges()
+//                    syncRepository.pullRemoteChanges()
                 }
                 RequestType.PUSH -> {
-                    syncRepository.pushLocalChanges()
+//                    syncRepository.pushLocalChanges()
                 }
             }
 
             Result.success()
         } catch (e: Exception) {
             e.printStackTrace()
-            Result.failure()
+            Result.retry()
         }
     }
 

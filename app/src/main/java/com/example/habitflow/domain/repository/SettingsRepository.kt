@@ -11,6 +11,8 @@ interface SettingsRepository {
 
     fun getNetworkType() : Flow<Boolean>
 
+    fun getIsDarkTheme() : Flow<Boolean>
+
     suspend fun updateWifiOnly(wifiOnly: Boolean)
 
     suspend fun updateSendNotificationBeforeDeadline(beforeMinutes: Int)
@@ -24,6 +26,8 @@ interface SettingsRepository {
     suspend fun updateNightTimeInfo(notificationTime: NotificationTime)
 
     suspend fun updateShowEventsFromCalendar(show: Boolean)
+
+    suspend fun updateIsDarkTheme(isDarkTheme: Boolean)
 
     fun clearAllTables()
 }

@@ -4,6 +4,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.goals.Goal
+import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
@@ -18,7 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel(assistedFactory = CreateGoalViewModel.ViewModelFactory::class)
 class CreateGoalViewModel @AssistedInject constructor(
@@ -26,7 +26,6 @@ class CreateGoalViewModel @AssistedInject constructor(
     private val updateGoalUseCase: UpdateGoalUseCase,
     private val completeGoalUseCase: CompleteGoalUseCase,
     private val getGoalByIdUseCase: GetGoalByIdUseCase,
-    private val onTaskCompletedUseCase: OnTaskCompletedUseCase,
     @Assisted("id") private val taskId : Int? = null
 ): ViewModel() {
 
@@ -167,6 +166,20 @@ class CreateGoalViewModel @AssistedInject constructor(
                 viewModelScope.launch {
                     completeGoalUseCase(command.goalId)
                 }
+            }
+            is CreateGoalCommand.AddNewCategory -> {
+                _state.update {
+                    val newList = it.categories.toMutableList()
+                    newList.add(GoalCategory(command.categoryName))
+                    it.copy(
+                        categories = newList,
+                        goalCategory = newList.last()
+                    )
+                }
+            }
+
+            is CreateGoalCommand.InputCategoryName -> {
+                _state.update { it.copy(newCategoryName = command.name) }
             }
         }
     }

@@ -83,4 +83,30 @@ interface CompletedTasksDao {
     """)
     suspend fun getCountOfTasksForPeriod(start: Long, end: Long) : Int
 
+    @Query("""
+        SELECT * FROM completedTasks
+        WHERE isSynced = 0
+    """)
+    suspend fun getUnsyncedTasks() : List<CompletedTaskEntity>
+
+
+    @Query("""
+        UPDATE completedTasks
+        SET isSynced = 1
+        WHERE id = :id
+    """)
+    suspend fun markCompletedTaskAsSynced(id: Int)
+
+    @Query("""
+        UPDATE completedTasks
+        SET isSynced = 1, remoteId = :remoteId
+        WHERE id = :localId
+    """)
+    suspend fun updateRemoteId(remoteId: String, localId: Int)
+    @Query("""
+        SELECT * FROM completedTasks
+        WHERE remoteId = :remoteId
+            """)
+    suspend fun getTaskByRemoteId(remoteId: String) : CompletedTaskEntity?
+
 }

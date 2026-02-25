@@ -1,6 +1,7 @@
 package com.example.habitflow
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -16,9 +17,12 @@ class AppInitializers @Inject constructor(
     private val dataSyncScheduler: DataSyncScheduler
 ) {
     fun init(application: Application) {
+        Log.d("AppInitializers", "onCreate Init")
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
+            override fun onResume(owner: LifecycleOwner) {
+                Log.d("AppInitializers", "onCreate")
                 owner.lifecycleScope.launch {
+                    Log.d("AppInitializers", "scheduled")
                     dataSyncScheduler.scheduleDataPull()
                     dataSyncScheduler.schedulePeriodSync()
                     streakManager.checkStreakExpiration()

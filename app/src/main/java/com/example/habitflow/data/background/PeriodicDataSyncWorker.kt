@@ -18,8 +18,8 @@ class PeriodicDataSyncWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return try {
 
-            syncRepository.pushLocalChanges()
-            syncRepository.pullRemoteChanges()
+//            syncRepository.pushLocalChanges()
+//            syncRepository.pullRemoteChanges()
 
             Result.success()
         } catch (e: Exception) {

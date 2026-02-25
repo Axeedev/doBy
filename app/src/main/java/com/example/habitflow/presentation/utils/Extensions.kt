@@ -67,7 +67,7 @@ fun Map<Long, Int>.toWeeklyPairsFromDayBucket(
         val bucket = date
             .atStartOfDay(zoneId)
             .toInstant()
-            .toEpochMilli()  / 86400000 + 1
+            .toEpochMilli()  / 86400000
 
         date to (this[bucket] ?: 0)
     }

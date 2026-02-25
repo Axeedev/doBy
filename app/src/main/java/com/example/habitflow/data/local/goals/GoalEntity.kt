@@ -11,7 +11,7 @@ data class GoalEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val title: String,
-    val category: GoalCategory,
+    val category: String,
     val startDate: Long,
     val endDate: Long,
     val description: String,

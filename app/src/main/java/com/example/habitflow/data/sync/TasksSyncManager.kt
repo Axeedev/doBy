@@ -5,7 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
-class DataSyncManager @Inject constructor(
+class TasksSyncManager @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val firebaseAuth: FirebaseAuth
 ) {
@@ -25,6 +25,13 @@ class DataSyncManager @Inject constructor(
     suspend fun updateTask(task: TaskDto) {
         task.id ?: return
         tasksRef.document(task.id).set(task).await()
+    }
+
+    suspend fun delete(remoteId: String){
+        tasksRef
+            .document(remoteId)
+            .delete()
+            .await()
     }
 
     suspend fun getAll(): List<TaskDto> =

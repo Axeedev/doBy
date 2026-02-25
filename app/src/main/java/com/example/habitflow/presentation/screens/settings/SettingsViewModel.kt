@@ -2,9 +2,9 @@ package com.example.habitflow.presentation.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habitflow.data.local.AppDatabase
 import com.example.habitflow.domain.entities.settings.SendNotificationBeforeDeadline
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
+import com.example.habitflow.domain.usecases.settings.UpdateIsDarkThemeUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateMorningTimeInfoUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNightTimeInfoUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNotificationsEnabledUseCase
@@ -30,6 +30,7 @@ class SettingsViewModel @Inject constructor(
     private val updateMorningTimeInfoUseCase: UpdateMorningTimeInfoUseCase,
     private val updateNightTimeInfoUseCase: UpdateNightTimeInfoUseCase,
     private val showCalendarEventsUseCase: UpdateShowCalendarEventsUseCase,
+    private val updateIsDarkThemeUseCase: UpdateIsDarkThemeUseCase,
     private val firebaseAuth: FirebaseAuth
 ) : ViewModel() {
 
@@ -49,9 +50,10 @@ class SettingsViewModel @Inject constructor(
                             notifyBeforeMinutes = settings.sendNotificationBeforeDeadline.beforeMinutes,
                             showCompletedTasks = settings.showCompletedTasksOnMainScreen,
                             showEventsFromCalendar = settings.showCalendarEvents,
+                            isDarkTheme = settings.isDarkTheme,
                             selectedNotifyBeforeIndex = SendNotificationBeforeDeadline.entries.indexOf(
                                 settings.sendNotificationBeforeDeadline
-                            ),
+                            )
                         )
                     }
                 }
@@ -123,6 +125,10 @@ class SettingsViewModel @Inject constructor(
 
                 is SettingsCommand.ChangeShowCalendarEvents -> {
                     showCalendarEventsUseCase(settingsCommand.enabled)
+                }
+
+                is SettingsCommand.ClickChangeTheme -> {
+                    updateIsDarkThemeUseCase(settingsCommand.isDarkTheme)
                 }
             }
         }
