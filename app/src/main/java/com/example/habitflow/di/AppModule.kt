@@ -17,7 +17,7 @@ import com.example.habitflow.data.local.tasks.TasksDao
 import com.example.habitflow.data.remote.Voice
 import com.example.habitflow.data.remote.advice.ApiService
 import com.example.habitflow.data.remote.voice.SaluteAuthService
-import com.example.habitflow.data.remote.voice.SaluteSpeechApi
+import com.example.habitflow.data.remote.voice.SaluteSpeechApiService
 import com.example.habitflow.data.remote.Auth
 import com.example.habitflow.data.remote.Chat
 import com.example.habitflow.data.remote.summary.ChatApiService
@@ -130,7 +130,7 @@ interface AppModule {
         @Provides
         fun provideSaluteSpeechApi(
             @Voice retrofit: Retrofit
-        ): SaluteSpeechApi = retrofit.create()
+        ): SaluteSpeechApiService = retrofit.create()
 
 
         @Auth

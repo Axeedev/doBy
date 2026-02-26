@@ -7,6 +7,6 @@ interface VoiceRepository {
 
     suspend fun startRecording()
 
-    suspend fun stopRecordingAndRecognize(): List<Task>
+    suspend fun stopRecordingAndRecognize()
 
 }

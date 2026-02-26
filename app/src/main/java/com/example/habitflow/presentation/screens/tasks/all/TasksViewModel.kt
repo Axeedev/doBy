@@ -3,7 +3,9 @@ package com.example.habitflow.presentation.screens.tasks.all
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.example.habitflow.data.background.VoiceToTaskWorker
 import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
@@ -66,24 +68,23 @@ class TasksViewModel @Inject constructor(
                 }
             }
         }
-//        viewModelScope.launch {
-//            workManager.getWorkInfosByTagFlow(
-//                DataSyncWorker.DATA_SYNC_TAG
-//            ).collect { workInfos ->
-//                workInfos.forEach { workInfo ->
-//                    if (workInfo.state != WorkInfo.State.SUCCEEDED && workInfo.state != WorkInfo.State.FAILED) {
-//                        _state.update {
-//                            it.copy(isRefreshLoading = true)
-//                        }
-//                    } else {
-//                        _state.update {
-//                            it.copy(isRefreshLoading = false)
-//                        }
-//                    }
-//                }
-//            }
-//
-//        }
+        viewModelScope.launch {
+            workManager.getWorkInfosByTagFlow(
+                VoiceToTaskWorker.VOICE_RECOGNIZE_WORKER_TAG
+            ).collect { workInfos ->
+                workInfos.forEach { workInfo ->
+                    if (workInfo.state != WorkInfo.State.SUCCEEDED && workInfo.state != WorkInfo.State.FAILED) {
+                        _state.update {
+                            it.copy(isRefreshLoading = true)
+                        }
+                    } else {
+                        _state.update {
+                            it.copy(isRefreshLoading = false)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun processCommand(command: TasksCommand) {
