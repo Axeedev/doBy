@@ -35,24 +35,42 @@ class AuthViewModel @Inject constructor(
         get() = _errorEvents.asSharedFlow()
 
 
+    private suspend fun signInWithGoogle() {
+        val isSignedIn = signInWithGoogleUseCase()
+        _state.update {
+            it.copy(
+                isAuthSuccess = isSignedIn
+            )
+        }
+    }
+
+    private fun clickLoginButton() {
+        _state.update { it.copy(isLoading = true) }
+        val currentState = _state.value
+        viewModelScope.launch {
+            login(currentState.email, currentState.password)
+        }
+    }
+
+    private fun clickSignupButton() {
+        _state.update { it.copy(isLoading = true) }
+        val currentState = _state.value
+        viewModelScope.launch {
+            signup(currentState.email, currentState.password)
+        }
+    }
+
     fun processCommand(authCommand: AuthCommand) {
         when (authCommand) {
             AuthCommand.ClickGoogleAuthButton -> {
                 viewModelScope.launch {
-                    val isSignedIn = signInWithGoogleUseCase()
-                    _state.update {
-                        it.copy(
-                            isAuthSuccess = isSignedIn
-                        )
-                    }
+                    signInWithGoogle()
                 }
             }
+
             is AuthCommand.InputEmail -> {
                 _state.update {
-                    it.copy(
-                        email = authCommand.email,
-                        isEmailError = false
-                    )
+                    it.copy(email = authCommand.email, isEmailError = false)
                 }
 
             }
@@ -62,19 +80,11 @@ class AuthViewModel @Inject constructor(
             }
 
             AuthCommand.ClickLoginButton -> {
-                _state.update { it.copy(isLoading = true) }
-                val currentState = _state.value
-                viewModelScope.launch {
-                    login(currentState.email, currentState.password)
-                }
+                clickLoginButton()
             }
 
             AuthCommand.ClickSignupButton -> {
-                _state.update { it.copy(isLoading = true) }
-                val currentState = _state.value
-                viewModelScope.launch {
-                    signup(currentState.email, currentState.password)
-                }
+                clickSignupButton()
             }
         }
     }
@@ -92,33 +102,38 @@ class AuthViewModel @Inject constructor(
             _state.update { it.copy(isPasswordError = true, isLoading = false) }
             return
         }
-        val authResult = when(authType){
+        val authResult = when (authType) {
             AuthType.LOGIN -> {
                 signInWithEmailAndPasswordUseCase(email, password)
             }
+
             AuthType.SIGNUP -> {
                 signUpWithEmailAndPasswordUseCase(email, password)
             }
         }
-        when(authResult){
+        when (authResult) {
             is AuthResult.Failure -> {
                 _state.update { it.copy(isLoading = false) }
                 when (authResult.exception) {
-                    is FirebaseAuthInvalidCredentialsException ->{
+                    is FirebaseAuthInvalidCredentialsException -> {
                         _errorEvents.emit(ErrorEvent.InvalidErrorOrPassword("Invalid email or password."))
                     }
-                    is FirebaseAuthInvalidUserException ->{
+
+                    is FirebaseAuthInvalidUserException -> {
                         _errorEvents.emit(ErrorEvent.UserNotFound("User with given credentials not found"))
                     }
-                    is FirebaseAuthUserCollisionException ->{
+
+                    is FirebaseAuthUserCollisionException -> {
                         _errorEvents.emit(ErrorEvent.UserExists("User with given credentials already exists"))
                     }
+
                     else -> {
                         _errorEvents.emit(ErrorEvent.Other("Something went wrong. Check your Internet connection"))
                     }
                 }
 
             }
+
             AuthResult.Success -> {
                 _state.update { it.copy(isAuthSuccess = true) }
             }

@@ -4,9 +4,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.habitflow.R
 import com.example.habitflow.data.local.AppDatabase
-import com.example.habitflow.data.local.tasks.TaskEntity
 import com.example.habitflow.domain.entities.achievements.AchievementType
-import com.example.habitflow.domain.entities.goals.GoalCategory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

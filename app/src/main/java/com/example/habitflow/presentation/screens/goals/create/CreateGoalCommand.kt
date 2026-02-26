@@ -37,4 +37,12 @@ sealed interface CreateGoalCommand {
 
     data class AddNewCategory(val categoryName: String) : CreateGoalCommand
 
+    data object OpenCompleteGoalDialog : CreateGoalCommand
+
+    data object CloseCompleteGoalDialog : CreateGoalCommand
+
+    data object OpenAddCategoryDialog : CreateGoalCommand
+
+    data object CloseAddCategoryDialog : CreateGoalCommand
+
 }

@@ -143,7 +143,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override fun getNetworkType() : Flow<Boolean>{
         return context.dataStore.data.map {
-            it[wifiOnlyKey] ?: false
+            it[wifiOnlyKey] ?: AppSettings.WIFI_ONLY_DEFAULT
         }
     }
 

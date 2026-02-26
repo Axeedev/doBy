@@ -15,10 +15,12 @@ data class CreateGoalScreenState(
     val endDate: Long = System.currentTimeMillis(),
     val milestones: List<Milestone> = listOf(),
     val categories: List<GoalCategory> = GoalCategory.defaultCategories,
-    val newCategoryName: String = ""
+    val newCategoryName: String = "",
+    val isCompleteDialogOpened: Boolean = false,
+    val isAddCategoryDialogOpened: Boolean = false
 ){
     val isSaveButtonEnabled: Boolean
-        get() = title.isNotEmpty() && milestones.all { it.title.isNotEmpty() }
+        get() = title.trim().isNotEmpty() && milestones.all { it.title.isNotEmpty() }
 
     val isAddCategoryButtonEnabled
         get() = newCategoryName.trim().isNotEmpty()

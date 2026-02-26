@@ -13,3 +13,7 @@ annotation class Advice
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
 annotation class Voice
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Chat

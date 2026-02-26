@@ -5,6 +5,9 @@ option java_package = "com.example.habitflow.data";
 option java_multiple_files = true;
 
 message TokenProto {
-  string access_token = 1;
-  int64 expires_at = 2;
+  string speech_access_token = 1;
+  int64 speech_expires_at = 2;
+
+  string chat_access_token = 3;
+  int64 chat_expires_at = 4;
 }

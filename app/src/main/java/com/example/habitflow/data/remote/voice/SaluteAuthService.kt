@@ -16,9 +16,8 @@ interface SaluteAuthService {
     @FormUrlEncoded
     @POST("api/v2/oauth")
     suspend fun getToken(
-        @Header("Authorization") authorization: String = "Basic ${BuildConfig.AUTH_KEY}",
+        @Header("Authorization") authorization: String = "Basic ${BuildConfig.AUTH_KEY}==",
         @Header("RqUID") rqUid: String = BuildConfig.UID,
         @Field("scope") scope: String = "SALUTE_SPEECH_PERS"
     ): Response<SaluteTokenResponse>
 }
-

@@ -111,8 +111,8 @@ fun AchievementsScreen(
                             selected = state.selectedType == filterType,
                             onClick = {
                                 viewModel.processCommand(
-                                    AchievementsCommand.ChangeFilterType(
-                                        filterType
+                                    command = AchievementsCommand.ChangeFilterType(
+                                        filterChipType = filterType
                                     )
                                 )
                             },
@@ -160,8 +160,6 @@ fun AchievementsScreen(
                     }
                 }
             } else {
-
-
                 items(
                     items = state.achievements,
                     key = { it.id }

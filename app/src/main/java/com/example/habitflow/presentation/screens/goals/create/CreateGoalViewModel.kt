@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.goals.Goal
 import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.goals.Milestone
-import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
 import com.example.habitflow.domain.usecases.goals.CompleteGoalUseCase
 import com.example.habitflow.domain.usecases.goals.GetGoalByIdUseCase
@@ -164,7 +163,10 @@ class CreateGoalViewModel @AssistedInject constructor(
 
             is CreateGoalCommand.ClickCompleteGoal -> {
                 viewModelScope.launch {
-                    completeGoalUseCase(command.goalId)
+                    _state.update { it.copy(isCompleteDialogOpened = false) }
+                    completeGoalUseCase(
+                        command.goalId,
+                    )
                 }
             }
             is CreateGoalCommand.AddNewCategory -> {
@@ -173,7 +175,8 @@ class CreateGoalViewModel @AssistedInject constructor(
                     newList.add(GoalCategory(command.categoryName))
                     it.copy(
                         categories = newList,
-                        goalCategory = newList.last()
+                        goalCategory = newList.last(),
+                        isAddCategoryDialogOpened = false
                     )
                 }
             }
@@ -181,12 +184,35 @@ class CreateGoalViewModel @AssistedInject constructor(
             is CreateGoalCommand.InputCategoryName -> {
                 _state.update { it.copy(newCategoryName = command.name) }
             }
+
+            CreateGoalCommand.CloseAddCategoryDialog -> {
+                _state.update {
+                    it.copy(isAddCategoryDialogOpened = false)
+                }
+            }
+            CreateGoalCommand.CloseCompleteGoalDialog -> {
+                _state.update {
+                    it.copy(isCompleteDialogOpened = false)
+                }
+            }
+            CreateGoalCommand.OpenAddCategoryDialog -> {
+                _state.update {
+                    it.copy(isAddCategoryDialogOpened = true)
+                }
+            }
+            CreateGoalCommand.OpenCompleteGoalDialog -> {
+                _state.update {
+                    it.copy(isCompleteDialogOpened = true)
+                }
+            }
         }
     }
+
     @AssistedFactory
     interface ViewModelFactory{
         fun create(
             @Assisted("id") goalId: Int?,
         ) : CreateGoalViewModel
     }
+
 }

@@ -9,8 +9,6 @@ class CompletedTasksSyncManager @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 ) {
-
-
     private val completedTasksRef by lazy {
         firestore
             .collection(USERS_COLLECTION)

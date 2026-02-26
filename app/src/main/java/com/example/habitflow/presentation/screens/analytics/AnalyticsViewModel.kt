@@ -2,7 +2,6 @@ package com.example.habitflow.presentation.screens.analytics
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.habitflow.R
 import com.example.habitflow.domain.usecases.analytics.GetCountOfCompletedTasksForWeekUseCase
 import com.example.habitflow.domain.usecases.analytics.GetDailyStatsUseCase
 import com.example.habitflow.domain.usecases.analytics.GetWeeklyDifferencePercentageUseCase

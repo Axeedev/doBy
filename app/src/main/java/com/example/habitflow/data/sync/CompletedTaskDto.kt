@@ -12,7 +12,7 @@ data class CompletedTaskDto(
     @get:PropertyName("completed")
     val completed: Boolean = false,
     val completedAt: Long = System.currentTimeMillis(),
-//    @get:PropertyName("returned")
-//    val returned: Boolean = false,
+    @get:PropertyName("returned")
+    val returned: Boolean = false,
     val updatedAt: Long = System.currentTimeMillis(),
 )

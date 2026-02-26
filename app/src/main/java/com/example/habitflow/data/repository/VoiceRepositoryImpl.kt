@@ -3,16 +3,23 @@ package com.example.habitflow.data.repository
 import android.content.Context
 import android.media.MediaRecorder
 import android.util.Log
-import com.example.habitflow.data.local.tasks.TaskEntity
-import com.example.habitflow.data.local.tasks.TasksDao
+import com.example.habitflow.data.remote.Prompts
+import com.example.habitflow.data.remote.summary.ChatApiService
+import com.example.habitflow.data.remote.summary.dtos.ChatRequest
+import com.example.habitflow.data.remote.summary.dtos.Message
+import com.example.habitflow.data.remote.summary.dtos.SummaryResponse
 import com.example.habitflow.data.remote.tokens.TokenManager
 import com.example.habitflow.data.remote.voice.SaluteSpeechApi
+import com.example.habitflow.data.utils.parseToMillis
+import com.example.habitflow.domain.entities.goals.GoalCategory
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.repository.VoiceRepository
+import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
@@ -20,8 +27,10 @@ import javax.inject.Inject
 
 class VoiceRepositoryImpl @Inject constructor(
     private val speechApi: SaluteSpeechApi,
-    private val tasksDao: TasksDao,
+    private val addTaskUseCase: AddTaskUseCase,
     private val tokenManager: TokenManager,
+    private val chatApiService: ChatApiService,
+    private val json: Json,
     @param:ApplicationContext private val context: Context
 ) : VoiceRepository {
 
@@ -71,25 +80,23 @@ class VoiceRepositoryImpl @Inject constructor(
                     }
                 }
 
-                recorder?.stop()
-                recorder?.release()
-                recorder = null
+//                recorder?.stop()
+//                recorder?.release()
+//                recorder = null
 
                 if (!audioFile.exists()) throw Exception("Файл не найден")
 
                 val audioBytes = audioFile.readBytes()
 
-                Log.d("stopRecordingAndRecognize", audioBytes.size.toString())
 
                 val audioBody = tempFile.asRequestBody(
                     "audio/mpeg".toMediaType(),
                 )
 
-
-                val token = tokenManager.getValidAccessToken()
+                val speechToken = tokenManager.getValidSpeechAccessToken()
 
                 val response = speechApi.recognizeSpeech(
-                    authorization = "Bearer $token",
+                    authorization = "Bearer $speechToken",
                     audio = audioBody
                 )
 
@@ -99,59 +106,56 @@ class VoiceRepositoryImpl @Inject constructor(
 
                 val result = response.body()?.result ?: throw Exception("No body")
 
-                result.forEach {
-                    tasksDao.addTask(
-                        TaskEntity(
-                            id = 0,
-                            title = it,
-                            deadlineMillis = null,
-                            note = "",
-                            category = "test",
-                            priority = "LOW",
-                            isCompleted = false,
-                            isReturned = false
+                val chatToken = tokenManager.getValidChatAccessToken()
+                val summaryResponse = chatApiService.getSummary(
+                    authorization = "Bearer $chatToken",
+                    chatRequest = ChatRequest(
+                        model = "GigaChat-2-Pro",
+                        messages = listOf(
+                            Message(
+                                role = "user",
+                                content = Prompts.CHAT_PROMPT + result
+                            )
                         )
                     )
+                )
+
+                if (!summaryResponse.isSuccessful || summaryResponse.body() == null) {
+                    throw Exception("Ошибка распознавания: ${summaryResponse.message()}")
                 }
+                val summaryResult = summaryResponse.body() ?: throw Exception("Ошибка распознавания: ${summaryResponse.message()}")
+
+
+
+                summaryResult.choices.forEach { choice ->
+                    val response = json.decodeFromString<SummaryResponse>(choice.message.content)
+                    val tasks = response.tasks
+                    Log.d("API RESPONSE:", tasks.size.toString())
+                    tasks.forEach { taskDto ->
+                        Log.d("TASK", taskDto.title)
+                        val deadlineMillis = parseToMillis(taskDto.deadline)
+                        addTaskUseCase(
+                            task = Task(
+                                id = 0,
+                                title = taskDto.title,
+                                deadlineMillis = deadlineMillis,
+                                note = "",
+                                category = GoalCategory(taskDto.category),
+                                priority = Priority.LOW
+                            )
+                        )
+                    }
+                }
+
 
                 listOf()
 
             } catch (e: Exception) {
-                throw Exception("Ошибка обработки: ${e.message}")
+                e.printStackTrace()
+                listOf()
             } finally {
                 audioFile.delete()
             }
         }
     }
-
-//    private fun parseToTasks(response: SaluteRecognitionResponse): List<Task> {
-//        val text = response.result
-//        val entities = response.entities.orEmpty()
-//
-//        val datetimeEntities =
-//            entities.filter { it.type == "datetime" && it.value?.date_time != null }
-//
-//        return datetimeEntities.map { entity ->
-//            val dt = entity.value!!.date_time!!
-//            val deadlineMillis = convertDateTimeToMillis(dt)
-//
-//            val title = response.result
-//                .replace(entity.value.original_text ?: "", "", ignoreCase = true)
-//                .trim()
-//                .let { it.ifEmpty { "Задача" } }
-//
-//            Task(
-//                id = 0,
-//                title = title,
-//                deadlineMillis = deadlineMillis,
-//                note = "",
-//                category = GoalCategory("AI"),
-//                priority = Priority.LOW,
-//                isCompleted = false,
-//                isReturned = false
-//            )
-//        }
-
-
-
 }

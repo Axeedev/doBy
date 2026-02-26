@@ -19,6 +19,8 @@ import com.example.habitflow.data.remote.advice.ApiService
 import com.example.habitflow.data.remote.voice.SaluteAuthService
 import com.example.habitflow.data.remote.voice.SaluteSpeechApi
 import com.example.habitflow.data.remote.Auth
+import com.example.habitflow.data.remote.Chat
+import com.example.habitflow.data.remote.summary.ChatApiService
 import com.example.habitflow.data.remote.voice.getUnsafeOkHttpClient
 import com.example.habitflow.data.repository.AchievementRepositoryImpl
 import com.example.habitflow.data.repository.AnalyticsRepositoryImpl
@@ -100,13 +102,35 @@ interface AppModule {
         private const val BASE_URL = "https://api.api-ninjas.com/v1/"
         private const val AUTH_URL = "https://ngw.devices.sberbank.ru:9443/"
         private const val VOICE_URL = "https://smartspeech.sber.ru/"
+        private const val SUMMARY_URL = "https://gigachat.devices.sberbank.ru/api/v1/"
+
+        @Singleton
+        @Provides
+        @Chat
+        fun provideChatRetrofit(
+            converter: Converter.Factory,
+            @Auth okHttpClient: OkHttpClient
+        ) : Retrofit{
+            return Retrofit.Builder()
+                .client(okHttpClient)
+                .baseUrl(SUMMARY_URL)
+                .addConverterFactory(converter)
+                .build()
+        }
+
+        @Singleton
+        @Provides
+        fun provideChatApi(
+            @Chat retrofit: Retrofit
+        ) : ChatApiService = retrofit.create()
+
 
 
         @Singleton
         @Provides
         fun provideSaluteSpeechApi(
             @Voice retrofit: Retrofit
-        ) = retrofit.create<SaluteSpeechApi>()
+        ): SaluteSpeechApi = retrofit.create()
 
 
         @Auth

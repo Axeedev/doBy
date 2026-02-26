@@ -150,9 +150,6 @@ fun GoalsScreen(
                 items(items = state.goals, key = { it.id }) { goal ->
                     GoalCard(
                         goal = goal,
-                        onDeleteClick = {
-                            viewModel.processCommand(GoalsCommand.DeleteCommand(goal.id))
-                        }
                     ) {
                         onEditGoalClick(goal.id)
                     }
@@ -165,7 +162,6 @@ fun GoalsScreen(
 @Composable
 fun GoalCard(
     goal: Goal,
-    onDeleteClick: () -> Unit,
     onGoalClick: () -> Unit
 ) {
     Card(
@@ -187,39 +183,6 @@ fun GoalCard(
             )
         }
         Column(modifier = Modifier.padding(16.dp)) {
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Box(
-//                    modifier = Modifier
-//                        .clip(RoundedCornerShape(12.dp))
-//                        .background(Color(0xFFE6FFF6))
-//                        .weight(1f),
-//                    contentAlignment = Alignment.Center,
-//
-//                    ) {
-//                    Row(
-//                        modifier = Modifier
-//                            .padding(horizontal = 8.dp, vertical = 8.dp),
-//                        verticalAlignment = Alignment.CenterVertically
-//                    ) {
-//                        Icon(
-//                            painter = painterResource(R.drawable.ic_book),
-//                            contentDescription = "goal category",
-//                            tint = Color(0xFF15803D)
-//                        )
-//                        Spacer(modifier = Modifier.width(8.dp))
-//                        Text(
-//                            text = goal.category.title,
-//                            color = Color(0xFF15803D)
-//                        )
-//                    }
-//                }
-
-
-//            }
-
             Text(
                 text = goal.title,
                 fontWeight = FontWeight.SemiBold,

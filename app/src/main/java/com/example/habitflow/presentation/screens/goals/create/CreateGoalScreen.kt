@@ -30,8 +30,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -91,21 +89,34 @@ fun CreateGoalScreen(
         }
     }
 
-    var isCompleteDialogOpened by remember { mutableStateOf(false) }
-
     val goalId = state.goalId
 
-    if (isCompleteDialogOpened && goalId != null) {
+    if (state.isAddCategoryDialogOpened) {
+        AddCategoryDialog(
+            categoryName = state.newCategoryName,
+            isAddCategoryButtonEnabled = state.isAddCategoryButtonEnabled,
+            onDismiss = {
+                viewModel.processCommand(CreateGoalCommand.CloseAddCategoryDialog)
+            },
+            onValueChange = {
+                viewModel.processCommand(CreateGoalCommand.InputCategoryName(it))
+            }
+        ) {
+            viewModel.processCommand(CreateGoalCommand.AddNewCategory(it))
+        }
+    }
+
+    if (state.isCompleteDialogOpened && goalId != null){
         CompleteDialog(
             onComplete = {
-                isCompleteDialogOpened = false
-                viewModel.processCommand(CreateGoalCommand.ClickCompleteGoal(goalId = goalId))
+                viewModel.processCommand(CreateGoalCommand.ClickCompleteGoal(goalId))
                 onFinished()
             }
         ) {
-            isCompleteDialogOpened = false
+            viewModel.processCommand(CreateGoalCommand.CloseCompleteGoalDialog)
         }
     }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -114,7 +125,7 @@ fun CreateGoalScreen(
                 title = state.title,
                 onFinished = onFinished,
                 onCompleteGoalClick = {
-                    isCompleteDialogOpened = true
+                    viewModel.processCommand(CreateGoalCommand.OpenCompleteGoalDialog)
                 }
             )
         }
@@ -146,7 +157,6 @@ fun CreateGoalScreen(
                 }
                 Spacer(Modifier.size(16.dp))
 
-                var isDialogOpened by remember { mutableStateOf(false) }
 
                 Row(
                     modifier = Modifier
@@ -159,7 +169,7 @@ fun CreateGoalScreen(
                     )
                     Button(
                         onClick = {
-                            isDialogOpened = true
+                            viewModel.processCommand(CreateGoalCommand.OpenAddCategoryDialog)
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -177,21 +187,7 @@ fun CreateGoalScreen(
 
                 }
 
-                if (isDialogOpened) {
-                    AddCategoryDialog(
-                        categoryName = state.newCategoryName,
-                        isAddCategoryButtonEnabled = state.isAddCategoryButtonEnabled,
-                        onDismiss = {
-                            isDialogOpened = false
-                        },
-                        onValueChange = {
-                            viewModel.processCommand(CreateGoalCommand.InputCategoryName(it))
-                        }
-                    ) {
-                        viewModel.processCommand(CreateGoalCommand.AddNewCategory(it))
-                        isDialogOpened = false
-                    }
-                }
+
                 CategoryChips(
                     categories = state.categories,
                     selectedCategory = state.goalCategory
@@ -576,40 +572,6 @@ fun Photo(
             )
         }
 
-    }
-}
-
-@Composable
-fun FilterChips(
-    modifier: Modifier = Modifier,
-    stateGoalCategory: GoalCategory,
-    onChipClick: (GoalCategory) -> Unit,
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        GoalCategory.defaultCategories.forEach { goalCategory ->
-            FilterChip(
-                selected = stateGoalCategory == goalCategory,
-                label = {
-                    Text(
-                        modifier = Modifier.padding(all = 8.dp),
-                        text = goalCategory.name,
-                    )
-                },
-                shape = CircleShape,
-                onClick = {
-                    onChipClick(goalCategory)
-                },
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.tertiary,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryFixedVariant,
-                    containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-            )
-        }
     }
 }
 

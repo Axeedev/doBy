@@ -23,8 +23,6 @@ class NightAlarmScheduler @Inject constructor(
     suspend fun scheduleNextNightAlarm() {
         val nightNotificationTime = getSettingsUseCase().first().nightInfoTime
 
-        Log.d("NightAlarmScheduler", "in alarm scheduler")
-
         if (nightNotificationTime is NotificationTime) {
             val intent = NightAlarmReceiver.newIntent(context)
             val pendingIntent = PendingIntent.getBroadcast(
@@ -56,9 +54,8 @@ class NightAlarmScheduler @Inject constructor(
                             pendingIntent
                         )
 
-                        Log.d("NightAlarmScheduler", "scheduled: ${a.dayOfWeek}, ${a.hour}:${a.minute}")
                     } else {
-                        Log.d("NightAlarmScheduler", "Exact alarms are not allowed")
+                        TODO()
                     }
                 }
 

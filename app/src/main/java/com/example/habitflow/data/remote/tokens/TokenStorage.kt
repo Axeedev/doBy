@@ -17,7 +17,7 @@ class TokenStorage @Inject constructor(
     suspend fun saveToken(access: String) {
         context.tokenDataStore.updateData { current ->
             current.toBuilder()
-                .setAccessToken(access)
+                .setChatAccessToken(access)
                 .build()
         }
     }
@@ -27,6 +27,6 @@ class TokenStorage @Inject constructor(
     }
 
     suspend fun getAccessToken(): String? =
-        tokenFlow.firstOrNull()?.accessToken?.takeIf { it.isNotEmpty() }
+        tokenFlow.firstOrNull()?.chatAccessToken?.takeIf { it.isNotEmpty() }
 
 }

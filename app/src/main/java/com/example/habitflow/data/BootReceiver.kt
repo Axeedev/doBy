@@ -3,7 +3,6 @@ package com.example.habitflow.data
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.example.habitflow.data.daily.MorningAlarmScheduler
 import com.example.habitflow.data.daily.NightAlarmScheduler
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,16 +25,12 @@ class BootReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED){
-            Log.d("BootReceiver", "boot_completed")
             val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     taskReminder.rescheduleTasks()
                     morningAlarmScheduler.scheduleNextMorningAlarm()
                     nightAlarmScheduler.scheduleNextNightAlarm()
-
-                    Log.d("BootReceiver", "tasks rescheduled, alarms too")
-
                 } finally {
                     pendingResult.finish()
                 }

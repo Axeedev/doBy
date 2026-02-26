@@ -1,6 +1,5 @@
 package com.example.habitflow.data.repository
 
-import android.util.Log
 import androidx.room.Transaction
 import com.example.habitflow.data.TaskReminder
 import com.example.habitflow.data.background.DataSyncScheduler
@@ -71,7 +70,6 @@ class TaskRepositoryImpl @Inject constructor(
         val adjustedTask = task.copy(
             deadlineMillis = adjustedDeadline
         )
-        Log.d("addTask", task.category.name)
 
         val taskId = tasksDao.addTask(
             taskEntity = adjustedTask.toTaskEntity(
@@ -86,7 +84,6 @@ class TaskRepositoryImpl @Inject constructor(
                 deadline
             )
         }
-        startRefresh()
     }
 
 
@@ -133,7 +130,7 @@ class TaskRepositoryImpl @Inject constructor(
             )
         )
         taskReminder.cancelTask(taskId.toLong())
-        startRefresh()
+//        startRefresh()
     }
 
     override suspend fun updateTask(task: Task) {
@@ -162,7 +159,7 @@ class TaskRepositoryImpl @Inject constructor(
                 deadline
             )
         }
-        startRefresh()
+//        startRefresh()
     }
 
     @Transaction
@@ -180,8 +177,6 @@ class TaskRepositoryImpl @Inject constructor(
             ).copy(isSynced = false)
         )
         deleteTask(taskId)
-
-        Log.d("TaskRepositoryImpl", "deleted")
     }
 
     override suspend fun returnTask(taskId: Int) {

@@ -1,8 +1,6 @@
 package com.example.habitflow.data.remote.tokens
 
 import android.content.Context
-import android.util.Log
-import com.example.habitflow.data.TokenProto
 import com.example.habitflow.data.remote.voice.SaluteAuthService
 import com.example.habitflow.data.tokenDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,37 +14,65 @@ class TokenManager @Inject constructor(
 
     private val dataStore = context.tokenDataStore
 
-    suspend fun getValidAccessToken(): String {
+    suspend fun getValidSpeechAccessToken(): String {
         val tokenData = dataStore.data.first()
-
-
-        Log.d("getValidAccessToken", tokenData.accessToken)
 
         val now = System.currentTimeMillis()
 
-        if (tokenData.accessToken.isNotEmpty() &&
-            tokenData.expiresAt > now
+        if (tokenData.speechAccessToken.isNotEmpty() &&
+            tokenData.speechExpiresAt > now
         ) {
-            return tokenData.accessToken
+            return tokenData.speechAccessToken
+
         }
 
         val response = authApi.getToken()
 
         if (!response.isSuccessful || response.body() == null) {
-            throw Exception("Не удалось получить токен")
+            throw Exception("Не удалось получить speech токен")
         }
 
-        val newToken = response.body() ?: throw Exception("Не удалось получить токен")
+        val newToken = response.body() ?: throw Exception("Не удалось получить speech токен")
 
-        val expiresAt = newToken.expiresAt + now
+        val expiresAt = newToken.expiresAt
 
         dataStore.updateData {
             it.toBuilder()
-                .setAccessToken(newToken.accessToken)
-                .setExpiresAt(expiresAt)
+                .setSpeechAccessToken(newToken.accessToken)
+                .setSpeechExpiresAt(expiresAt)
                 .build()
         }
 
+        return newToken.accessToken
+    }
+
+    suspend fun getValidChatAccessToken() : String {
+        val tokenData = dataStore.data.first()
+
+        val now = System.currentTimeMillis()
+        if (tokenData.chatAccessToken.isNotEmpty() && tokenData.chatExpiresAt > now){
+            return tokenData.chatAccessToken
+        }
+
+        val response = authApi.getToken(
+            authorization = "Basic ZjY5YmZhNzQtYjJjMy00YWMzLTgyMDQtODI4N2E1MjA4NjQ5OmI5ZmM0ZTkzLWEzMDYtNGU1Ni04ZjY2LWJlZDJkYWE0YTViOQ==",
+            rqUid = "f69bfa74-b2c3-4ac3-8204-8287a5208649",
+            scope = "GIGACHAT_API_PERS"
+        )
+
+        if (!response.isSuccessful || response.body() == null) {
+            throw Exception("Не удалось получить chat токен")
+        }
+
+        val newToken = response.body() ?: throw Exception("Не удалось получить chat токен")
+
+        val expiresAt = newToken.expiresAt
+        dataStore.updateData {
+            it.toBuilder()
+                .setChatAccessToken(newToken.accessToken)
+                .setChatExpiresAt(expiresAt)
+                .build()
+        }
         return newToken.accessToken
     }
 }

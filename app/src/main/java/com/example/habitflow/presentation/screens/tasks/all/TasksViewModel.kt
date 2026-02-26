@@ -94,9 +94,10 @@ class TasksViewModel @Inject constructor(
                 }
                 viewModelScope.launch {
                     try {
-//                        startVoiceRecordingUseCase()
+                        startVoiceRecordingUseCase()
                     } catch (e: Exception) {
                         _state.update {
+                            e.printStackTrace()
                             it.copy(isVoiceRecording = false)
                         }
                     }
@@ -107,7 +108,7 @@ class TasksViewModel @Inject constructor(
                     it.copy(isVoiceRecording = false)
                 }
                 viewModelScope.launch {
-//                    stopRecordingUseCase()
+                    stopRecordingUseCase()
                 }
                 Log.d("TasksViewModel", "recording stopped!")
             }

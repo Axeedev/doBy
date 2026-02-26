@@ -20,8 +20,6 @@ class MorningAlarmScheduler @Inject constructor(
     suspend fun scheduleNextMorningAlarm() {
         val morningNotificationTime = getSettingsUseCase().first().morningInfoTime
 
-        Log.d("AlarmScheduler", "in alarm scheduler")
-
         if (morningNotificationTime is NotificationTime) {
             val intent = MorningAlarmReceiver.newIntent(context)
             val pendingIntent = PendingIntent.getBroadcast(
@@ -39,7 +37,6 @@ class MorningAlarmScheduler @Inject constructor(
                     add(Calendar.DAY_OF_YEAR, 1)
                 }
             }
-            Log.d("AlarmScheduler", "in alarm scheduler")
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     if (alarmManager?.canScheduleExactAlarms() == true) {
@@ -49,7 +46,7 @@ class MorningAlarmScheduler @Inject constructor(
                             pendingIntent
                         )
                     } else {
-                        Log.d("AlarmScheduler", "Exact alarms are not allowed")
+                        //TODO
                     }
                 }
 

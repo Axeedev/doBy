@@ -20,16 +20,16 @@ class MyApp : Application(),  Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+
     @Inject
     lateinit var dataSyncScheduler: DataSyncScheduler
 
     @Inject
     lateinit var streakManager: StreakManager
-
-    override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
 
     private val scope = CoroutineScope(Dispatchers.Default  + SupervisorJob())
 
