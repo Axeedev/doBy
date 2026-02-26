@@ -14,7 +14,12 @@ import com.example.habitflow.data.local.achievements.StartCallback
 import com.example.habitflow.data.local.goals.GoalsDao
 import com.example.habitflow.data.local.tasks.CompletedTasksDao
 import com.example.habitflow.data.local.tasks.TasksDao
-import com.example.habitflow.data.remote.ApiService
+import com.example.habitflow.data.remote.Voice
+import com.example.habitflow.data.remote.advice.ApiService
+import com.example.habitflow.data.remote.voice.SaluteAuthService
+import com.example.habitflow.data.remote.voice.SaluteSpeechApi
+import com.example.habitflow.data.remote.Auth
+import com.example.habitflow.data.remote.voice.getUnsafeOkHttpClient
 import com.example.habitflow.data.repository.AchievementRepositoryImpl
 import com.example.habitflow.data.repository.AnalyticsRepositoryImpl
 import com.example.habitflow.data.repository.AuthRepositoryImpl
@@ -22,6 +27,7 @@ import com.example.habitflow.data.repository.GoalRepositoryImpl
 import com.example.habitflow.data.repository.SettingsRepositoryImpl
 import com.example.habitflow.data.repository.SyncRepositoryImpl
 import com.example.habitflow.data.repository.TaskRepositoryImpl
+import com.example.habitflow.data.repository.VoiceRepositoryImpl
 import com.example.habitflow.domain.repository.AchievementRepository
 import com.example.habitflow.domain.repository.AnalyticsRepository
 import com.example.habitflow.domain.repository.AuthRepository
@@ -29,6 +35,7 @@ import com.example.habitflow.domain.repository.GoalRepository
 import com.example.habitflow.domain.repository.SettingsRepository
 import com.example.habitflow.domain.repository.SyncRepository
 import com.example.habitflow.domain.repository.TaskRepository
+import com.example.habitflow.domain.repository.VoiceRepository
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -47,6 +54,7 @@ import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.create
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -81,11 +89,44 @@ interface AppModule {
     @Binds
     fun bindSyncRepository(syncRepositoryImpl: SyncRepositoryImpl): SyncRepository
 
+    @Singleton
+    @Binds
+    fun bindVoiceRepository(voiceRepositoryImpl: VoiceRepositoryImpl): VoiceRepository
+
     companion object {
 
 
         private const val X_API_KEY = "X-Api-Key"
         private const val BASE_URL = "https://api.api-ninjas.com/v1/"
+        private const val AUTH_URL = "https://ngw.devices.sberbank.ru:9443/"
+        private const val VOICE_URL = "https://smartspeech.sber.ru/"
+
+
+        @Singleton
+        @Provides
+        fun provideSaluteSpeechApi(
+            @Voice retrofit: Retrofit
+        ) = retrofit.create<SaluteSpeechApi>()
+
+
+        @Auth
+        @Provides
+        @Singleton
+        fun provideRetrofitAuth(
+            converter: Converter.Factory,
+            @Auth okHttpClient: OkHttpClient,
+        ) = Retrofit.Builder()
+            .baseUrl(AUTH_URL)
+            .client(okHttpClient)
+            .addConverterFactory(converter)
+            .build()
+
+        @Singleton
+        @Provides
+        fun provideSaluteSpeechAuthService(@Auth retrofit: Retrofit) =
+            retrofit.create<SaluteAuthService>()
+
+
 
         @Provides
         @Singleton
@@ -96,20 +137,42 @@ interface AppModule {
             }
         }
 
+        @Auth
+        @Provides
+        @Singleton
+        fun provideVoiceOkHttpClient(
+            interceptor: HttpLoggingInterceptor
+        ) : OkHttpClient{
+            return getUnsafeOkHttpClient()
+                .addInterceptor(interceptor)
+                .readTimeout(60_000, TimeUnit.SECONDS)
+                .build()
+
+        }
+
         @Provides
         @Singleton
         fun provideConverterFactory(json: Json): Converter.Factory {
             return json.asConverterFactory(contentType = "application/json".toMediaType())
         }
 
+        @Singleton
+        @Provides
+        fun provideInterceptor(): HttpLoggingInterceptor {
+            return HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+        }
+
+        @Voice
         @Provides
         @Singleton
-        fun provideOkHttpClient(): OkHttpClient {
+        fun provideOkHttpClient(
+            interceptor: HttpLoggingInterceptor
+        ): OkHttpClient {
             return OkHttpClient
                 .Builder()
-                .addInterceptor(HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
-                })
+                .addInterceptor(interceptor)
                 .addInterceptor { chain ->
                     val request = chain.request()
                     val newRequest = request.newBuilder()
@@ -120,14 +183,15 @@ interface AppModule {
                 .build()
         }
 
+        @Voice
         @Provides
         @Singleton
-        fun provideRetrofit(
-            okHttpClient: OkHttpClient,
+        fun provideRetrofitVoice(
+            @Auth okHttpClient: OkHttpClient,
             converterFactory: Converter.Factory
         ): Retrofit {
             return Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(VOICE_URL)
                 .addConverterFactory(converterFactory)
                 .client(okHttpClient)
                 .build()
@@ -135,7 +199,7 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideApiService(retrofit: Retrofit): ApiService {
+        fun provideApiService(@Voice retrofit: Retrofit): ApiService {
             return retrofit.create()
         }
 
@@ -168,7 +232,7 @@ interface AppModule {
 
         @Singleton
         @Provides
-        fun provideFirestore() : FirebaseFirestore{
+        fun provideFirestore(): FirebaseFirestore {
             return FirebaseFirestore.getInstance()
         }
 
@@ -222,6 +286,7 @@ interface AppModule {
 
         @Provides
         @Singleton
-        fun provideWorkManager(@ApplicationContext context: Context) = WorkManager.getInstance(context)
+        fun provideWorkManager(@ApplicationContext context: Context) =
+            WorkManager.getInstance(context)
     }
 }

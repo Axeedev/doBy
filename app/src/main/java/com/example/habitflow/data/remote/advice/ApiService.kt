@@ -1,4 +1,4 @@
-package com.example.habitflow.data.remote
+package com.example.habitflow.data.remote.advice
 
 import retrofit2.http.GET
 

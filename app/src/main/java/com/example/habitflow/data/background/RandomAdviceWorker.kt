@@ -10,7 +10,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.example.habitflow.data.local.NotificationsProvider
-import com.example.habitflow.data.remote.ApiService
+import com.example.habitflow.data.remote.advice.ApiService
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers

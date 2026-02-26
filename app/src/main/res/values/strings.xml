@@ -209,4 +209,5 @@
     <string name="enter_category_s_name">Enter category\'s name</string>
     <string name="add">Add</string>
     <string name="category">Category</string>
+    <string name="speak">Speak…</string>
 </resources>

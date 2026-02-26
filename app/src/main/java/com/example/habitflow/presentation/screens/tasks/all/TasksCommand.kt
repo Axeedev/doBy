@@ -44,4 +44,9 @@ sealed interface TasksCommand {
 
     data object CloseBottomSheet : TasksCommand
 
+
+
+    object StartVoiceInput : TasksCommand
+    object StopVoiceInput : TasksCommand
+
 }

@@ -1,0 +1,10 @@
+
+syntax = "proto3";
+
+option java_package = "com.example.habitflow.data";
+option java_multiple_files = true;
+
+message TokenProto {
+  string access_token = 1;
+  int64 expires_at = 2;
+}

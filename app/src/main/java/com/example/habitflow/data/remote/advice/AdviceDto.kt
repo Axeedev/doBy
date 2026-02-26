@@ -1,4 +1,4 @@
-package com.example.habitflow.data.remote
+package com.example.habitflow.data.remote.advice
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

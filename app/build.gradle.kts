@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,7 +8,20 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
+    id("com.google.protobuf") version "0.9.6"
 }
+
+
+private val keyStoreFile = rootProject.file("keystore.properties")
+private val keyStoreProperties = keyStoreFile.inputStream().use { inputStream ->
+    Properties().apply {
+        load(inputStream)
+    }
+}
+
+
+private val apiKey = keyStoreProperties.getProperty("AUTH_KEY")
+private val uidKey = keyStoreProperties.getProperty("UID")
 
 android {
     namespace = "com.example.habitflow"
@@ -22,6 +37,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "AUTH_KEY", apiKey)
+        buildConfigField("String", "UID", uidKey)
     }
 
     buildTypes {
@@ -37,15 +54,33 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlin{
+    kotlin {
         jvmToolchain(17)
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.24.4"
+    }
+
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
 dependencies {
+
+    implementation("com.google.protobuf:protobuf-javalite:3.24.4")
     implementation("androidx.lifecycle:lifecycle-process:2.10.0")
     implementation("com.google.firebase:firebase-firestore")
     implementation("androidx.core:core-splashscreen:1.2.0")

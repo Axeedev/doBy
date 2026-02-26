@@ -2,10 +2,23 @@
 
 package com.example.habitflow.presentation.screens.tasks.all
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,9 +27,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -55,21 +69,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
 import com.example.habitflow.domain.entities.goals.GoalCategory
@@ -83,6 +102,7 @@ import com.example.habitflow.presentation.screens.tasks.TaskDeadlineSection
 import com.example.habitflow.presentation.screens.tasks.TimePickerDial
 import com.example.habitflow.presentation.utils.DateFormatter
 import com.example.habitflow.presentation.utils.DateFormatter.formatTime
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
@@ -95,7 +115,28 @@ fun TasksScreen(
     onGoToAchievementClick: () -> Unit,
     onOpenMenuClick: () -> Unit
 ) {
+    val context = LocalContext.current
+
+
+    var hasPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasPermission = isGranted
+    }
+
+
     val state by tasksViewModel.state.collectAsState()
+
+
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
@@ -347,10 +388,43 @@ fun TasksScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.primary,
         floatingActionButton = {
-            AppFAB {
-                tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
-            }
+            val offsetY by animateDpAsState(
+                targetValue = if (state.isVoiceRecording) 0.dp else 200.dp,
+                animationSpec = tween(300, easing = FastOutSlowInEasing)
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
+                SpeechPanel(
+                    modifier = Modifier
+                        .offset(y = offsetY)
+                        .padding(end = 24.dp)
+                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    VoiceInputFAB(
+                        isRecording = state.isVoiceRecording
+                    ) { isRecording ->
+                        if (!hasPermission) {
+                            Log.d("Tasks Screen", "no permission")
+                            launcher.launch(Manifest.permission.RECORD_AUDIO)
+                        } else {
+                            Log.d("Tasks Screen", "has permission")
+                            if (isRecording) {
+                                tasksViewModel.processCommand(TasksCommand.StartVoiceInput)
+                            } else {
+                                tasksViewModel.processCommand(TasksCommand.StopVoiceInput)
+                            }
+                        }
+                    }
+                    AppFAB {
+                        tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
+                    }
+
+                }
+            }
         },
         snackbarHost = {
             SnackbarHost(
@@ -573,7 +647,7 @@ fun TaskCard(
                             .background(MaterialTheme.colorScheme.onTertiary)
                     ) {
                         Text(
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                             text = task.category.name,
                             color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 14.sp
@@ -604,8 +678,6 @@ fun TaskCard(
                                 DateFormatter.formatDate(deadline)
                             }
                         }
-
-
                         Text(
                             text = taskTime,
                             fontWeight = FontWeight.W400,
@@ -622,6 +694,7 @@ fun TaskCard(
 @Composable
 fun AppFAB(
     modifier: Modifier = Modifier,
+    iconId: Int = R.drawable.ic_add,
     onClick: () -> Unit
 ) {
     FloatingActionButton(
@@ -631,7 +704,7 @@ fun AppFAB(
         onClick = onClick
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_add),
+            painter = painterResource(iconId),
             contentDescription = "Add"
         )
     }
@@ -754,7 +827,7 @@ fun CategoryChips(
     categories: List<GoalCategory>,
     selectedCategory: GoalCategory,
     onClick: (String) -> Unit
-){
+) {
     LazyVerticalGrid(
         modifier = Modifier
             .fillMaxWidth()
@@ -794,5 +867,106 @@ fun CategoryChips(
                 )
             )
         }
+    }
+}
+
+@Composable
+fun VoiceInputFAB(
+    isRecording: Boolean,
+    onToggleRecording: (Boolean) -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    var longPressActive by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isPressed) {
+        if (isPressed && !longPressActive) {
+            delay(100)
+            onToggleRecording(true)
+            longPressActive = true
+        } else if (!isPressed && longPressActive) {
+            onToggleRecording(false)
+            longPressActive = false
+        }
+    }
+    FloatingActionButton(
+        modifier = Modifier
+            .semantics(mergeDescendants = true) {},
+        interactionSource = interactionSource,
+        containerColor = if (isRecording) MaterialTheme.colorScheme.surfaceDim else MaterialTheme.colorScheme.tertiary,
+        contentColor = Color.White,
+        onClick = { }
+    ) {
+        if (isRecording) {
+            RecordingAnimation()
+        } else {
+            Icon(
+                painter = painterResource(R.drawable.ic_mic),
+                contentDescription = "Voice input"
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun RecordingAnimation() {
+    var visible by remember { mutableStateOf(true) }
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0.3f,
+        label = "micAlpha"
+    )
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(800)
+            visible = !visible
+        }
+    }
+    Icon(
+        painter = painterResource(R.drawable.ic_mic),
+        contentDescription = "Recording",
+        modifier = Modifier.alpha(alpha)
+    )
+}
+
+@Composable
+fun SpeechPanel(
+    modifier: Modifier = Modifier,
+) {
+    var visible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1500)
+            visible = !visible
+        }
+    }
+
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0.5f,
+        animationSpec = tween(durationMillis = 1500)
+    )
+    Box(
+        modifier = modifier
+            .width(160.dp)
+            .height(100.dp)
+            .background(
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                shape = RoundedCornerShape(24.dp)
+            )
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceTint),
+                RoundedCornerShape(24.dp)
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = stringResource(R.string.speak),
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = alpha)
+        )
     }
 }

@@ -1,5 +1,6 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
@@ -12,6 +13,8 @@ import com.example.habitflow.domain.usecases.tasks.DeleteTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.EditTaskUseCase
 import com.example.habitflow.domain.usecases.tasks.GetTasksUseCase
 import com.example.habitflow.domain.usecases.tasks.ReturnTaskUseCase
+import com.example.habitflow.domain.usecases.voice.StartVoiceRecordingUseCase
+import com.example.habitflow.domain.usecases.voice.StopRecordingUseCase
 import com.example.habitflow.presentation.screens.tasks.TimeEntity
 import com.example.habitflow.presentation.utils.groupBySection
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,6 +37,8 @@ class TasksViewModel @Inject constructor(
     private val returnTaskUseCase: ReturnTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val onTaskCompletedUseCase: OnTaskCompletedUseCase,
+    private val startVoiceRecordingUseCase: StartVoiceRecordingUseCase,
+    private val stopRecordingUseCase: StopRecordingUseCase,
     private val workManager: WorkManager
 ) : ViewModel() {
 
@@ -49,6 +54,7 @@ class TasksViewModel @Inject constructor(
     private val _bottomSheetEvents = MutableSharedFlow<BottomSheetEvent>()
     val bottomSheetEvents
         get() = _bottomSheetEvents.asSharedFlow()
+
 
 
     init {
@@ -82,6 +88,31 @@ class TasksViewModel @Inject constructor(
 
     fun processCommand(command: TasksCommand) {
         when (command) {
+            is TasksCommand.StartVoiceInput -> {
+                _state.update {
+                    it.copy(isVoiceRecording = true)
+                }
+                viewModelScope.launch {
+                    try {
+//                        startVoiceRecordingUseCase()
+                    } catch (e: Exception) {
+                        _state.update {
+                            it.copy(isVoiceRecording = false)
+                        }
+                    }
+                }
+            }
+            is TasksCommand.StopVoiceInput->{
+                _state.update {
+                    it.copy(isVoiceRecording = false)
+                }
+                viewModelScope.launch {
+//                    stopRecordingUseCase()
+                }
+                Log.d("TasksViewModel", "recording stopped!")
+            }
+
+
             is TasksCommand.InputDate -> {
                 _state.update {
                     it.copy(date = command.date)
@@ -266,6 +297,7 @@ class TasksViewModel @Inject constructor(
             is TasksCommand.InputCategoryName -> {
                 _state.update { it.copy(newCategoryName = command.name) }
             }
+
         }
     }
 }
