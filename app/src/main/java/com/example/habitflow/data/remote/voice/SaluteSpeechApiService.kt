@@ -12,7 +12,7 @@ interface SaluteSpeechApiService {
 
     @Headers(
         "Accept: application/json",
-        "Content-Type: audio/mpeg"
+        "Content-Type: audio/x-pcm"
     )
     @POST("rest/v1/speech:recognize")
     suspend fun recognizeSpeech(

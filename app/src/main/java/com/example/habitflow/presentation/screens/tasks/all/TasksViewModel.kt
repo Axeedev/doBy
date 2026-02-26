@@ -73,6 +73,7 @@ class TasksViewModel @Inject constructor(
                 VoiceToTaskWorker.VOICE_RECOGNIZE_WORKER_TAG
             ).collect { workInfos ->
                 workInfos.forEach { workInfo ->
+                    Log.d("TasksViewModel", workInfo.state.name)
                     if (workInfo.state != WorkInfo.State.SUCCEEDED && workInfo.state != WorkInfo.State.FAILED) {
                         _state.update {
                             it.copy(isRefreshLoading = true)
@@ -111,7 +112,6 @@ class TasksViewModel @Inject constructor(
                 viewModelScope.launch {
                     stopRecordingUseCase()
                 }
-                Log.d("TasksViewModel", "recording stopped!")
             }
 
 

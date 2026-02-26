@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.habitflow.data.remote.Models
 import com.example.habitflow.data.remote.Prompts
 import com.example.habitflow.data.remote.summary.ChatApiService
 import com.example.habitflow.data.remote.summary.dtos.ChatRequest
@@ -40,24 +41,18 @@ class VoiceToTaskWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
 
         return try {
-            val tempFile = File(context.cacheDir, "sample.mp3")
-            assetManager.open("sample.mp3").use {inputStream ->
-                tempFile.outputStream().use { output ->
-                    inputStream.copyTo(output)
-                }
-            }
-
-//                recorder?.stop()
-//                recorder?.release()
-//                recorder = null
-
-//            if (!audioFile.exists()) throw Exception("Файл не найден")
-//
-//            val audioBytes = audioFile.readBytes()
+//            val tempFile = File(context.cacheDir, "sample.mp3")
+//            assetManager.open("sample.mp3").use {inputStream ->
+//                tempFile.outputStream().use { output ->
+//                    inputStream.copyTo(output)
+//                }
+//            }
+            val filePath = inputData.getString(FILE_PATH) ?: return Result.failure()
+            val tempFile = File(filePath)
 
 
             val audioBody = tempFile.asRequestBody(
-                contentType = "audio/mpeg".toMediaType(),
+                contentType = "audio/x-pcm".toMediaType(),
             )
 
             val speechToken = tokenManager.getValidSpeechAccessToken()
@@ -77,7 +72,7 @@ class VoiceToTaskWorker @AssistedInject constructor(
             val summaryResponse = chatApiService.getSummary(
                 authorization = "Bearer $chatToken",
                 chatRequest = ChatRequest(
-                    model = "GigaChat-2-Max",
+                    model = Models.GIGACHAT_BASIC,
                     messages = listOf(
                         Message(
                             role = "user",
@@ -120,5 +115,6 @@ class VoiceToTaskWorker @AssistedInject constructor(
     }
     companion object{
         const val VOICE_RECOGNIZE_WORKER_TAG = "voice recognize"
+        const val FILE_PATH = "file_path"
     }
 }
