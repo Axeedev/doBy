@@ -1,6 +1,6 @@
 package com.example.habitflow.data.calendar
 
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.Category
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
 
@@ -17,6 +17,6 @@ fun CalendarEvent.toTask() = Task(
     title = title,
     deadlineMillis = startMillis,
     note = description,
-    category = GoalCategory(GoalCategory.CALENDAR_NAME),
+    category = Category(Category.CALENDAR_NAME),
     priority = Priority.LOW
 )

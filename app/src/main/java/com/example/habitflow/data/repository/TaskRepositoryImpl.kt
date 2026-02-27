@@ -89,15 +89,20 @@ class TaskRepositoryImpl @Inject constructor(
 
 
     private fun adjustTaskDeadline(deadlineMillis: Long?): Long? {
+
         return deadlineMillis?.let { deadline ->
+
             val now = System.currentTimeMillis()
+
             if (deadline < now) {
                 val instant = Instant.ofEpochMilli(deadline)
                 val timeOfDeadline = LocalDateTime.ofInstant(
                     instant,
                     ZoneId.systemDefault()
                 )
+
                 val localTime = LocalDateTime.now()
+
                 if (timeOfDeadline.hour > localTime.hour) {
                     val localDateNow = LocalDate.now()
                         .atStartOfDay()

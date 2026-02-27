@@ -4,7 +4,7 @@ import com.example.habitflow.domain.AuthResult
 
 interface AuthRepository {
 
-    suspend fun signInWithGoogle() : Boolean
+    suspend fun signInWithGoogle() : AuthResult
 
     suspend fun signInWithEmailAndPassword(
         email: String,

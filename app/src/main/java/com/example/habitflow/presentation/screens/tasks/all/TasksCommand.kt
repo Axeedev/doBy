@@ -1,6 +1,6 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.Category
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.presentation.screens.tasks.TaskDeadlineSection
@@ -17,7 +17,7 @@ sealed interface TasksCommand {
 
     data class InputDescription(val description: String) : TasksCommand
 
-    data class ChangeCategory(val taskCategory: GoalCategory) : TasksCommand
+    data class ChangeCategory(val taskCategory: Category) : TasksCommand
 
     data class ChangePriority(val priority: Priority) : TasksCommand
 
@@ -44,9 +44,8 @@ sealed interface TasksCommand {
 
     data object CloseBottomSheet : TasksCommand
 
-
-
     object StartVoiceInput : TasksCommand
+
     object StopVoiceInput : TasksCommand
 
 }

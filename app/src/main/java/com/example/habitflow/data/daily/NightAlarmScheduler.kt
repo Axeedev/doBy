@@ -10,8 +10,6 @@ import com.example.habitflow.domain.entities.settings.NotificationTime
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -40,11 +38,6 @@ class NightAlarmScheduler @Inject constructor(
                     add(Calendar.DAY_OF_YEAR, 1)
                 }
             }
-            val instant = calendarNight.toInstant()
-            val a = LocalDateTime.ofInstant(
-                instant,
-                ZoneId.systemDefault()
-            )
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     if (alarmManager?.canScheduleExactAlarms() == true) {

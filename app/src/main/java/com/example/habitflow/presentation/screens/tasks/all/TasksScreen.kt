@@ -4,7 +4,6 @@ package com.example.habitflow.presentation.screens.tasks.all
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -53,6 +52,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -88,7 +88,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.Category
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.presentation.screens.goals.create.AppTextField
@@ -96,6 +96,7 @@ import com.example.habitflow.presentation.screens.goals.create.CreateGoalTextFie
 import com.example.habitflow.presentation.screens.goals.create.CreateOrEditButton
 import com.example.habitflow.presentation.screens.tasks.DatePickerModal
 import com.example.habitflow.presentation.screens.tasks.TaskDeadlineSection
+import com.example.habitflow.presentation.screens.tasks.TimeEntity
 import com.example.habitflow.presentation.screens.tasks.TimePickerDial
 import com.example.habitflow.presentation.utils.DateFormatter
 import com.example.habitflow.presentation.utils.DateFormatter.formatTime
@@ -112,8 +113,25 @@ fun TasksScreen(
     onGoToAchievementClick: () -> Unit,
     onOpenMenuClick: () -> Unit
 ) {
-    val context = LocalContext.current
 
+    val state by tasksViewModel.state.collectAsState()
+
+    TasksScreenContent(
+        tasksViewModel = tasksViewModel,
+        state = state,
+        onGoToAchievementClick = onGoToAchievementClick,
+        onOpenMenuClick = onOpenMenuClick
+    )
+}
+
+@Composable
+fun TasksScreenContent(
+    tasksViewModel: TasksViewModel = hiltViewModel(),
+    state: TasksScreenState,
+    onGoToAchievementClick: () -> Unit,
+    onOpenMenuClick: () -> Unit
+) {
+    val context = LocalContext.current
 
     var hasPermission by remember {
         mutableStateOf(
@@ -130,367 +148,77 @@ fun TasksScreen(
         hasPermission = isGranted
     }
 
-
-    val state by tasksViewModel.state.collectAsState()
-
-
-    var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        tasksViewModel.unlockEvent.collect { event ->
+        tasksViewModel.snackbarEvents.collect { event ->
             when (event) {
-                AchievementEvent.AchievementUnlocked -> {
+                SnackbarEvent.SnackbarUnlocked -> {
                     snackbarHostState.showSnackbar(
                         message = "",
                         withDismissAction = true,
                         duration = SnackbarDuration.Short
                     )
                 }
-            }
-        }
-    }
-    LaunchedEffect(Unit) {
-        tasksViewModel.bottomSheetEvents.collect { event ->
-            when (event) {
-                BottomSheetEvent.CloseSheet -> {
-                    showBottomSheet = false
-                }
 
-                BottomSheetEvent.OpenSheet -> {
-                    showBottomSheet = true
-                }
-            }
-        }
-    }
-
-    if (showBottomSheet) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                tasksViewModel.processCommand(TasksCommand.CloseBottomSheet)
-            },
-            containerColor = MaterialTheme.colorScheme.background,
-            sheetState = sheetState
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .weight(1f),
-                        text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(
-                            R.string.edit_task
-                        ),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    val taskId = state.taskId
-                    if (taskId != null && state.goalCategory.name != GoalCategory.CALENDAR_NAME) {
-                        Icon(
-                            modifier = Modifier
-                                .padding(end = 16.dp)
-                                .clip(CircleShape)
-                                .clickable {
-                                    tasksViewModel.processCommand(TasksCommand.DeleteTask(taskId))
-                                },
-                            painter = painterResource(R.drawable.ic_delete),
-                            contentDescription = "Delete task"
-                        )
-                    }
-                }
-                CreateGoalTextFieldWithTitle(
-                    value = state.title,
-                    fieldTitle = stringResource(R.string.task_name_field),
-                    placeholderText = stringResource(R.string.task_name_placeholder),
-                    onValueChange = {
-                        tasksViewModel.processCommand(TasksCommand.InputTitle(it))
-                    }
-                )
-
-                var isDatePickerOpened by remember { mutableStateOf(false) }
-                var isTimePickerOpened by remember { mutableStateOf(false) }
-                if (isDatePickerOpened) {
-                    DatePickerModal(
-                        onDateSelected = {
-                            it?.let { date ->
-                                tasksViewModel.processCommand(
-                                    TasksCommand.InputDate(date)
-                                )
-                            }
-
-                        }
-                    ) {
-                        isDatePickerOpened = false
-                    }
-                }
-                if (isTimePickerOpened) {
-                    TimePickerDial(
-                        onConfirm = {
-                            tasksViewModel.processCommand(
-                                TasksCommand.InputDeadline(it)
-                            )
-                        }
-                    ) {
-                        isTimePickerOpened = false
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    AppTextField(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable {
-                                isDatePickerOpened = true
-                            },
-                        leadingIconId = R.drawable.ic_calendar_today,
-                        placeholderText = stringResource(R.string.select_date_field),
-                        value = state.date?.let {
-                            DateFormatter.formatDate(it)
-                        } ?: ""
-                    )
-                    val deadline = state.remindAtMinutesOfDay
-                    AppTextField(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .weight(1f)
-                            .clickable {
-                                isTimePickerOpened = true
-                            },
-                        leadingIconId = R.drawable.ic_calendar,
-                        placeholderText = stringResource(R.string.set_time_field),
-                        value = deadline?.formatTime() ?: ""
+                SnackbarEvent.SpeechRecognizingError -> {
+                    snackbarHostState.showSnackbar(
+                        message = "An error has occurred in speech recognizing. Try again",
+                        withDismissAction = false,
+                        duration = SnackbarDuration.Short
                     )
                 }
-                CreateGoalTextFieldWithTitle(
-                    value = state.description,
-                    fieldTitle = stringResource(R.string.tasks_description_field),
-                    placeholderText = stringResource(R.string.tasks_description_placeholder),
-                    minLines = 4
-                ) {
-                    tasksViewModel.processCommand(TasksCommand.InputDescription(it))
-                }
 
-                var isDialogOpened by remember { mutableStateOf(false) }
+                SnackbarEvent.VoiceRecordError -> {
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.category_field)
-                    )
-                    Button(
-                        onClick = {
-                            isDialogOpened = true
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_add),
-                            contentDescription = "add category",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                        Text(
-                            text = stringResource(R.string.add_your_category),
-                        )
-                    }
-
-                }
-
-                if (isDialogOpened) {
-                    AddCategoryDialog(
-                        categoryName = state.newCategoryName,
-                        isAddCategoryButtonEnabled = state.isAddCategoryButtonEnabled,
-                        onDismiss = {
-                            isDialogOpened = false
-                        },
-                        onValueChange = {
-                            tasksViewModel.processCommand(TasksCommand.InputCategoryName(it))
-                        },
-                    ) {
-                        tasksViewModel.processCommand(TasksCommand.AddNewCategory(it))
-                        isDialogOpened = false
-                    }
-                }
-                CategoryChips(
-                    categories = state.categories,
-                    selectedCategory = state.goalCategory
-                ) {
-                    tasksViewModel.processCommand(TasksCommand.ChangeCategory(GoalCategory(it)))
-                }
-
-
-                Text(
-                    text = stringResource(R.string.priority_field)
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Priority.entries.forEach { priority ->
-                        FilterChip(
-                            selected = state.priority == priority,
-                            onClick = {
-                                tasksViewModel.processCommand(TasksCommand.ChangePriority(priority))
-                            },
-                            label = {
-                                Text(
-                                    text = priority.title,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                                )
-                            },
-                            shape = CircleShape,
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.tertiary,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryFixedVariant,
-                                containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            )
-                        )
-                    }
-                }
-                CreateOrEditButton(
-                    isSaveButtonEnabled = state.isButtonEnabled,
-                    text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(
-                        R.string.save_changes_button
-                    )
-                ) {
-                    tasksViewModel.processCommand(TasksCommand.AddTask)
-                    scope.launch {
-                        sheetState.hide()
-                    }
                 }
             }
         }
     }
+    if (state.showBottomSheet) {
+        AddTaskBottomSheet(
+            tasksViewModel = tasksViewModel,
+            sheetState = sheetState,
+            state = state
+        )
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.primary,
         floatingActionButton = {
-            val offsetY by animateDpAsState(
-                targetValue = if (state.isVoiceRecording) 0.dp else 200.dp,
-                animationSpec = tween(300, easing = FastOutSlowInEasing)
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                SpeechPanel(
-                    modifier = Modifier
-                        .offset(y = offsetY)
-                        .padding(end = 24.dp)
-                )
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    VoiceInputFAB(
-                        isRecording = state.isVoiceRecording
-                    ) { isRecording ->
-                        if (!hasPermission) {
-                            Log.d("Tasks Screen", "no permission")
-                            launcher.launch(Manifest.permission.RECORD_AUDIO)
+            TasksScreenFAB(
+                isVoiceRecording = state.isVoiceRecording,
+                onToggleRecording = {isRecording ->
+                    if (!hasPermission) {
+                        launcher.launch(Manifest.permission.RECORD_AUDIO)
+                    } else {
+                        if (isRecording) {
+                            tasksViewModel.processCommand(TasksCommand.StartVoiceInput)
                         } else {
-                            Log.d("Tasks Screen", "has permission")
-                            if (isRecording) {
-                                tasksViewModel.processCommand(TasksCommand.StartVoiceInput)
-                            } else {
-                                tasksViewModel.processCommand(TasksCommand.StopVoiceInput)
-                            }
+                            tasksViewModel.processCommand(TasksCommand.StopVoiceInput)
                         }
                     }
-                    AppFAB {
-                        tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
-                    }
-
                 }
+            ) {
+                tasksViewModel.processCommand(TasksCommand.ClickButtonAddTask)
             }
         },
         snackbarHost = {
-            SnackbarHost(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
-                hostState = snackbarHostState
-            ) { _ ->
-                Snackbar(
-                    modifier = Modifier,
-                    action = {
-                        Button(
-                            onClick = {
-                                onGoToAchievementClick()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent,
-                                contentColor = Color(0xFF007AFF)
-                            )
-                        ) {
-                            Text(
-                                text = stringResource(R.string.go_to_achievements),
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    },
-                    containerColor = Color(0xFFF5F9FF),
-                    contentColor = Color(0xFF2F3F53),
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text(
-                        text = stringResource(R.string.new_achievement_unlocked),
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+            TasksScreenSnackbar(
+                snackbarHostState = snackbarHostState
+            ) {
+                onGoToAchievementClick()
             }
         },
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                title = {
-                    Text(
-                        modifier = Modifier
-                            .padding(start = 16.dp),
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        text = stringResource(R.string.my_tasks_screen)
-                    )
-                },
-                navigationIcon = {
-                    Icon(
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                onOpenMenuClick()
-                            },
-                        painter = painterResource(R.drawable.ic_menu),
-                        contentDescription = "open menu",
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
-                },
-                actions = {
-                    if (state.isRefreshLoading) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onPrimaryFixed
-                        )
-                    }
-                }
-            )
+            TasksScreenTopAppBar(
+                isRefreshLoading = state.isRefreshLoading
+            ) {
+                onOpenMenuClick()
+            }
         }
     ) { paddingValues ->
         Column(
@@ -505,57 +233,14 @@ fun TasksScreen(
                 TaskDeadlineSection.entries.forEach { taskDeadlineSection ->
                     val tasks = state.tasksMapSections[taskDeadlineSection].orEmpty()
                     item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = stringResource(taskDeadlineSection.titleId),
-                                    color = if (tasks.isNotEmpty()) MaterialTheme.colorScheme.onPrimary
-                                    else MaterialTheme.colorScheme.onPrimaryFixed,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                if (tasks.isNotEmpty()) {
-                                    Text(
-                                        text = pluralStringResource(
-                                            R.plurals.tasks_count,
-                                            tasks.size,
-                                            tasks.size
-                                        ),
-                                        fontWeight = FontWeight.Medium,
-                                        color = MaterialTheme.colorScheme.onPrimaryFixed
-                                    )
-                                }
-                            }
-                        }
+                        TaskSectionInfo(
+                            taskDeadlineSection = taskDeadlineSection,
+                            isTasksEmpty = tasks.isNotEmpty(),
+                            tasksSize = tasks.size
+                        )
+
                         if (state.tasksMapSections.isEmpty() && taskDeadlineSection == TaskDeadlineSection.TODAY) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(
-                                    modifier = Modifier.size(100.dp),
-                                    painter = painterResource(R.drawable.ic_no_tasks),
-                                    contentDescription = "no tasks",
-                                    tint = MaterialTheme.colorScheme.onPrimaryFixed
-                                )
-                                Text(
-                                    text = stringResource(R.string.no_tasks_scheduled),
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 20.sp,
-                                    color = MaterialTheme.colorScheme.onPrimaryFixed
-                                )
-                            }
+                            EmptyTasksForToday()
                         }
 
                     }
@@ -588,7 +273,467 @@ fun TasksScreen(
 
         }
     }
+}
 
+
+@Composable
+fun EmptyTasksForToday() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            modifier = Modifier.size(100.dp),
+            painter = painterResource(R.drawable.ic_no_tasks),
+            contentDescription = "no tasks",
+            tint = MaterialTheme.colorScheme.onPrimaryFixed
+        )
+        Text(
+            text = stringResource(R.string.no_tasks_scheduled),
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 20.sp,
+            color = MaterialTheme.colorScheme.onPrimaryFixed
+        )
+    }
+}
+
+@Composable
+fun TaskSectionInfo(
+    taskDeadlineSection: TaskDeadlineSection,
+    isTasksEmpty: Boolean,
+    tasksSize: Int
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(taskDeadlineSection.titleId),
+                color = if (isTasksEmpty) MaterialTheme.colorScheme.onPrimary
+                else MaterialTheme.colorScheme.onPrimaryFixed,
+                fontWeight = FontWeight.SemiBold
+            )
+            if (isTasksEmpty) {
+                Text(
+                    text = pluralStringResource(
+                        R.plurals.tasks_count,
+                        tasksSize,
+                        tasksSize
+                    ),
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onPrimaryFixed
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun TasksScreenFAB(
+    isVoiceRecording: Boolean,
+    onToggleRecording: (Boolean) -> Unit,
+    onFabClick: () -> Unit
+) {
+    val offsetY by animateDpAsState(
+        targetValue = if (isVoiceRecording) 0.dp else 200.dp,
+        animationSpec = tween(300, easing = FastOutSlowInEasing)
+    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SpeechPanel(
+            modifier = Modifier
+                .offset(y = offsetY)
+                .padding(end = 24.dp)
+        )
+        Column(
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            VoiceInputFAB(
+                isRecording = isVoiceRecording
+            ) { isRecording ->
+                onToggleRecording(isRecording)
+            }
+            AppFAB {
+                onFabClick()
+            }
+        }
+    }
+}
+
+@Composable
+fun TasksScreenSnackbar(
+    snackbarHostState: SnackbarHostState,
+    onButtonClick: () -> Unit
+) {
+    SnackbarHost(
+        modifier = Modifier
+            .padding(horizontal = 16.dp),
+        hostState = snackbarHostState
+    ) { snackbarData ->
+        Snackbar(
+            modifier = Modifier,
+            action = {
+                Button(
+                    onClick = {
+                        onButtonClick()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color(0xFF007AFF)
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.go_to_achievements),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            },
+            containerColor = Color(0xFFF5F9FF),
+            contentColor = Color(0xFF2F3F53),
+            shape = RoundedCornerShape(12.dp),
+        ) {
+            Text(
+                text = snackbarData.visuals.message.ifEmpty { stringResource(R.string.new_achievement_unlocked) },
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+
+@Composable
+fun AddTaskBottomSheet(
+    modifier: Modifier = Modifier,
+    tasksViewModel: TasksViewModel,
+    sheetState: SheetState,
+    state: TasksScreenState,
+) {
+
+    val scope = rememberCoroutineScope()
+
+    ModalBottomSheet(
+        modifier = modifier,
+        onDismissRequest = {
+            tasksViewModel.processCommand(TasksCommand.CloseBottomSheet)
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+        sheetState = sheetState
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+
+            BottomSheetTitle(
+                taskId = state.taskId,
+                category = state.category
+            ) { id ->
+                id?.let {
+                    tasksViewModel.processCommand(TasksCommand.DeleteTask(it))
+                }
+            }
+
+            CreateGoalTextFieldWithTitle(
+                value = state.title,
+                fieldTitle = stringResource(R.string.task_name_field),
+                placeholderText = stringResource(R.string.task_name_placeholder),
+                onValueChange = {
+                    tasksViewModel.processCommand(TasksCommand.InputTitle(it))
+                }
+            )
+
+            var isDatePickerOpened by remember { mutableStateOf(false) }
+            var isTimePickerOpened by remember { mutableStateOf(false) }
+            if (isDatePickerOpened) {
+                DatePickerModal(
+                    onDateSelected = {
+                        it?.let { date ->
+                            tasksViewModel.processCommand(
+                                TasksCommand.InputDate(date)
+                            )
+                        }
+                    }
+                ) {
+                    isDatePickerOpened = false
+                }
+            }
+            if (isTimePickerOpened) {
+                TimePickerDial(
+                    onConfirm = {
+                        tasksViewModel.processCommand(
+                            TasksCommand.InputDeadline(it)
+                        )
+                    }
+                ) {
+                    isTimePickerOpened = false
+                }
+            }
+
+            DateTimeFields(
+                date = state.date,
+                deadline = state.remindAtMinutesOfDay,
+                onDateFieldClick = {
+                    isDatePickerOpened = true
+                }
+            ) {
+                isTimePickerOpened = true
+            }
+
+            CreateGoalTextFieldWithTitle(
+                value = state.description,
+                fieldTitle = stringResource(R.string.tasks_description_field),
+                placeholderText = stringResource(R.string.tasks_description_placeholder),
+                minLines = 4
+            ) {
+                tasksViewModel.processCommand(TasksCommand.InputDescription(it))
+            }
+
+            var isDialogOpened by remember { mutableStateOf(false) }
+
+            CategoryChooseContent { isDialogOpened = true }
+
+            if (isDialogOpened) {
+                AddCategoryDialog(
+                    categoryName = state.newCategoryName,
+                    isAddCategoryButtonEnabled = state.isAddCategoryButtonEnabled,
+                    onDismiss = {
+                        isDialogOpened = false
+                    },
+                    onValueChange = {
+                        tasksViewModel.processCommand(TasksCommand.InputCategoryName(it))
+                    },
+                ) {
+                    tasksViewModel.processCommand(TasksCommand.AddNewCategory(it))
+                    isDialogOpened = false
+                }
+            }
+
+            CategoryChips(
+                categories = state.categories,
+                selectedCategory = state.category
+            ) {
+                tasksViewModel.processCommand(TasksCommand.ChangeCategory(Category(it)))
+            }
+
+
+            Text(
+                text = stringResource(R.string.priority_field)
+            )
+
+            PriorityChips(
+                selectedPriority = state.priority
+            ) { priority ->
+                tasksViewModel.processCommand(TasksCommand.ChangePriority(priority))
+            }
+
+            CreateOrEditButton(
+                isSaveButtonEnabled = state.isButtonEnabled,
+                text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(
+                    R.string.save_changes_button
+                )
+            ) {
+                tasksViewModel.processCommand(TasksCommand.AddTask)
+                scope.launch {
+                    sheetState.hide()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TasksScreenTopAppBar(
+    isRefreshLoading: Boolean,
+    onOpenMenuClick: () -> Unit
+) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+        title = {
+            Text(
+                modifier = Modifier
+                    .padding(start = 16.dp),
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimary,
+                text = stringResource(R.string.my_tasks_screen)
+            )
+        },
+        navigationIcon = {
+            Icon(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        onOpenMenuClick()
+                    },
+                painter = painterResource(R.drawable.ic_menu),
+                contentDescription = "open menu",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        },
+        actions = {
+            if (isRefreshLoading) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onPrimaryFixed
+                )
+            }
+        }
+    )
+}
+
+
+@Composable
+fun BottomSheetTitle(
+    taskId: Int?,
+    category: Category,
+    onDeleteClick: (Int?) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier
+                .weight(1f),
+            text = if (taskId == null) stringResource(R.string.create_new_task) else stringResource(
+                R.string.edit_task
+            ),
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+        val taskId = taskId
+        if (taskId != null && category.name != Category.CALENDAR_NAME) {
+            Icon(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        onDeleteClick(taskId)
+                    },
+                painter = painterResource(R.drawable.ic_delete),
+                contentDescription = "Delete task"
+            )
+        }
+    }
+}
+
+@Composable
+fun DateTimeFields(
+    date: Long?,
+    deadline: TimeEntity?,
+    onDateFieldClick: () -> Unit,
+    onTimeClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        AppTextField(
+            modifier = Modifier
+                .weight(1f)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable {
+                    onDateFieldClick()
+                },
+            leadingIconId = R.drawable.ic_calendar_today,
+            placeholderText = stringResource(R.string.select_date_field),
+            value = date?.let {
+                DateFormatter.formatDate(it)
+            } ?: ""
+        )
+        AppTextField(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .weight(1f)
+                .clickable {
+                    onTimeClick()
+                },
+            leadingIconId = R.drawable.ic_calendar,
+            placeholderText = stringResource(R.string.set_time_field),
+            value = deadline?.formatTime() ?: ""
+        )
+    }
+}
+
+
+@Composable
+fun PriorityChips(
+    modifier: Modifier = Modifier,
+    selectedPriority: Priority,
+    onPriorityClick: (Priority) -> Unit
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Priority.entries.forEach { priority ->
+            FilterChip(
+                selected = selectedPriority == priority,
+                onClick = {
+                    onPriorityClick(priority)
+                },
+                label = {
+                    Text(
+                        text = priority.title,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                },
+                shape = CircleShape,
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.tertiary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryFixedVariant,
+                    containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    disabledContainerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            )
+        }
+    }
+}
+
+
+@Composable
+fun CategoryChooseContent(
+    onButtonClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.category_field)
+        )
+        Button(
+            onClick = onButtonClick,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_add),
+                contentDescription = "add category",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+            Text(
+                text = stringResource(R.string.add_your_category),
+            )
+        }
+    }
 }
 
 
@@ -821,8 +966,8 @@ fun AddCategoryDialog(
 
 @Composable
 fun CategoryChips(
-    categories: List<GoalCategory>,
-    selectedCategory: GoalCategory,
+    categories: List<Category>,
+    selectedCategory: Category,
     onClick: (String) -> Unit
 ) {
     LazyVerticalGrid(

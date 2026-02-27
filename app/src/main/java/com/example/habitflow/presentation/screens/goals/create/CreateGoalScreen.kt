@@ -61,7 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.example.habitflow.R
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.Category
 import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.presentation.screens.goals.OpenReason
 import com.example.habitflow.presentation.screens.tasks.DatePickerModal
@@ -81,6 +81,23 @@ fun CreateGoalScreen(
     onFinished: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+
+    CreateGoalContent(
+        state = state,
+        viewModel = viewModel,
+        openReason = openReason,
+        onFinished = onFinished
+    )
+
+}
+
+@Composable
+fun CreateGoalContent(
+    state: CreateGoalScreenState,
+    viewModel: CreateGoalViewModel,
+    openReason: OpenReason,
+    onFinished: () -> Unit
+){
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -190,11 +207,11 @@ fun CreateGoalScreen(
 
                 CategoryChips(
                     categories = state.categories,
-                    selectedCategory = state.goalCategory
+                    selectedCategory = state.category
                 ) {
                     viewModel.processCommand(
                         CreateGoalCommand.ChangeGoalCategory(
-                            GoalCategory(
+                            Category(
                                 it
                             )
                         )
@@ -310,6 +327,7 @@ fun CreateGoalScreen(
 
     }
 }
+
 
 @Composable
 fun MilestoneCard(

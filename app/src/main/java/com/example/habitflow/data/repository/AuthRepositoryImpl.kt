@@ -12,7 +12,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
 ) : AuthRepository {
 
-    override suspend fun signInWithGoogle(): Boolean {
+    override suspend fun signInWithGoogle(): AuthResult {
         return googleAuthClient.signIn()
     }
 
@@ -20,7 +20,7 @@ class AuthRepositoryImpl @Inject constructor(
 
         return try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            return AuthResult.Success
+            AuthResult.Success
         }
         catch (e: Throwable){
             AuthResult.Failure(e)
@@ -29,6 +29,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun signUpWithEmailAndPassword(email: String, password: String): AuthResult {
+
         return try {
             firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             return AuthResult.Success

@@ -97,7 +97,6 @@ class NotificationsProvider @Inject constructor(
             .setContentIntent(pendingIntent)
             .setContentText("${context.getString(R.string.notifications_tasks_completed)} $todaysTasksSize")
             .build()
-        Log.d("showTodaysTasksNotification", notification.toString())
         notificationManager?.notify(NOTIFICATION_ID, notification)
     }
 
@@ -113,7 +112,6 @@ class NotificationsProvider @Inject constructor(
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()
-        Log.d("showTodaysTasksNotification", notification.toString())
         notificationManager?.notify(NOTIFICATION_ID, notification)
     }
 

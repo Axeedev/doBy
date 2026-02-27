@@ -1,13 +1,13 @@
 package com.example.habitflow.presentation.screens.goals.create
 
 import android.net.Uri
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.Category
 
 sealed interface CreateGoalCommand {
 
     data class InputTitle(val title: String) : CreateGoalCommand
 
-    data class ChangeGoalCategory(val category: GoalCategory) : CreateGoalCommand
+    data class ChangeGoalCategory(val category: Category) : CreateGoalCommand
 
     data class ChooseEndDate(val endDate: Long) : CreateGoalCommand
 

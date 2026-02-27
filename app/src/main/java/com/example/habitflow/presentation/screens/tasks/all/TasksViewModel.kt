@@ -1,12 +1,12 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.habitflow.data.background.VoiceToTaskWorker
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.VoiceRecordResult
+import com.example.habitflow.domain.entities.Category
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.usecases.achievements.OnTaskCompletedUseCase
 import com.example.habitflow.domain.usecases.tasks.AddTaskToCompletedUseCase
@@ -49,38 +49,50 @@ class TasksViewModel @Inject constructor(
     val state
         get() = _state.asStateFlow()
 
-    private val _unlockEvents = MutableSharedFlow<AchievementEvent>()
-    val unlockEvent
-        get() = _unlockEvents.asSharedFlow()
-
-    private val _bottomSheetEvents = MutableSharedFlow<BottomSheetEvent>()
-    val bottomSheetEvents
-        get() = _bottomSheetEvents.asSharedFlow()
+    private val _snackbarEvents = MutableSharedFlow<SnackbarEvent>()
+    val snackbarEvents
+        get() = _snackbarEvents.asSharedFlow()
 
 
 
     init {
         viewModelScope.launch {
-            getTasksUseCase().collect { tasks ->
-                _state.update { previousState ->
-                    val mapTasks = tasks.groupBySection(ZoneId.systemDefault())
-                    previousState.copy(tasksMapSections = mapTasks)
-                }
-            }
+            subscribeTasks()
         }
         viewModelScope.launch {
-            workManager.getWorkInfosByTagFlow(
-                VoiceToTaskWorker.VOICE_RECOGNIZE_WORKER_TAG
-            ).collect { workInfos ->
-                workInfos.forEach { workInfo ->
-                    Log.d("TasksViewModel", workInfo.state.name)
-                    if (workInfo.state != WorkInfo.State.SUCCEEDED && workInfo.state != WorkInfo.State.FAILED) {
-                        _state.update {
-                            it.copy(isRefreshLoading = true)
-                        }
-                    } else {
+            subscribeWorkInfo()
+        }
+    }
+
+    private suspend fun subscribeTasks() {
+        getTasksUseCase().collect { tasks ->
+            _state.update { previousState ->
+                val mapTasks = tasks.groupBySection(ZoneId.systemDefault())
+                previousState.copy(tasksMapSections = mapTasks)
+            }
+        }
+    }
+
+    private suspend fun subscribeWorkInfo() {
+        workManager.getWorkInfosByTagFlow(
+            VoiceToTaskWorker.VOICE_RECOGNIZE_WORKER_TAG
+        ).collect { workInfos ->
+            workInfos.forEach { workInfo ->
+
+                when(workInfo.state){
+                    WorkInfo.State.FAILED -> {
                         _state.update {
                             it.copy(isRefreshLoading = false)
+                        }
+                    }
+                    WorkInfo.State.SUCCEEDED ->{
+                        _state.update {
+                            it.copy(isRefreshLoading = false)
+                        }
+                    }
+                    else -> {
+                        _state.update {
+                            it.copy(isRefreshLoading = true)
                         }
                     }
                 }
@@ -90,22 +102,13 @@ class TasksViewModel @Inject constructor(
 
     fun processCommand(command: TasksCommand) {
         when (command) {
-            is TasksCommand.StartVoiceInput -> {
-                _state.update {
-                    it.copy(isVoiceRecording = true)
-                }
+            TasksCommand.StartVoiceInput -> {
                 viewModelScope.launch {
-                    try {
-                        startVoiceRecordingUseCase()
-                    } catch (e: Exception) {
-                        _state.update {
-                            e.printStackTrace()
-                            it.copy(isVoiceRecording = false)
-                        }
-                    }
+                    startVoiceInput()
                 }
             }
-            is TasksCommand.StopVoiceInput->{
+
+            is TasksCommand.StopVoiceInput -> {
                 _state.update {
                     it.copy(isVoiceRecording = false)
                 }
@@ -141,43 +144,14 @@ class TasksViewModel @Inject constructor(
 
             is TasksCommand.ChangeCategory -> {
                 _state.update {
-                    it.copy(goalCategory = command.taskCategory)
+                    it.copy(category = command.taskCategory)
                 }
             }
 
             TasksCommand.AddTask -> {
+                _state.update { it.copy(showBottomSheet = false) }
                 viewModelScope.launch {
-                    val finalTask = _state.value
-                    val deadlineMillis = finalTask.date?.let { date ->
-                        finalTask.remindAtMinutesOfDay?.let {
-                            combineDateAndTime(date, it.hours, it.minutes)
-                        } ?: combineDateAndTime(date, 18, 0)
-                    }
-                    if (finalTask.taskId == null) {
-                        addTaskUseCase(
-                            Task(
-                                id = 0,
-                                title = finalTask.title,
-                                deadlineMillis = deadlineMillis,
-                                note = finalTask.description,
-                                category = finalTask.goalCategory,
-                                priority = finalTask.priority
-                            )
-                        )
-                    } else {
-                        editTaskUseCase(
-                            Task(
-                                id = finalTask.taskId,
-                                title = finalTask.title,
-                                deadlineMillis = deadlineMillis,
-                                note = finalTask.description,
-                                category = finalTask.goalCategory,
-                                priority = finalTask.priority
-                            )
-                        )
-                    }
-
-                    _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
+                    addTask()
                 }
             }
 
@@ -188,110 +162,42 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.ClickCompleteTask -> {
-                if (command.task.category.name != GoalCategory.CALENDAR_NAME) {
-                    _state.update { previous ->
-                        val previousList = previous.tasksMapSections[command.taskDeadlineSection]
-                            .orEmpty()
-                            .map { oldTask ->
-                                if (oldTask == command.task) {
-                                    oldTask.copy(isCompleted = true)
-                                } else oldTask
-                            }
-                        val newMap = previous.tasksMapSections.toMutableMap()
-                        newMap[command.taskDeadlineSection] = previousList
-                        previous.copy(tasksMapSections = newMap)
-                    }
-                    viewModelScope.launch {
-                        if (command.task.isCompleted) {
-                            returnTaskUseCase(command.task.id)
-                        } else {
-                            addTaskToCompletedUseCase(command.task.id)
-                        }
-                        val isAchieveUnlocked = if (!command.task.isReturned) {
-                            onTaskCompletedUseCase()
-                        } else false
-                        if (isAchieveUnlocked) {
-                            _unlockEvents.emit(AchievementEvent.AchievementUnlocked)
-                        }
-                    }
+                viewModelScope.launch {
+                    clickCompleteTask(command)
                 }
             }
 
             is TasksCommand.ClickTask -> {
-                if (command.task.category.name != GoalCategory.CALENDAR_NAME) {
-
-                    viewModelScope.launch {
-                        _bottomSheetEvents.emit(BottomSheetEvent.OpenSheet)
-                    }
-                    _state.update { previous ->
-                        val zonedDateTime = command.task.deadlineMillis?.let { date ->
-                            Instant.ofEpochMilli(date)
-                                .atZone(ZoneId.systemDefault())
-                        }
-                        val date =
-                            zonedDateTime?.toLocalDate()?.atStartOfDay(ZoneId.systemDefault())
-                                ?.toInstant()?.toEpochMilli()
-                        val timeHour = zonedDateTime?.toLocalTime()?.hour
-                        val timeMinute = zonedDateTime?.toLocalTime()?.minute
-                        val remind = timeMinute?.let { minute ->
-                            timeHour?.let { hour ->
-                                TimeEntity(hour, minute)
-                            }
-                        }
-
-                        val taskCategory = command.task.category
-
-                        val newList = GoalCategory.defaultCategories + taskCategory
-
-                        previous.copy(
-                            taskId = command.task.id,
-                            title = command.task.title,
-                            date = date,
-                            remindAtMinutesOfDay = remind,
-                            description = command.task.note,
-                            priority = command.task.priority,
-                            goalCategory = command.task.category,
-                            categories = newList,
-                            buttonText = "Confirm"
-                        )
-                    }
-                }
-
+                clickTask(command)
             }
 
             TasksCommand.ClickButtonAddTask -> {
-                viewModelScope.launch { _bottomSheetEvents.emit(BottomSheetEvent.OpenSheet) }
                 _state.update {
                     TasksScreenState(
-                        tasksMapSections = it.tasksMapSections
+                        tasksMapSections = it.tasksMapSections,
+                        showBottomSheet = true
                     )
                 }
             }
 
             is TasksCommand.DeleteTask -> {
                 viewModelScope.launch {
-                    launch {
-                        deleteTaskUseCase(command.taskId)
-                    }
-                    launch {
-                        _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
-                    }
+                    deleteTaskUseCase(command.taskId)
+                    _state.update { it.copy(showBottomSheet = false) }
                 }
             }
 
             TasksCommand.CloseBottomSheet -> {
-                viewModelScope.launch {
-                    _bottomSheetEvents.emit(BottomSheetEvent.CloseSheet)
-                }
+                _state.update { it.copy(showBottomSheet = false) }
             }
 
             is TasksCommand.AddNewCategory -> {
                 _state.update {
-                    val newList = GoalCategory.defaultCategories + GoalCategory(command.categoryName)
+                    val newList = Category.defaultCategories + Category(command.categoryName)
                     it.copy(
                         categories = newList,
                         newCategoryName = "",
-                        goalCategory = newList.last()
+                        category = newList.last()
                     )
                 }
             }
@@ -299,9 +205,120 @@ class TasksViewModel @Inject constructor(
             is TasksCommand.InputCategoryName -> {
                 _state.update { it.copy(newCategoryName = command.name) }
             }
-
         }
     }
+
+    private suspend fun startVoiceInput() {
+        _state.update {
+            it.copy(isVoiceRecording = true)
+        }
+        val recordResult = startVoiceRecordingUseCase()
+        if(recordResult is VoiceRecordResult.Error){
+            _state.update { it.copy(isVoiceRecording = false) }
+            _snackbarEvents.emit(SnackbarEvent.VoiceRecordError)
+        }
+    }
+
+    private suspend fun addTask() {
+        val finalTask = _state.value
+        val deadlineMillis = finalTask.date?.let { date ->
+            finalTask.remindAtMinutesOfDay?.let {
+                combineDateAndTime(date, it.hours, it.minutes)
+            } ?: combineDateAndTime(date, 18, 0)
+        }
+        if (finalTask.taskId == null) {
+            addTaskUseCase(
+                Task(
+                    id = 0,
+                    title = finalTask.title,
+                    deadlineMillis = deadlineMillis,
+                    note = finalTask.description,
+                    category = finalTask.category,
+                    priority = finalTask.priority
+                )
+            )
+        } else {
+            editTaskUseCase(
+                Task(
+                    id = finalTask.taskId,
+                    title = finalTask.title,
+                    deadlineMillis = deadlineMillis,
+                    note = finalTask.description,
+                    category = finalTask.category,
+                    priority = finalTask.priority
+                )
+            )
+        }
+    }
+
+    private suspend fun clickCompleteTask(
+        command: TasksCommand.ClickCompleteTask
+    ) {
+        if (command.task.category.name != Category.CALENDAR_NAME) {
+            _state.update { previous ->
+                val previousList = previous.tasksMapSections[command.taskDeadlineSection]
+                    .orEmpty()
+                    .map { oldTask ->
+                        if (oldTask == command.task) {
+                            oldTask.copy(isCompleted = true)
+                        } else oldTask
+                    }
+                val newMap = previous.tasksMapSections.toMutableMap()
+                newMap[command.taskDeadlineSection] = previousList
+                previous.copy(tasksMapSections = newMap)
+            }
+            if (command.task.isCompleted) {
+                returnTaskUseCase(command.task.id)
+            } else {
+                addTaskToCompletedUseCase(command.task.id)
+            }
+            val isAchieveUnlocked = if (!command.task.isReturned) {
+                onTaskCompletedUseCase()
+            } else false
+            if (isAchieveUnlocked) {
+                _snackbarEvents.emit(SnackbarEvent.SnackbarUnlocked)
+            }
+        }
+    }
+
+    private fun clickTask(command: TasksCommand.ClickTask){
+        if (command.task.category.name != Category.CALENDAR_NAME) {
+            _state.update { previous ->
+                val zonedDateTime = command.task.deadlineMillis?.let { date ->
+                    Instant.ofEpochMilli(date)
+                        .atZone(ZoneId.systemDefault())
+                }
+                val date =
+                    zonedDateTime?.toLocalDate()?.atStartOfDay(ZoneId.systemDefault())
+                        ?.toInstant()?.toEpochMilli()
+                val timeHour = zonedDateTime?.toLocalTime()?.hour
+                val timeMinute = zonedDateTime?.toLocalTime()?.minute
+                val remind = timeMinute?.let { minute ->
+                    timeHour?.let { hour ->
+                        TimeEntity(hour, minute)
+                    }
+                }
+
+                val taskCategory = command.task.category
+
+                val newList = Category.defaultCategories + taskCategory
+
+                previous.copy(
+                    taskId = command.task.id,
+                    title = command.task.title,
+                    date = date,
+                    remindAtMinutesOfDay = remind,
+                    description = command.task.note,
+                    priority = command.task.priority,
+                    category = command.task.category,
+                    categories = newList,
+                    buttonText = "Confirm",
+                    showBottomSheet = true
+                )
+            }
+        }
+    }
+
 }
 
 fun combineDateAndTime(

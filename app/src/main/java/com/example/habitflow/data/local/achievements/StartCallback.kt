@@ -38,7 +38,12 @@ class StartCallback @Inject constructor (
     }
 
     private suspend fun addStartAchievements(){
-        val startAchievements = listOf(
+        val startAchievements = getStartAchievements()
+        databaseProvider.get().achievementsDao().insertAchievements(startAchievements)
+    }
+
+    private fun getStartAchievements(): List<AchievementEntity>{
+        return listOf(
             AchievementEntity(
                 id = 1,
                 titleId = R.string.achievement_first_blood,
@@ -174,6 +179,6 @@ class StartCallback @Inject constructor (
                 achievementType = AchievementType.GOALS_COMPLETED
             )
         )
-        databaseProvider.get().achievementsDao().insertAchievements(startAchievements)
     }
+
 }

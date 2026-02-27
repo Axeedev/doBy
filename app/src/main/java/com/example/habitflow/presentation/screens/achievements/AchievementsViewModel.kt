@@ -36,16 +36,20 @@ class AchievementsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(
-                flow = subscribeFilterChips(),
-                flow2 = getCurrentStreakUseCase()
-            ){
-                achievements, streak ->
-                achievements to streak
-            }.collect { (achievements, streak) ->
-                _state.update { it.copy(achievements = achievements, currentStreak = streak) }
+            init()
+        }
+    }
 
-            }
+    private suspend fun init(){
+        combine(
+            flow = subscribeFilterChips(),
+            flow2 = getCurrentStreakUseCase()
+        ){
+                achievements, streak ->
+            achievements to streak
+        }.collect { (achievements, streak) ->
+            _state.update { it.copy(achievements = achievements, currentStreak = streak) }
+
         }
     }
 

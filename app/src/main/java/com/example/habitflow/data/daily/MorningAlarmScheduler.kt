@@ -21,13 +21,16 @@ class MorningAlarmScheduler @Inject constructor(
         val morningNotificationTime = getSettingsUseCase().first().morningInfoTime
 
         if (morningNotificationTime is NotificationTime) {
+
             val intent = MorningAlarmReceiver.newIntent(context)
+
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 0,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
+
             val calendarMorning = Calendar.getInstance().apply {
                 timeInMillis = System.currentTimeMillis()
                 set(Calendar.HOUR_OF_DAY, 8)
@@ -37,6 +40,7 @@ class MorningAlarmScheduler @Inject constructor(
                     add(Calendar.DAY_OF_YEAR, 1)
                 }
             }
+
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     if (alarmManager?.canScheduleExactAlarms() == true) {

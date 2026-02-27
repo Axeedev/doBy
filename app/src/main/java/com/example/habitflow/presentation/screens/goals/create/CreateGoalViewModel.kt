@@ -4,7 +4,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.habitflow.domain.entities.goals.Goal
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.Category
 import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.domain.usecases.goals.AddGoalUseCase
 import com.example.habitflow.domain.usecases.goals.CompleteGoalUseCase
@@ -34,19 +34,23 @@ class CreateGoalViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
-            taskId?.let { id ->
-                val goal = getGoalByIdUseCase(id)
-                _state.value = CreateGoalScreenState(
-                    goalId = id,
-                    title = goal.title,
-                    coverUri = goal.coverUri?.toUri(),
-                    goalCategory = goal.category,
-                    description = goal.description,
-                    startDate = goal.goalStartDate,
-                    endDate = goal.goalEndDate,
-                    milestones = goal.milestones
-                )
-            }
+            init()
+        }
+    }
+
+    private suspend fun init(){
+        taskId?.let { id ->
+            val goal = getGoalByIdUseCase(id)
+            _state.value = CreateGoalScreenState(
+                goalId = id,
+                title = goal.title,
+                coverUri = goal.coverUri?.toUri(),
+                category = goal.category,
+                description = goal.description,
+                startDate = goal.goalStartDate,
+                endDate = goal.goalEndDate,
+                milestones = goal.milestones
+            )
         }
     }
 
@@ -54,7 +58,7 @@ class CreateGoalViewModel @AssistedInject constructor(
         when(command) {
             is CreateGoalCommand.ChangeGoalCategory -> {
                 _state.update { previous ->
-                    previous.copy(goalCategory = command.category)
+                    previous.copy(category = command.category)
                 }
             }
             is CreateGoalCommand.ChooseEndDate -> {
@@ -72,18 +76,7 @@ class CreateGoalViewModel @AssistedInject constructor(
             }
             CreateGoalCommand.ClickCreateGoal -> {
                 viewModelScope.launch {
-                    val currentState = _state.value
-                    val goal = Goal(
-                        id = 0,
-                        category = currentState.goalCategory,
-                        title = currentState.title,
-                        description = currentState.description,
-                        goalStartDate = currentState.startDate,
-                        goalEndDate = currentState.endDate,
-                        milestones = currentState.milestones,
-                        coverUri = currentState.coverUri?.toString()
-                    )
-                    addGoalUseCase(goal)
+                    clickCreateGoal()
                 }
             }
             is CreateGoalCommand.InputDescription -> {
@@ -92,19 +85,7 @@ class CreateGoalViewModel @AssistedInject constructor(
                 }
             }
             is CreateGoalCommand.InputMilestoneTitle -> {
-                _state.update {previous ->
-                    val milestoneToEdit = previous.milestones[command.index].copy(
-                        title = command.title
-                    )
-                    val newList = previous.milestones.mapIndexed { index, milestone ->
-                        if (index == command.index){
-                            milestoneToEdit
-                        }else{
-                            milestone
-                        }
-                    }
-                    previous.copy(milestones = newList)
-                }
+                inputMilestoneTitle(command = command)
             }
             is CreateGoalCommand.InputTitle -> {
                 _state.update { previous ->
@@ -134,30 +115,12 @@ class CreateGoalViewModel @AssistedInject constructor(
             }
 
             is CreateGoalCommand.ChangeMilestoneCompletedStatusAt -> {
-                _state.update {previous ->
-                    val newList = previous.milestones.mapIndexed {index, milestone ->
-                        if (index == command.index){
-                            milestone.copy(isCompleted = !milestone.isCompleted)
-                        }else milestone
-                    }
-                    previous.copy(milestones = newList)
-                }
+                changeMilestoneStatus(command)
             }
 
             CreateGoalCommand.ClickUpdateGoal -> {
                 viewModelScope.launch {
-                    val currentState = _state.value
-                    val goal = Goal(
-                        id = currentState.goalId ?: 0,
-                        category = currentState.goalCategory,
-                        title = currentState.title,
-                        description = currentState.description,
-                        goalStartDate = currentState.startDate,
-                        goalEndDate = currentState.endDate,
-                        milestones = currentState.milestones,
-                        coverUri = currentState.coverUri?.toString()
-                    )
-                    updateGoalUseCase(goal)
+                    updateGoal()
                 }
             }
 
@@ -170,15 +133,7 @@ class CreateGoalViewModel @AssistedInject constructor(
                 }
             }
             is CreateGoalCommand.AddNewCategory -> {
-                _state.update {
-                    val newList = it.categories.toMutableList()
-                    newList.add(GoalCategory(command.categoryName))
-                    it.copy(
-                        categories = newList,
-                        goalCategory = newList.last(),
-                        isAddCategoryDialogOpened = false
-                    )
-                }
+                addNewCategory(command)
             }
 
             is CreateGoalCommand.InputCategoryName -> {
@@ -205,6 +160,75 @@ class CreateGoalViewModel @AssistedInject constructor(
                     it.copy(isCompleteDialogOpened = true)
                 }
             }
+        }
+    }
+
+    private suspend fun updateGoal(){
+        val currentState = _state.value
+        val goal = Goal(
+            id = currentState.goalId ?: 0,
+            category = currentState.category,
+            title = currentState.title,
+            description = currentState.description,
+            goalStartDate = currentState.startDate,
+            goalEndDate = currentState.endDate,
+            milestones = currentState.milestones,
+            coverUri = currentState.coverUri?.toString()
+        )
+        updateGoalUseCase(goal)
+    }
+
+    private fun changeMilestoneStatus(command: CreateGoalCommand.ChangeMilestoneCompletedStatusAt){
+        _state.update {previous ->
+            val newList = previous.milestones.mapIndexed {index, milestone ->
+                if (index == command.index){
+                    milestone.copy(isCompleted = !milestone.isCompleted)
+                }else milestone
+            }
+            previous.copy(milestones = newList)
+        }
+    }
+
+    private fun inputMilestoneTitle(command: CreateGoalCommand.InputMilestoneTitle){
+        _state.update {previous ->
+            val milestoneToEdit = previous.milestones[command.index].copy(
+                title = command.title
+            )
+            val newList = previous.milestones.mapIndexed { index, milestone ->
+                if (index == command.index){
+                    milestoneToEdit
+                }else{
+                    milestone
+                }
+            }
+            previous.copy(milestones = newList)
+        }
+    }
+
+    private suspend fun clickCreateGoal(){
+        val currentState = _state.value
+        val goal = Goal(
+            id = 0,
+            title = currentState.title,
+            category = currentState.category,
+            description = currentState.description,
+            goalStartDate = currentState.startDate,
+            goalEndDate = currentState.endDate,
+            milestones = currentState.milestones,
+            coverUri = currentState.coverUri?.toString()
+        )
+        addGoalUseCase(goal)
+    }
+
+    private fun addNewCategory(command: CreateGoalCommand.AddNewCategory){
+        _state.update {
+            val newList = it.categories.toMutableList()
+            newList.add(Category(command.categoryName))
+            it.copy(
+                categories = newList,
+                category = newList.last(),
+                isAddCategoryDialogOpened = false
+            )
         }
     }
 

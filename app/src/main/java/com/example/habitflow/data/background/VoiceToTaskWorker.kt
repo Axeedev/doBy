@@ -13,7 +13,7 @@ import com.example.habitflow.data.remote.summary.dtos.SummaryResponse
 import com.example.habitflow.data.remote.tokens.TokenManager
 import com.example.habitflow.data.remote.voice.SaluteSpeechApiService
 import com.example.habitflow.data.utils.parseToMillis
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.Category
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.domain.usecases.tasks.AddTaskUseCase
@@ -99,18 +99,20 @@ class VoiceToTaskWorker @AssistedInject constructor(
                             title = taskDto.title,
                             deadlineMillis = deadlineMillis,
                             note = "",
-                            category = GoalCategory(taskDto.category),
+                            category = Category(taskDto.category),
                             priority = Priority.LOW
                         )
                     )
                 }
             }
+            tempFile.delete()
 
             Result.success()
 
         }catch (e: Exception){
             e.printStackTrace()
-            if (runAttemptCount >= 3) Result.failure() else Result.retry()
+            Result.failure()
+
         }
     }
     companion object{

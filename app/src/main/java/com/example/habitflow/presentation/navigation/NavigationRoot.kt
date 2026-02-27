@@ -53,9 +53,12 @@ import kotlinx.coroutines.launch
 fun NavigationRoot() {
 
     val startDestination = if (FirebaseAuth.getInstance().currentUser == null) Screen.Login else Tasks
+
     val backStack = rememberNavBackStack(startDestination)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
     val scope = rememberCoroutineScope()
+
     val screens = listOf(
         ScreensForDrawer(Tasks, R.drawable.ic_task_app),
         ScreensForDrawer(Goals, R.drawable.ic_goal),
@@ -63,6 +66,7 @@ fun NavigationRoot() {
         ScreensForDrawer(Screen.Analytics, R.drawable.ic_analytics)
     )
     val currentScreen = backStack.lastOrNull()
+
     ModalNavigationDrawer(
         gesturesEnabled = currentScreen != Screen.Login && currentScreen != Screen.Signup && currentScreen != Screen.Analytics,
         drawerState = drawerState,

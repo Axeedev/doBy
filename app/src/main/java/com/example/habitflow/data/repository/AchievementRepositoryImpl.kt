@@ -178,7 +178,6 @@ class AchievementRepositoryImpl @Inject constructor(
             dailyCount = todayCompletedCount
         )
 
-
         return isEarlyBirdUnlocked || isNightOwlUnlocked || isMarathonUnlocked || isMondayWarriorUnlocked
     }
 

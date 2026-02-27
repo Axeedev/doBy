@@ -27,16 +27,22 @@ class TaskReminder @Inject constructor(
         val intent = TaskDeadlineReceiver.newIntent(context).apply {
             putExtra(TASK_ID, taskId)
         }
+
         val settings = getSettingsUseCase().first()
+
         val remindBefore = settings.sendNotificationBeforeDeadline.beforeMinutes.toLong()
+
         val reminderBeforeMillis = TimeUnit.MINUTES.toMillis(remindBefore)
+
         val remindTime = deadline - reminderBeforeMillis
+
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             taskId.toInt(),
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+
         alarmManager?.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             remindTime,

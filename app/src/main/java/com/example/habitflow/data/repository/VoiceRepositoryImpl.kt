@@ -11,6 +11,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.example.habitflow.data.background.VoiceToTaskWorker
+import com.example.habitflow.domain.VoiceRecordResult
 import com.example.habitflow.domain.repository.VoiceRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -35,8 +36,8 @@ class VoiceRepositoryImpl @Inject constructor(
 
 
     @RequiresPermission(android.Manifest.permission.RECORD_AUDIO)
-    override suspend fun startRecording() {
-        withContext(Dispatchers.IO) {
+    override suspend fun startRecording(): VoiceRecordResult {
+        return withContext(Dispatchers.IO) {
             try {
                 if (audioFile.exists()) audioFile.delete()
 
@@ -73,8 +74,9 @@ class VoiceRepositoryImpl @Inject constructor(
                     }
                     outputStream.close()
                 }
-            } catch (e: Exception) {
-                throw Exception("Ошибка записи: ${e.message}")
+                VoiceRecordResult.Success
+            } catch (_: Exception) {
+                VoiceRecordResult.Error
             }
         }
     }

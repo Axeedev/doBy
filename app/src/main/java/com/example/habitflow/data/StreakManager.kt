@@ -31,8 +31,6 @@ class StreakManager @Inject constructor(
         context.dataStore.edit { prefs ->
             val lastDateStr = prefs[lastDateKey]
             val currentStreak = prefs[streakKey] ?: 0
-
-            Log.d("getCurrentStreak", lastDateStr ?: "empty last date")
             if (lastDateStr == today) {
                 return@edit
             }

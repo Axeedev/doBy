@@ -1,6 +1,6 @@
 package com.example.habitflow.presentation.screens.tasks.all
 
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.Category
 import com.example.habitflow.domain.entities.tasks.Priority
 import com.example.habitflow.domain.entities.tasks.Task
 import com.example.habitflow.presentation.screens.tasks.TaskDeadlineSection
@@ -14,12 +14,13 @@ data class TasksScreenState(
     val remindAtMinutesOfDay: TimeEntity? = null,
     val description: String = "",
     val priority: Priority = Priority.LOW,
-    val goalCategory: GoalCategory = GoalCategory.defaultCategories.first(),
+    val category: Category = Category.defaultCategories.first(),
     val buttonText: String = "Create task",
     val isRefreshLoading: Boolean = false,
-    val categories: List<GoalCategory> = GoalCategory.defaultCategories,
+    val categories: List<Category> = Category.defaultCategories,
     val newCategoryName: String = "",
     val isVoiceRecording: Boolean = false,
+    val showBottomSheet: Boolean = false,
 ) {
     val isButtonEnabled
         get() = title.trim().isNotEmpty()

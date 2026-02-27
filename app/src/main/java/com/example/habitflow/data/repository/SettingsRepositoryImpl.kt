@@ -66,7 +66,6 @@ class SettingsRepositoryImpl @Inject constructor(
                 showCalendarEvents = showCalendarEvents,
                 isDarkTheme = isDarkTheme
             )
-
         }
     }
 

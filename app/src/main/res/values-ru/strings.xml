@@ -117,7 +117,7 @@
     <string name="achievement_speedster">Сверхзвук</string>
     <string name="achievement_speedster_description">"Выполнить задачу менее чем через 5 минут после её создания "</string>
     <string name="achievement_first_blood">Первая кровь</string>
-    <string name="auth_welcome_back">С возвращением</string>
+    <string name="auth_welcome_back">С возвращением!</string>
     <string name="auth_get_started">Приступим прямо сейчас!</string>
     <string name="auth_email_address_field">Адрес электронной почты</string>
     <string name="auth_email_address_field_placeholder">Введите email</string>

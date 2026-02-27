@@ -57,32 +57,25 @@ fun RecentlyCompletedScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
+    RecentlyCompletedContent(
+        viewModel = viewModel,
+        state = state,
+        onBackClick = onBackClick
+
+    )
+}
+
+
+@Composable
+fun RecentlyCompletedContent(
+    viewModel: CompletedTasksViewModel,
+    state: CompletedTasksScreenState,
+    onBackClick: () -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.primary,
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                title = {
-                    Text(
-                        text = stringResource(R.string.recently_completed_screen),
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                },
-                navigationIcon = {
-                    Icon(
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .clip(CircleShape)
-                            .clickable { onBackClick() },
-                        painter = painterResource(R.drawable.ic_arrow_back),
-                        contentDescription = "go back"
-                    )
-                }
-            )
+            RecentlyCompletedAppBar(onBackClick = onBackClick)
         }
     ) { paddingValues ->
         LazyColumn(
@@ -90,31 +83,9 @@ fun RecentlyCompletedScreen(
             contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
             if (state.completedTasks.isEmpty()) {
                 item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 40.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .size(120.dp),
-                            painter = painterResource(R.drawable.no_completed_yet),
-                            contentDescription = "no completed tasks yet",
-                            tint = MaterialTheme.colorScheme.onPrimaryFixed,
-                        )
-                        Spacer(Modifier.size(16.dp))
-                        Text(
-                            text = stringResource(R.string.no_completed_tasks_yet),
-                            color = MaterialTheme.colorScheme.onPrimaryFixed,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 20.sp
-                        )
-
-                    }
+                    NoTasksContent()
                 }
             } else {
                 itemsIndexed(items = state.completedTasks) { index, completedTask ->
@@ -133,6 +104,67 @@ fun RecentlyCompletedScreen(
                 }
             }
         }
+    }
+}
+
+
+@Composable
+fun RecentlyCompletedAppBar(
+    modifier: Modifier = Modifier,
+    onBackClick: () -> Unit
+){
+    TopAppBar(
+        modifier = modifier,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
+        title = {
+            Text(
+                text = stringResource(R.string.recently_completed_screen),
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        },
+        navigationIcon = {
+            Icon(
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .clip(CircleShape)
+                    .clickable { onBackClick() },
+                painter = painterResource(R.drawable.ic_arrow_back),
+                contentDescription = "go back"
+            )
+        }
+    )
+}
+
+
+@Composable
+fun NoTasksContent(
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(top = 40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            modifier = Modifier
+                .size(120.dp),
+            painter = painterResource(R.drawable.no_completed_yet),
+            contentDescription = "no completed tasks yet",
+            tint = MaterialTheme.colorScheme.onPrimaryFixed,
+        )
+        Spacer(Modifier.size(16.dp))
+        Text(
+            text = stringResource(R.string.no_completed_tasks_yet),
+            color = MaterialTheme.colorScheme.onPrimaryFixed,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 20.sp
+        )
+
     }
 }
 
@@ -207,7 +239,6 @@ fun CompletedTaskCard(
                             color = MaterialTheme.colorScheme.onPrimaryFixed
                         )
                     }
-
                 }
             }
         }

@@ -38,9 +38,19 @@ class AuthViewModel @Inject constructor(
     private suspend fun signInWithGoogle() {
         val isSignedIn = signInWithGoogleUseCase()
         _state.update {
-            it.copy(
-                isAuthSuccess = isSignedIn
-            )
+            when(isSignedIn){
+                is AuthResult.Failure -> {
+                    processAuthFailureResult(isSignedIn)
+                    it.copy(
+                        isAuthSuccess = false
+                    )
+                }
+                AuthResult.Success -> {
+                    it.copy(
+                        isAuthSuccess = false
+                    )
+                }
+            }
         }
     }
 
@@ -102,7 +112,48 @@ class AuthViewModel @Inject constructor(
             _state.update { it.copy(isPasswordError = true, isLoading = false) }
             return
         }
-        val authResult = when (authType) {
+
+        val authResult = getAuthResult(email, password, authType,)
+
+        when (authResult) {
+            is AuthResult.Failure -> {
+                _state.update { it.copy(isLoading = false) }
+                processAuthFailureResult(authResult)
+            }
+
+            AuthResult.Success -> {
+                _state.update { it.copy(isAuthSuccess = true) }
+            }
+        }
+    }
+
+    private suspend fun processAuthFailureResult(authResult: AuthResult.Failure){
+        when (authResult.exception) {
+            is FirebaseAuthInvalidCredentialsException -> {
+                _errorEvents.emit(ErrorEvent.InvalidErrorOrPassword("Invalid email or password."))
+            }
+
+            is FirebaseAuthInvalidUserException -> {
+                _errorEvents.emit(ErrorEvent.UserNotFound("User with given credentials not found"))
+            }
+
+            is FirebaseAuthUserCollisionException -> {
+                _errorEvents.emit(ErrorEvent.UserExists("User with given credentials already exists"))
+            }
+
+            else -> {
+                _errorEvents.emit(ErrorEvent.Other("Something went wrong. Check your Internet connection"))
+            }
+        }
+    }
+
+
+    private suspend fun getAuthResult(
+        email: String,
+        password: String,
+        authType: AuthType
+    ): AuthResult{
+        return when (authType) {
             AuthType.LOGIN -> {
                 signInWithEmailAndPasswordUseCase(email, password)
             }
@@ -111,34 +162,6 @@ class AuthViewModel @Inject constructor(
                 signUpWithEmailAndPasswordUseCase(email, password)
             }
         }
-        when (authResult) {
-            is AuthResult.Failure -> {
-                _state.update { it.copy(isLoading = false) }
-                when (authResult.exception) {
-                    is FirebaseAuthInvalidCredentialsException -> {
-                        _errorEvents.emit(ErrorEvent.InvalidErrorOrPassword("Invalid email or password."))
-                    }
-
-                    is FirebaseAuthInvalidUserException -> {
-                        _errorEvents.emit(ErrorEvent.UserNotFound("User with given credentials not found"))
-                    }
-
-                    is FirebaseAuthUserCollisionException -> {
-                        _errorEvents.emit(ErrorEvent.UserExists("User with given credentials already exists"))
-                    }
-
-                    else -> {
-                        _errorEvents.emit(ErrorEvent.Other("Something went wrong. Check your Internet connection"))
-                    }
-                }
-
-            }
-
-            AuthResult.Success -> {
-                _state.update { it.copy(isAuthSuccess = true) }
-            }
-        }
-
     }
 
     private suspend fun login(

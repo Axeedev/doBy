@@ -14,19 +14,28 @@ class DailyRemindManager @Inject constructor(
     private val notificationsProvider: NotificationsProvider
 ){
 
+    private fun getStartOfToday(startOfToday: LocalDateTime) : Long{
+        return startOfToday
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
+    }
+
+    private fun getEndOfToday(endOfToday: LocalDateTime) : Long{
+        return endOfToday
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
+    }
+
     suspend fun getNotificationAboutTodaysTasks(){
+
         val startOfToday = LocalDateTime.now()
         val endOfToday = LocalDate.now().atStartOfDay().plusDays(1)
 
-        val startOfTodayDayMillis = startOfToday
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-            .toEpochMilli()
+        val startOfTodayDayMillis = getStartOfToday(startOfToday)
 
-        val endOfDayMillis = endOfToday
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-            .toEpochMilli()
+        val endOfDayMillis = getEndOfToday(endOfToday)
 
         val countOfScheduledTasks = tasksDao.getCountOfScheduledTasksForPeriod(
             startOfTodayDayMillis,
@@ -36,25 +45,20 @@ class DailyRemindManager @Inject constructor(
     }
 
     suspend fun getNotificationAboutTodaysSummary(){
+
         val startOfToday = LocalDate.now().atStartOfDay()
         val endOfToday = LocalDate.now().atStartOfDay().plusDays(1)
 
-        val startOfTodayDayMillis = startOfToday
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-            .toEpochMilli()
+        val startOfTodayDayMillis = getStartOfToday(startOfToday)
 
-        val endOfDayMillis = endOfToday
-            .atZone(ZoneId.systemDefault())
-            .toInstant()
-            .toEpochMilli()
+        val endOfDayMillis = getEndOfToday(endOfToday)
 
-        val countOfScheduledTasks = completedTasksDao.getCountOfTasksForPeriod(
+        val countOfCompletedTasks = completedTasksDao.getCountOfTasksForPeriod(
             startOfTodayDayMillis,
             endOfDayMillis
         )
 
-        notificationsProvider.showTodaysCompletedTasksNotification(countOfScheduledTasks)
+        notificationsProvider.showTodaysCompletedTasksNotification(countOfCompletedTasks)
     }
 
 

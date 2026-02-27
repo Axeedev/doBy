@@ -29,23 +29,27 @@ class AnalyticsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(
-                flow = getDailyStatsUseCase(),
-                flow2 = getNumberOfCompletedTasksUseCase(),
-                flow3 = getWeeklyDifferencePercentageUseCase(),
-                flow4 = getCountOfCompletedTasksForWeekUseCase()
-            ) { stats, size, differencePercentage, countOfCompletedTasks ->
-                val pairs = stats.toWeeklyPairsFromDayBucket()
-                AnalyticsScreenState(
-                    dailyStats = pairs,
-                    heatMapStats = pairs,
-                    completedTasksOverall = size,
-                    completedTasksThisWeek = countOfCompletedTasks,
-                    percentageDiffPastWeek = differencePercentage
-                )
-            }.collect { state->
-                _state.value = state
-            }
+            init()
+        }
+    }
+
+    private suspend fun init(){
+        combine(
+            flow = getDailyStatsUseCase(),
+            flow2 = getNumberOfCompletedTasksUseCase(),
+            flow3 = getWeeklyDifferencePercentageUseCase(),
+            flow4 = getCountOfCompletedTasksForWeekUseCase()
+        ) { stats, size, differencePercentage, countOfCompletedTasks ->
+            val pairs = stats.toWeeklyPairsFromDayBucket()
+            AnalyticsScreenState(
+                dailyStats = pairs,
+                heatMapStats = pairs,
+                completedTasksOverall = size,
+                completedTasksThisWeek = countOfCompletedTasks,
+                percentageDiffPastWeek = differencePercentage
+            )
+        }.collect { state->
+            _state.value = state
         }
     }
 

@@ -15,23 +15,28 @@ import javax.inject.Inject
 class GoalsViewModel @Inject constructor(
     private val getGoalsUseCase: GetGoalsUseCase,
     private val deleteGoalUseCase: DeleteGoalUseCase
-): ViewModel(){
+) : ViewModel() {
     private val _state = MutableStateFlow(GoalsScreenState())
     val state
         get() = _state.asStateFlow()
 
     init {
         viewModelScope.launch {
-            getGoalsUseCase()
-                .collect { goals ->
-                    _state.update {
-                        it.copy(goals = goals)
-                    }
-                }
+            init()
         }
     }
-    fun processCommand(command: GoalsCommand){
-        when(command){
+
+    suspend fun init() {
+        getGoalsUseCase()
+            .collect { goals ->
+                _state.update {
+                    it.copy(goals = goals)
+                }
+            }
+    }
+
+    fun processCommand(command: GoalsCommand) {
+        when (command) {
             is GoalsCommand.DeleteCommand -> {
                 viewModelScope.launch {
                     deleteGoalUseCase(command.id)

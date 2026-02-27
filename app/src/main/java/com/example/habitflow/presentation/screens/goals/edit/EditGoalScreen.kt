@@ -10,7 +10,7 @@ import com.example.habitflow.presentation.screens.goals.create.CreateGoalViewMod
 fun EditGoalScreen(
     goalId: Int,
     viewModel: CreateGoalViewModel = hiltViewModel(
-        creationCallback = {factory: CreateGoalViewModel.ViewModelFactory ->
+        creationCallback = { factory: CreateGoalViewModel.ViewModelFactory ->
             factory.create(goalId)
         }
     ),

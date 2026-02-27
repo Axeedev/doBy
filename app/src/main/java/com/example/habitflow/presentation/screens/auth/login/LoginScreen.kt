@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.habitflow.R
 import com.example.habitflow.presentation.screens.auth.AuthCommand
+import com.example.habitflow.presentation.screens.auth.AuthScreenState
 import com.example.habitflow.presentation.screens.auth.AuthViewModel
 import com.example.habitflow.presentation.screens.auth.ErrorEvent
 import com.example.habitflow.presentation.screens.goals.create.CreateOrEditButton
@@ -67,6 +68,26 @@ fun LoginScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
+    AuthContent(
+        state = state,
+        viewModel = viewModel,
+        isLogin = isLogin,
+        onSuccessAuth = onSuccessAuth,
+        onSignupClick = onSignupClick,
+        onBackClick = onBackClick
+    )
+
+}
+
+@Composable
+fun AuthContent(
+    state: AuthScreenState,
+    viewModel: AuthViewModel,
+    isLogin: Boolean,
+    onSuccessAuth: () -> Unit,
+    onSignupClick: () -> Unit,
+    onBackClick: () -> Unit
+){
     if (state.isAuthSuccess){
         LaunchedEffect(Unit) {
             onSuccessAuth()
@@ -94,7 +115,6 @@ fun LoginScreen(
             }
         }
     }
-
 
     Scaffold(
         snackbarHost = {
@@ -135,8 +155,8 @@ fun LoginScreen(
 
         Column(
             modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
+                .fillMaxSize()
+                .padding(paddingValues)
         ) {
 
             Spacer(Modifier.weight(1f))
@@ -254,7 +274,7 @@ fun LoginScreen(
                     HorizontalDivider(
                         Modifier.weight(1f),
                         color = MaterialTheme.colorScheme.surfaceTint
-                        )
+                    )
                 }
 
                 Spacer(Modifier.size(16.dp))

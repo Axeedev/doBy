@@ -71,6 +71,23 @@ fun SettingsScreen(
     onBackClick: () -> Unit
 ) {
     val state by settingsViewModel.state.collectAsState()
+
+    SettingsContent(
+        settingsViewModel = settingsViewModel,
+        state = state,
+        onSingOut = onSingOut,
+        onBackClick = onBackClick
+    )
+
+}
+
+@Composable
+fun SettingsContent(
+    settingsViewModel: SettingsViewModel,
+    state: SettingsScreenState,
+    onSingOut: () -> Unit,
+    onBackClick: () -> Unit
+){
     if (state.isSignedOut) {
         LaunchedEffect(Unit) {
             onSingOut()

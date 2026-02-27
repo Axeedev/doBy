@@ -10,7 +10,7 @@ import com.example.habitflow.data.sync.CompletedTaskDto
 import com.example.habitflow.data.sync.TaskDto
 import com.example.habitflow.domain.entities.achievements.Achievement
 import com.example.habitflow.domain.entities.goals.Goal
-import com.example.habitflow.domain.entities.goals.GoalCategory
+import com.example.habitflow.domain.entities.Category
 import com.example.habitflow.domain.entities.goals.Milestone
 import com.example.habitflow.domain.entities.tasks.CompletedTask
 import com.example.habitflow.domain.entities.tasks.Priority
@@ -36,7 +36,7 @@ fun TaskEntity.toTask(): Task{
         title = title ,
         deadlineMillis = deadlineMillis,
         note = note,
-        category = GoalCategory(category),
+        category = Category(category),
         priority = Priority.valueOf(this.priority.uppercase()),
         isCompleted = isCompleted,
         isReturned = isReturned
@@ -76,7 +76,7 @@ fun Milestone.toMilestoneEntity(goalId: Long) : MilestoneEntity{
 fun GoalWithMilestoneEntity.toGoal(): Goal {
     return Goal(
         id = goalEntity.id,
-        category = GoalCategory(goalEntity.category),
+        category = Category(goalEntity.category),
         title = goalEntity.title,
         description = goalEntity.description,
         goalStartDate = goalEntity.startDate,
@@ -117,7 +117,7 @@ fun CompletedTaskEntity.toCompletedTask() : CompletedTask{
         title = title,
         deadlineMillis = deadlineMillis,
         note = note,
-        category = GoalCategory(category),
+        category = Category(category),
         priority = Priority.valueOf(priority.uppercase()),
         isCompleted = isCompleted,
         completionDate = completedAt

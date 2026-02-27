@@ -15,6 +15,7 @@ class TokenManager @Inject constructor(
     private val dataStore = context.tokenDataStore
 
     suspend fun getValidSpeechAccessToken(): String {
+
         val tokenData = dataStore.data.first()
 
         val now = System.currentTimeMillis()
