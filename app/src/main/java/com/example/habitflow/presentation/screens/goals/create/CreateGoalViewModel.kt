@@ -41,11 +41,14 @@ class CreateGoalViewModel @AssistedInject constructor(
     private suspend fun init(){
         taskId?.let { id ->
             val goal = getGoalByIdUseCase(id)
+            val categories = if (goal.category in Category.defaultCategories)
+                Category.defaultCategories else Category.defaultCategories + goal.category
             _state.value = CreateGoalScreenState(
                 goalId = id,
                 title = goal.title,
                 coverUri = goal.coverUri?.toUri(),
                 category = goal.category,
+                categories = categories,
                 description = goal.description,
                 startDate = goal.goalStartDate,
                 endDate = goal.goalEndDate,
@@ -125,8 +128,8 @@ class CreateGoalViewModel @AssistedInject constructor(
             }
 
             is CreateGoalCommand.ClickCompleteGoal -> {
+                _state.update { it.copy(isCompleteDialogOpened = false) }
                 viewModelScope.launch {
-                    _state.update { it.copy(isCompleteDialogOpened = false) }
                     completeGoalUseCase(
                         command.goalId,
                     )

@@ -512,17 +512,20 @@ fun CreateAndEditGoalScreenTopBar(
             )
         },
         actions = {
-            Icon(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .clip(CircleShape)
-                    .clickable {
-                        onCompleteGoalClick()
-                    },
-                painter = painterResource(R.drawable.ic_task_app),
-                contentDescription = "more options",
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
+            if (openReason == OpenReason.EDIT){
+                Icon(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .clip(CircleShape)
+                        .clickable {
+                            onCompleteGoalClick()
+                        },
+                    painter = painterResource(R.drawable.ic_task_app),
+                    contentDescription = "more options",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+
         }
     )
 }

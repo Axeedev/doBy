@@ -13,11 +13,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AnalyticsViewModelTest : BehaviorSpec({
@@ -41,7 +44,19 @@ class AnalyticsViewModelTest : BehaviorSpec({
         val overallCompleted = 100
         val weeklyDiff = 15
         val weeklyCount = 20
+        val zoneId = ZoneId.systemDefault()
+        val today = LocalDate.now(zoneId)
 
+        val bucket = today
+            .atStartOfDay(zoneId)
+            .toInstant()
+            .toEpochMilli() / 86400000 + 1
+
+        val fakeStats = mapOf(
+            bucket to 5
+        )
+
+        every { getDailyStatsUseCase() } returns flowOf(fakeStats)
         every { getNumberOfCompletedTasksUseCase() } returns flowOf(overallCompleted)
         every { getWeeklyDifferencePercentageUseCase() } returns flowOf(weeklyDiff)
         every { getCountOfCompletedTasksForWeekUseCase() } returns flowOf(weeklyCount)
@@ -57,6 +72,7 @@ class AnalyticsViewModelTest : BehaviorSpec({
             testDispatcher.scheduler.advanceUntilIdle()
 
             Then("state should contain data from flows") {
+
                 val state = viewModel.state.value
 
                 state.completedTasksOverall shouldBe overallCompleted
@@ -64,12 +80,12 @@ class AnalyticsViewModelTest : BehaviorSpec({
                 state.completedTasksThisWeek shouldBe weeklyCount
 
                 state.dailyStats.isNotEmpty() shouldBe true
-                state.dailyStats.first().second shouldBe 0
+                state.dailyStats.last().second shouldBe 5
             }
 
             Then("state should contain correct max value") {
                 val state = viewModel.state.value
-                state.maxValue shouldBe 1
+                state.maxValue shouldBe 5
             }
         }
 

@@ -20,7 +20,7 @@ import com.example.habitflow.data.local.tasks.TasksDao
         CompletedTaskEntity::class,
         AchievementEntity::class
     ],
-    version = 85,
+    version = 86,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
