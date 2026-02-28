@@ -54,7 +54,6 @@ class TasksViewModel @Inject constructor(
         get() = _snackbarEvents.asSharedFlow()
 
 
-
     init {
         viewModelScope.launch {
             subscribeTasks()
@@ -79,17 +78,19 @@ class TasksViewModel @Inject constructor(
         ).collect { workInfos ->
             workInfos.forEach { workInfo ->
 
-                when(workInfo.state){
+                when (workInfo.state) {
                     WorkInfo.State.FAILED -> {
                         _state.update {
                             it.copy(isRefreshLoading = false)
                         }
                     }
-                    WorkInfo.State.SUCCEEDED ->{
+
+                    WorkInfo.State.SUCCEEDED -> {
                         _state.update {
                             it.copy(isRefreshLoading = false)
                         }
                     }
+
                     else -> {
                         _state.update {
                             it.copy(isRefreshLoading = true)
@@ -103,6 +104,9 @@ class TasksViewModel @Inject constructor(
     fun processCommand(command: TasksCommand) {
         when (command) {
             TasksCommand.StartVoiceInput -> {
+                _state.update {
+                    it.copy(isVoiceRecording = true)
+                }
                 viewModelScope.launch {
                     startVoiceInput()
                 }
@@ -181,9 +185,9 @@ class TasksViewModel @Inject constructor(
             }
 
             is TasksCommand.DeleteTask -> {
+                _state.update { it.copy(showBottomSheet = false) }
                 viewModelScope.launch {
                     deleteTaskUseCase(command.taskId)
-                    _state.update { it.copy(showBottomSheet = false) }
                 }
             }
 
@@ -209,11 +213,8 @@ class TasksViewModel @Inject constructor(
     }
 
     private suspend fun startVoiceInput() {
-        _state.update {
-            it.copy(isVoiceRecording = true)
-        }
         val recordResult = startVoiceRecordingUseCase()
-        if(recordResult is VoiceRecordResult.Error){
+        if (recordResult is VoiceRecordResult.Error) {
             _state.update { it.copy(isVoiceRecording = false) }
             _snackbarEvents.emit(SnackbarEvent.VoiceRecordError)
         }
@@ -232,7 +233,7 @@ class TasksViewModel @Inject constructor(
                     id = 0,
                     title = finalTask.title,
                     deadlineMillis = deadlineMillis,
-                    note = finalTask.description,
+                    description = finalTask.description,
                     category = finalTask.category,
                     priority = finalTask.priority
                 )
@@ -243,7 +244,7 @@ class TasksViewModel @Inject constructor(
                     id = finalTask.taskId,
                     title = finalTask.title,
                     deadlineMillis = deadlineMillis,
-                    note = finalTask.description,
+                    description = finalTask.description,
                     category = finalTask.category,
                     priority = finalTask.priority
                 )
@@ -254,34 +255,21 @@ class TasksViewModel @Inject constructor(
     private suspend fun clickCompleteTask(
         command: TasksCommand.ClickCompleteTask
     ) {
-        if (command.task.category.name != Category.CALENDAR_NAME) {
-            _state.update { previous ->
-                val previousList = previous.tasksMapSections[command.taskDeadlineSection]
-                    .orEmpty()
-                    .map { oldTask ->
-                        if (oldTask == command.task) {
-                            oldTask.copy(isCompleted = true)
-                        } else oldTask
-                    }
-                val newMap = previous.tasksMapSections.toMutableMap()
-                newMap[command.taskDeadlineSection] = previousList
-                previous.copy(tasksMapSections = newMap)
-            }
-            if (command.task.isCompleted) {
-                returnTaskUseCase(command.task.id)
-            } else {
-                addTaskToCompletedUseCase(command.task.id)
-            }
-            val isAchieveUnlocked = if (!command.task.isReturned) {
-                onTaskCompletedUseCase()
-            } else false
-            if (isAchieveUnlocked) {
-                _snackbarEvents.emit(SnackbarEvent.SnackbarUnlocked)
-            }
+        if (command.task.isCompleted) {
+            returnTaskUseCase(command.task.id)
+        } else {
+            addTaskToCompletedUseCase(command.task.id)
         }
+        val isAchieveUnlocked = if (!command.task.isReturned) {
+            onTaskCompletedUseCase()
+        } else false
+        if (isAchieveUnlocked) {
+            _snackbarEvents.emit(SnackbarEvent.SnackbarUnlocked)
+        }
+
     }
 
-    private fun clickTask(command: TasksCommand.ClickTask){
+    private fun clickTask(command: TasksCommand.ClickTask) {
         if (command.task.category.name != Category.CALENDAR_NAME) {
             _state.update { previous ->
                 val zonedDateTime = command.task.deadlineMillis?.let { date ->
@@ -308,7 +296,7 @@ class TasksViewModel @Inject constructor(
                     title = command.task.title,
                     date = date,
                     remindAtMinutesOfDay = remind,
-                    description = command.task.note,
+                    description = command.task.description,
                     priority = command.task.priority,
                     category = command.task.category,
                     categories = newList,

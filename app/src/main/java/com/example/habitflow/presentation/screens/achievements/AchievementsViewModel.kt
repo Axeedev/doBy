@@ -44,8 +44,7 @@ class AchievementsViewModel @Inject constructor(
         combine(
             flow = subscribeFilterChips(),
             flow2 = getCurrentStreakUseCase()
-        ){
-                achievements, streak ->
+        ){ achievements, streak ->
             achievements to streak
         }.collect { (achievements, streak) ->
             _state.update { it.copy(achievements = achievements, currentStreak = streak) }

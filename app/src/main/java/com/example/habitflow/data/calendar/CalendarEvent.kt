@@ -16,7 +16,7 @@ fun CalendarEvent.toTask() = Task(
     id = id,
     title = title,
     deadlineMillis = startMillis,
-    note = description,
+    description = description,
     category = Category(Category.CALENDAR_NAME),
     priority = Priority.LOW
 )

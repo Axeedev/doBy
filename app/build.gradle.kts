@@ -62,7 +62,9 @@ android {
         buildConfig = true
     }
 }
-
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:3.24.4"
@@ -79,7 +81,11 @@ protobuf {
     }
 }
 dependencies {
-
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.mockk.bdd)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation("io.kotest:kotest-property:6.1.4")
     implementation("com.google.protobuf:protobuf-javalite:3.24.4")
     implementation("androidx.lifecycle:lifecycle-process:2.10.0")
     implementation("com.google.firebase:firebase-firestore")
@@ -91,6 +97,7 @@ dependencies {
     implementation("com.google.android.libraries.identity.googleid:googleid:1.2.0")
     implementation(libs.lifecycle.viewmodel.navigation3)
     implementation(libs.androidx.hilt.work)
+    testImplementation(libs.junit.jupiter)
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.okhttp)
     implementation(libs.coil.compose)

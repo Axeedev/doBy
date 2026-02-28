@@ -72,7 +72,7 @@ class VoiceToTaskWorker @AssistedInject constructor(
             val summaryResponse = chatApiService.getSummary(
                 authorization = "Bearer $chatToken",
                 chatRequest = ChatRequest(
-                    model = Models.GIGACHAT_BASIC,
+                        model = Models.GIGACHAT_PRO,
                     messages = listOf(
                         Message(
                             role = "user",
@@ -98,7 +98,7 @@ class VoiceToTaskWorker @AssistedInject constructor(
                             id = 0,
                             title = taskDto.title,
                             deadlineMillis = deadlineMillis,
-                            note = "",
+                            description = "",
                             category = Category(taskDto.category),
                             priority = Priority.LOW
                         )

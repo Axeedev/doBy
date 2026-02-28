@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 
 class SettingsRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val database: AppDatabase
 ) : SettingsRepository {
 

@@ -379,7 +379,7 @@ fun TasksScreenSnackbar(
 ) {
     SnackbarHost(
         modifier = Modifier
-            .padding(horizontal = 16.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 32.dp ),
         hostState = snackbarHostState
     ) { snackbarData ->
         Snackbar(

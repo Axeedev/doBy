@@ -6,7 +6,7 @@ data class Task(
     val id: Int,
     val title: String,
     val deadlineMillis: Long?,
-    val note: String,
+    val description: String,
     val category: Category,
     val priority: Priority,
     val isCompleted: Boolean = false,
