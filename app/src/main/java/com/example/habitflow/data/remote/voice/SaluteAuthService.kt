@@ -1,6 +1,5 @@
 package com.example.habitflow.data.remote.voice
 
-import com.example.habitflow.BuildConfig
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -16,8 +15,8 @@ interface SaluteAuthService {
     @FormUrlEncoded
     @POST("api/v2/oauth")
     suspend fun getToken(
-        @Header("Authorization") authorization: String = "Basic ${BuildConfig.AUTH_KEY}==",
-        @Header("RqUID") rqUid: String = BuildConfig.UID,
+        @Header("Authorization") authorization: String,
+        @Header("RqUID") rqUid: String,
         @Field("scope") scope: String = "SALUTE_SPEECH_PERS"
     ): Response<SaluteTokenResponse>
 }

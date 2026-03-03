@@ -11,19 +11,6 @@ plugins {
     id("com.google.protobuf") version "0.9.6"
 }
 
-
-private val keyStoreFile = rootProject.file("keystore.properties")
-private val keyStoreProperties = keyStoreFile.inputStream().use { inputStream ->
-    Properties().apply {
-        load(inputStream)
-    }
-}
-
-private val speechApiKey = keyStoreProperties.getProperty("AUTH_KEY")
-private val chatAuthKey = keyStoreProperties.getProperty("CHAT_KEY")
-private val uidKey = keyStoreProperties.getProperty("UID")
-private val chatUidKey = keyStoreProperties.getProperty("CHAT_UID")
-
 android {
     namespace = "com.example.habitflow"
     compileSdk {
@@ -38,10 +25,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "AUTH_KEY", speechApiKey)
-        buildConfigField("String", "UID", uidKey)
-        buildConfigField("String","CHAT_KEY", chatAuthKey)
-        buildConfigField("String","CHAT_UID", chatUidKey)
     }
 
     buildTypes {
