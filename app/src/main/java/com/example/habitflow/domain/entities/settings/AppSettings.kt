@@ -6,7 +6,6 @@ data class AppSettings(
     val sendNotificationBeforeDeadline: SendNotificationBeforeDeadline = SendNotificationBeforeDeadline.MINUTES_60,
     val morningInfoTime: NotificationTime = morningInfoTimeDefault,
     val nightInfoTime: NotificationTime = nightInfoTimeDefault,
-    val showCompletedTasksOnMainScreen: Boolean = SHOW_COMPLETED_TASKS_DEFAULT,
     val showCalendarEvents: Boolean = SHOW_CALENDAR_EVENTS_DEFAULT,
     val isDarkTheme: Boolean = IS_DARK_THEME_DEFAULT
 ){

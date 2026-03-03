@@ -19,8 +19,6 @@ interface SettingsRepository {
 
     suspend fun updateNotificationsEnabled(enabled: Boolean)
 
-    suspend fun updateShowCompletedTasksOnMainScreen(shouldShow: Boolean)
-
     suspend fun updateMorningTimeInfo(notificationTime: NotificationTime)
 
     suspend fun updateNightTimeInfo(notificationTime: NotificationTime)

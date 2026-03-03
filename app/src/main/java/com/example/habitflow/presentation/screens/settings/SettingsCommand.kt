@@ -21,8 +21,6 @@ sealed interface SettingsCommand {
 
     data class ClickNightTimeItem(val index: Int) : SettingsCommand
 
-    data class ChangeShowCompletedTasks(val shouldShow: Boolean) : SettingsCommand
-
     data class ChangeNightTimeInfo(val notificationTime: NotificationTime) : SettingsCommand
 
     data class ChangeMorningTimeInfo(val notificationTime: NotificationTime) : SettingsCommand

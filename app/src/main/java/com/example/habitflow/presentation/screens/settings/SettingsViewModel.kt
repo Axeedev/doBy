@@ -10,7 +10,6 @@ import com.example.habitflow.domain.usecases.settings.UpdateNightTimeInfoUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNotificationsEnabledUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNotifyBeforeUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateShowCalendarEventsUseCase
-import com.example.habitflow.domain.usecases.settings.UpdateShowCompletedTasksUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateWifiOnlyUseCase
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +25,6 @@ class SettingsViewModel @Inject constructor(
     private val updateNotifyBeforeUseCase: UpdateNotifyBeforeUseCase,
     private val updateWifiOnlyUseCase: UpdateWifiOnlyUseCase,
     private val updateNotificationsEnabledUseCase: UpdateNotificationsEnabledUseCase,
-    private val updateShowCompletedTasksUseCase: UpdateShowCompletedTasksUseCase,
     private val updateMorningTimeInfoUseCase: UpdateMorningTimeInfoUseCase,
     private val updateNightTimeInfoUseCase: UpdateNightTimeInfoUseCase,
     private val showCalendarEventsUseCase: UpdateShowCalendarEventsUseCase,
@@ -48,7 +46,6 @@ class SettingsViewModel @Inject constructor(
                             wifiOnly = settings.wifiOnly,
                             notificationsEnabled = settings.notificationsEnabled,
                             notifyBeforeMinutes = settings.sendNotificationBeforeDeadline.beforeMinutes,
-                            showCompletedTasks = settings.showCompletedTasksOnMainScreen,
                             showEventsFromCalendar = settings.showCalendarEvents,
                             isDarkTheme = settings.isDarkTheme,
                             selectedNotifyBeforeIndex = SendNotificationBeforeDeadline.entries.indexOf(
@@ -83,11 +80,6 @@ class SettingsViewModel @Inject constructor(
                         )
                     }
                 }
-
-                is SettingsCommand.ChangeShowCompletedTasks -> {
-                    updateShowCompletedTasksUseCase(settingsCommand.shouldShow)
-                }
-
                 is SettingsCommand.OpenSheet -> {
                     _state.update {
                         it.copy(bottomSheetType = settingsCommand.sheetType)

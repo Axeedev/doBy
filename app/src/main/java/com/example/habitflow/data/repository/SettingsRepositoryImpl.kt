@@ -25,7 +25,6 @@ class SettingsRepositoryImpl @Inject constructor(
     private val wifiOnlyKey = booleanPreferencesKey("wifi_only")
     private val notificationBeforeDeadlineKey = intPreferencesKey("notify_before")
     private val notificationsEnabledKey = booleanPreferencesKey("notifications")
-    private val showCompletedTasksOnMainScreenKey = booleanPreferencesKey("show_completed_tasks")
     private val morningNotificationMinuteKey = intPreferencesKey("morning_minute")
     private val morningNotificationHourKey = intPreferencesKey("morning_hour")
     private val nightNotificationMinuteKey = intPreferencesKey("night_minute")
@@ -39,7 +38,6 @@ class SettingsRepositoryImpl @Inject constructor(
             val notificationBeforeDeadlineAsInt = preferences[notificationBeforeDeadlineKey]
             val notificationBeforeDeadline = notificationBeforeDeadlineAsInt?.toSendBefore() ?: AppSettings.sendNotificationBeforeDeadlineDefault
             val notificationsEnabled = preferences[notificationsEnabledKey] ?: AppSettings.NOTIFICATIONS_ENABLED_DEFAULT
-            val showCompletedTasks = preferences[showCompletedTasksOnMainScreenKey] ?: AppSettings.SHOW_COMPLETED_TASKS_DEFAULT
             val morningNotificationTimeMinute = preferences[morningNotificationMinuteKey] ?: AppSettings.morningInfoTimeDefault.minute
             val morningNotificationTimeHour = preferences[morningNotificationHourKey] ?: AppSettings.morningInfoTimeDefault.hour
             val morningNotificationTime = NotificationTime(morningNotificationTimeHour, morningNotificationTimeMinute)
@@ -54,7 +52,6 @@ class SettingsRepositoryImpl @Inject constructor(
                 notificationsEnabled = notificationsEnabled,
                 wifiOnly = wifiOnly,
                 sendNotificationBeforeDeadline = notificationBeforeDeadline,
-                showCompletedTasksOnMainScreen = showCompletedTasks,
                 morningInfoTime = morningNotificationTime,
                 nightInfoTime = nightNotificationTime,
                 showCalendarEvents = showCalendarEvents,
@@ -90,14 +87,6 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun updateNotificationsEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[notificationsEnabledKey] = enabled
-        }
-    }
-
-
-
-    override suspend fun updateShowCompletedTasksOnMainScreen(shouldShow: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[showCompletedTasksOnMainScreenKey] = shouldShow
         }
     }
 

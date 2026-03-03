@@ -302,34 +302,6 @@ fun SettingsContent(
                 }
                 Spacer(Modifier.size(24.dp))
             }
-
-            item {
-                Text(
-                    text = stringResource(R.string.completed_tasks_field),
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Gray
-                )
-
-                Spacer(Modifier.size(8.dp))
-
-                SettingsField(
-                    mainText = stringResource(R.string.completed_tasks_show_on_main),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-
-                    AppSwitch(
-                        checked = state.showCompletedTasks
-                    ) {
-                        settingsViewModel.processCommand(
-                            SettingsCommand.ChangeShowCompletedTasks(
-                                it
-                            )
-                        )
-                    }
-                }
-                Spacer(Modifier.size(24.dp))
-
-            }
             item {
                 Text(
                     text = stringResource(R.string.sync_with_calendar),

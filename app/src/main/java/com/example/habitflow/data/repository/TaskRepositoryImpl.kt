@@ -17,7 +17,6 @@ import com.example.habitflow.domain.repository.TaskRepository
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.LocalDate
@@ -126,7 +125,6 @@ class TaskRepositoryImpl @Inject constructor(
 
     override suspend fun deleteTask(taskId: Int) {
         val taskToDelete = tasksDao.getTaskById(taskId)
-//        tasksDao.deleteTask(taskId)
         tasksDao.addTask(
             taskToDelete.copy(
                 isDeleted = true,
@@ -135,7 +133,6 @@ class TaskRepositoryImpl @Inject constructor(
             )
         )
         taskReminder.cancelTask(taskId.toLong())
-//        startRefresh()
     }
 
     override suspend fun updateTask(task: Task) {
@@ -152,11 +149,6 @@ class TaskRepositoryImpl @Inject constructor(
                 .toTaskEntity(task.id)
                 .copy(remoteId = taskEntity.remoteId)
         )
-//        val taskId = tasksDao.addTask(
-//            adjustedTask.toTaskEntity(
-//                task.id
-//            )
-//        )
         taskReminder.cancelTask(taskId)
         adjustedDeadline?.let { deadline ->
             taskReminder.schedule(
@@ -164,18 +156,11 @@ class TaskRepositoryImpl @Inject constructor(
                 deadline
             )
         }
-//        startRefresh()
     }
 
     @Transaction
     override suspend fun completeTask(taskId: Int) {
         val task = tasksDao.getTaskById(taskId)
-
-        val appSettings = getSettingsUseCase().first()
-
-//        if (!appSettings.showCompletedTasksOnMainScreen) {
-//            tasksDao.deleteTask(taskId)
-//        }
         completedTasksDao.addTaskToCompleted(
             completedTaskEntity = task.toCompletedTaskEntity(
                 dateOfCompletion = System.currentTimeMillis()

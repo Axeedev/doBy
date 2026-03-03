@@ -9,7 +9,6 @@ import com.example.habitflow.domain.usecases.settings.UpdateNightTimeInfoUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNotificationsEnabledUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateNotifyBeforeUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateShowCalendarEventsUseCase
-import com.example.habitflow.domain.usecases.settings.UpdateShowCompletedTasksUseCase
 import com.example.habitflow.domain.usecases.settings.UpdateWifiOnlyUseCase
 import com.google.firebase.auth.FirebaseAuth
 import io.kotest.core.spec.IsolationMode
