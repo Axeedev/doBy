@@ -1,7 +1,6 @@
 package com.example.habitflow.data.local.achievements
 
 object AchievementCodes {
-
     const val EARLY_BIRD = "EARLY_BIRD"
     const val NIGHT_OWL = "NIGHT_OWO"
     const val MONDAY_WARRIOR = "MANIC_MONDAY"

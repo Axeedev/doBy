@@ -5,12 +5,6 @@ import android.content.res.Configuration
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import com.example.habitflow.data.background.RandomAdviceWorker
 import com.example.habitflow.data.dataStore
 import com.example.habitflow.data.local.AppDatabase
 import com.example.habitflow.domain.entities.settings.AppSettings
@@ -20,7 +14,6 @@ import com.example.habitflow.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 
@@ -86,25 +79,6 @@ class SettingsRepositoryImpl @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences[wifiOnlyKey] = wifiOnly
         }
-
-        val networkType = if (wifiOnly) NetworkType.UNMETERED else NetworkType.CONNECTED
-
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(networkType)
-            .build()
-
-        val request = PeriodicWorkRequestBuilder<RandomAdviceWorker>(
-            1,
-            TimeUnit.DAYS
-        ).setConstraints(constraints)
-            .build()
-
-        WorkManager.getInstance(context)
-            .enqueueUniquePeriodicWork(
-                RandomAdviceWorker.ADVICE_WORKER_NAME,
-                existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
-                request
-            )
     }
 
     override suspend fun updateSendNotificationBeforeDeadline(beforeMinutes: Int) {

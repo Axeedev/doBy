@@ -1,6 +1,5 @@
 package com.example.habitflow.data.background
 
-import android.util.Log
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy

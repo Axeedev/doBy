@@ -36,17 +36,10 @@ class VoiceToTaskWorker @AssistedInject constructor(
 ) : CoroutineWorker(
     context, workerParameters
 ) {
-    private val assetManager = context.assets
 
     override suspend fun doWork(): Result {
 
         return try {
-//            val tempFile = File(context.cacheDir, "sample.mp3")
-//            assetManager.open("sample.mp3").use {inputStream ->
-//                tempFile.outputStream().use { output ->
-//                    inputStream.copyTo(output)
-//                }
-//            }
             val filePath = inputData.getString(FILE_PATH) ?: return Result.failure()
             val tempFile = File(filePath)
 

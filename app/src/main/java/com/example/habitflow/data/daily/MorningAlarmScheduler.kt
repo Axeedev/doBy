@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import com.example.habitflow.domain.entities.settings.NotificationTime
 import com.example.habitflow.domain.usecases.settings.GetSettingsUseCase
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -49,13 +48,11 @@ class MorningAlarmScheduler @Inject constructor(
                             calendarMorning.timeInMillis,
                             pendingIntent
                         )
-                    } else {
-                        //TODO
                     }
                 }
 
             } catch (e: SecurityException) {
-                Log.d("AlarmScheduler", "exception: ${e.toString()}")
+                e.printStackTrace()
             }
         }
 

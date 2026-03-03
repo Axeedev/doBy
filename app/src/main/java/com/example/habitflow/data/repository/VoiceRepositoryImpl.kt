@@ -27,8 +27,6 @@ class VoiceRepositoryImpl @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val workManager: WorkManager,
 ) : VoiceRepository {
-
-    private val assetManager = context.assets
     private var audioFile =  File(context.cacheDir, "sample.pcm")
     private var audioRecord: AudioRecord? = null
     private var isRecording = false

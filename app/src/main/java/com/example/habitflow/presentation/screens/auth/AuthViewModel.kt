@@ -113,7 +113,7 @@ class AuthViewModel @Inject constructor(
             return
         }
 
-        val authResult = getAuthResult(email, password, authType,)
+        val authResult = getAuthResult(email, password, authType)
 
         when (authResult) {
             is AuthResult.Failure -> {
