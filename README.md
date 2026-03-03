@@ -25,44 +25,44 @@ The project focuses on clean architecture, reactive state management, offline su
 # 📱 Screenshots
 
 
-![Splash screen](app/screenshots/splash_img.png)
+<img src="app/screenshots/splash_img.png" width="250">/
 
 ## 🎯 Main screen
 
-![Tasks screen](app/screenshots/tasks_all_img.png)
-![Create_task screen](app/screenshots/tasks_create_img.png)
+<img src="app/screenshots/tasks_all_img.png" width="250">/
+<img src="app/screenshots/tasks_create_img.png" width="250">/
 
 ## 🎯 Goals
 
-![Goals screen](app/screenshots/goals_all_img.png)
-![Create_goal screen](app/screenshots/goals_create.png)
+<img src="app/screenshots/goals_all_img.png" width="250">/
+<img src="app/screenshots/goals_create.png" width="250">/
 
 ---
 
 ## Authentification
-![Login screen](app/screenshots/login_img.png)
-![Signup screen](app/screenshots/signup_img.png)
+<img src="app/screenshots/login_img.png" width="250">/
+<img src="app/screenshots/signup_img.png" width="250">/
 ---
 
 ## 📊 Analytics
 
-![Bar screen](app/screenshots/bar_chart_img.png)
-![Heatmap screen](app/screenshots/heatmap_img.png)
+<img src="app/screenshots/bar_chart_img.png" width="250">/
+<img src="app/screenshots/heatmap_img.png" width="250">/
 
 ---
 
 ## 🏆 Achievements
 
-![Achievements screen](app/screenshots/achievements_img.png)
+<img src="app/screenshots/achievements_img.png" width="250">/
 
 ## Settings
 
-![Settings screen](app/screenshots/settings_img.png)
+<img src="app/screenshots/settings_img.png" width="250">/
 
 
 ## Recently completed
 
-![Recently_completed screen](app/screenshots/recently_completed_img.png)
+<img src="app/screenshots/recently_completed_img.png" width="250">/
 
 
 ---
