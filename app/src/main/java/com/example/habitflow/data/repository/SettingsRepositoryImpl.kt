@@ -1,6 +1,7 @@
 package com.example.habitflow.data.repository
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -51,7 +52,7 @@ class SettingsRepositoryImpl @Inject constructor(
             val morningNotificationTime = NotificationTime(morningNotificationTimeHour, morningNotificationTimeMinute)
             val showCalendarEvents = preferences[showCalendarEventsKey] ?: AppSettings.SHOW_CALENDAR_EVENTS_DEFAULT
 
-            val isDarkTheme = preferences[isDarkThemeKey] ?: AppSettings.IS_DARK_THEME_DEFAULT
+            val isDarkTheme = preferences[isDarkThemeKey] ?: isDarkTheme(context)
             val nightNotificationTimeHour = preferences[nightNotificationHourKey] ?: AppSettings.nightInfoTimeDefault.hour
             val nightNotificationTimeMinute = preferences[nightNotificationMinuteKey] ?: AppSettings.nightInfoTimeDefault.minute
             val nightNotificationTime = NotificationTime(nightNotificationTimeHour, nightNotificationTimeMinute)
@@ -148,11 +149,20 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override fun getIsDarkTheme(): Flow<Boolean> {
         return context.dataStore.data.map {
-            it[isDarkThemeKey] ?: AppSettings.IS_DARK_THEME_DEFAULT
+            it[isDarkThemeKey] ?: isDarkTheme(context)
         }
     }
 
     override fun clearAllTables() {
         database.clearAllTables()
+    }
+
+    private fun isDarkTheme(context: Context): Boolean {
+        return when (context.resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_YES -> true
+            Configuration.UI_MODE_NIGHT_NO -> false
+            else -> false
+        }
     }
 }

@@ -17,8 +17,8 @@ class SystemCalendarManager @Inject constructor(
 ) {
 
     fun getEventsAsTasks(): Flow<List<Task>> = flow {
-        emit(fetchUpcomingEvents().map { it.toTask() })
-
+        val upcomingEvents = fetchUpcomingEvents()
+        emit(upcomingEvents.map { it.toTask() })
     }
 
     private fun fetchUpcomingEvents(): List<CalendarEvent> {
@@ -27,8 +27,6 @@ class SystemCalendarManager @Inject constructor(
                 Manifest.permission.READ_CALENDAR
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-
-
             val events = mutableListOf<CalendarEvent>()
             val contentResolver: ContentResolver = context.contentResolver
 
@@ -53,6 +51,7 @@ class SystemCalendarManager @Inject constructor(
             val sortOrder = "${CalendarContract.Events.DTSTART} ASC"
 
             val cursor = contentResolver.query(
+
                 CalendarContract.Events.CONTENT_URI,
                 projection,
                 selection,
@@ -74,7 +73,7 @@ class SystemCalendarManager @Inject constructor(
                             id = it.getInt(idCol),
                             title = it.getString(titleCol) ?: "No title",
                             description = it.getString(descCol) ?: "No description",
-                            startMillis = it.getLong(startCol) + 1000L * 6 * 60 * 60,
+                            startMillis = it.getLong(startCol),
                             endMillis = it.getLong(endCol)
                         )
                     )

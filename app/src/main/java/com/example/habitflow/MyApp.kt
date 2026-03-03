@@ -36,7 +36,6 @@ class MyApp : Application(),  Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         scope.launch {
-            dataSyncScheduler.scheduleDataPull()
             streakManager.checkStreakExpiration()
         }
     }

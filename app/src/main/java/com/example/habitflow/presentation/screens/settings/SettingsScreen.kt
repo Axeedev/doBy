@@ -343,7 +343,6 @@ fun SettingsContent(
                     mainText = stringResource(R.string.show_events_from_calendar),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-
                     AppSwitch(
                         checked = state.showEventsFromCalendar
                     ) {

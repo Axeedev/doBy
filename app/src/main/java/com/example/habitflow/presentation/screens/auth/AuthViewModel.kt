@@ -47,7 +47,7 @@ class AuthViewModel @Inject constructor(
                 }
                 AuthResult.Success -> {
                     it.copy(
-                        isAuthSuccess = false
+                        isAuthSuccess = true
                     )
                 }
             }
