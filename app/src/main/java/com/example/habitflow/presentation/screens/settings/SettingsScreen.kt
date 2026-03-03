@@ -313,7 +313,7 @@ fun SettingsContent(
                 Spacer(Modifier.size(8.dp))
 
                 SettingsField(
-                    mainText = stringResource(R.string.recently_completed_screen),
+                    mainText = stringResource(R.string.completed_tasks_show_on_main),
                     shape = RoundedCornerShape(12.dp)
                 ) {
 

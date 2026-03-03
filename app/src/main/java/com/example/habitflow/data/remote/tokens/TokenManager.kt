@@ -1,6 +1,7 @@
 package com.example.habitflow.data.remote.tokens
 
 import android.content.Context
+import android.util.Log
 import com.example.habitflow.data.remote.voice.SaluteAuthService
 import com.example.habitflow.data.tokenDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,8 +25,8 @@ class TokenManager @Inject constructor(
             tokenData.speechExpiresAt > now
         ) {
             return tokenData.speechAccessToken
-
         }
+        Log.d("TokenManager", "token expired")
 
         val response = authApi.getToken()
 

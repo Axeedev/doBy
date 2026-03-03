@@ -48,7 +48,7 @@
     <string name="data_sync_wifi_only">Только через Wi-Fi</string>
     <string name="data_sync_sync_data_only_via_wifi">Синхронизировать только через Wi-Fi</string>
     <string name="completed_tasks_field">Завершённые задачи</string>
-    <string name="completed_tasks_show_on_main">Показывать на главном экране</string>
+    <string name="completed_tasks_show_on_main">Показывать на главном</string>
     <string name="sync_with_calendar">Синхронизация с календарём</string>
     <string name="show_events_from_calendar">Показывать события</string>
     <string name="notifications_field">Уведомления</string>
