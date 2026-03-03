@@ -26,7 +26,10 @@ class TokenManager @Inject constructor(
         ) {
             return tokenData.speechAccessToken
         }
-        val response = authApi.getToken()
+        val response = authApi.getToken(
+            authorization = "Basic MDE5Yzk1YjEtNzFmMS03MTY1LTliYTMtZTc2MmVjZGY5OTA4Ojc1ZjMzYTgyLWM3NGUtNGYxZC05OGQzLTExNGE0ZTY3ZGIyYQ==",
+            rqUid = "019c95b1-71f1-7165-9ba3-e762ecdf9908"
+        )
 
         if (!response.isSuccessful || response.body() == null) {
             throw Exception("Не удалось получить speech токен")
@@ -55,8 +58,8 @@ class TokenManager @Inject constructor(
         }
 
         val response = authApi.getToken(
-            authorization = "Basic ${BuildConfig.CHAT_KEY}==",
-            rqUid = BuildConfig.CHAT_UID,
+            authorization = "Basic ZjY5YmZhNzQtYjJjMy00YWMzLTgyMDQtODI4N2E1MjA4NjQ5OjAzZTg1OWQwLTNhZjAtNDI5YS1hMzI1LWM0MjM1MzdlNTM5OA==",
+            rqUid = "f69bfa74-b2c3-4ac3-8204-8287a5208649",
             scope = "GIGACHAT_API_PERS"
         )
 
