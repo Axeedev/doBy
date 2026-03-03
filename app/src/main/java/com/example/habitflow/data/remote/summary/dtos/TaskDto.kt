@@ -8,7 +8,7 @@ data class TaskDto(
     @SerialName("title")
     val title: String,
     @SerialName("deadline")
-    val deadline: String,
+    val deadline: String?,
     @SerialName("category")
     val category: String
 )

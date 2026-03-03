@@ -92,7 +92,10 @@ class VoiceToTaskWorker @AssistedInject constructor(
                 val response = json.decodeFromString<SummaryResponse>(choice.message.content)
                 val tasks = response.tasks
                 tasks.forEach { taskDto ->
-                    val deadlineMillis = parseToMillis(taskDto.deadline)
+
+                    val deadlineMillis = taskDto.deadline?.let {
+                        parseToMillis(it)
+                    }
                     addTaskUseCase(
                         task = Task(
                             id = 0,

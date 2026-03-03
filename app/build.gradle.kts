@@ -19,9 +19,10 @@ private val keyStoreProperties = keyStoreFile.inputStream().use { inputStream ->
     }
 }
 
-
-private val apiKey = keyStoreProperties.getProperty("AUTH_KEY")
+private val speechApiKey = keyStoreProperties.getProperty("AUTH_KEY")
+private val chatAuthKey = keyStoreProperties.getProperty("CHAT_KEY")
 private val uidKey = keyStoreProperties.getProperty("UID")
+private val chatUidKey = keyStoreProperties.getProperty("CHAT_UID")
 
 android {
     namespace = "com.example.habitflow"
@@ -37,8 +38,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "AUTH_KEY", apiKey)
+        buildConfigField("String", "AUTH_KEY", speechApiKey)
         buildConfigField("String", "UID", uidKey)
+        buildConfigField("String","CHAT_KEY", chatAuthKey)
+        buildConfigField("String","CHAT_UID", chatUidKey)
     }
 
     buildTypes {
@@ -135,3 +138,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
+
+//ZjY5YmZhNzQtYjJjMy00YWMzLTgyMDQtODI4N2E1MjA4NjQ5OjAzZTg1OWQwLTNhZjAtNDI5YS1hMzI1LWM0MjM1MzdlNTM5OA==

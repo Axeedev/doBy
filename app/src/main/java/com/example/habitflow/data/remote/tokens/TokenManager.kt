@@ -2,6 +2,7 @@ package com.example.habitflow.data.remote.tokens
 
 import android.content.Context
 import android.util.Log
+import com.example.habitflow.BuildConfig
 import com.example.habitflow.data.remote.voice.SaluteAuthService
 import com.example.habitflow.data.tokenDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -57,8 +58,8 @@ class TokenManager @Inject constructor(
         }
 
         val response = authApi.getToken(
-            authorization = "Basic ZjY5YmZhNzQtYjJjMy00YWMzLTgyMDQtODI4N2E1MjA4NjQ5OmI5ZmM0ZTkzLWEzMDYtNGU1Ni04ZjY2LWJlZDJkYWE0YTViOQ==",
-            rqUid = "f69bfa74-b2c3-4ac3-8204-8287a5208649",
+            authorization = "Basic ${BuildConfig.CHAT_KEY}==",
+            rqUid = BuildConfig.CHAT_UID,
             scope = "GIGACHAT_API_PERS"
         )
 
