@@ -191,7 +191,7 @@ fun TasksScreenContent(
         floatingActionButton = {
             TasksScreenFAB(
                 isVoiceRecording = state.isVoiceRecording,
-                onToggleRecording = {isRecording ->
+                onToggleRecording = { isRecording ->
                     if (!hasPermission) {
                         launcher.launch(Manifest.permission.RECORD_AUDIO)
                     } else {
@@ -379,7 +379,7 @@ fun TasksScreenSnackbar(
 ) {
     SnackbarHost(
         modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, top = 32.dp ),
+            .padding(start = 16.dp, end = 16.dp, top = 32.dp),
         hostState = snackbarHostState
     ) { snackbarData ->
         Snackbar(
@@ -431,126 +431,148 @@ fun AddTaskBottomSheet(
         containerColor = MaterialTheme.colorScheme.background,
         sheetState = sheetState
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
 
-            BottomSheetTitle(
-                taskId = state.taskId,
-                category = state.category
-            ) { id ->
-                id?.let {
-                    tasksViewModel.processCommand(TasksCommand.DeleteTask(it))
+            item {
+                BottomSheetTitle(
+                    taskId = state.taskId,
+                    category = state.category
+                ) { id ->
+                    id?.let {
+                        tasksViewModel.processCommand(TasksCommand.DeleteTask(it))
+                    }
                 }
             }
 
-            CreateGoalTextFieldWithTitle(
-                value = state.title,
-                fieldTitle = stringResource(R.string.task_name_field),
-                placeholderText = stringResource(R.string.task_name_placeholder),
-                onValueChange = {
-                    tasksViewModel.processCommand(TasksCommand.InputTitle(it))
-                }
-            )
+            item {
 
-            var isDatePickerOpened by remember { mutableStateOf(false) }
-            var isTimePickerOpened by remember { mutableStateOf(false) }
-            if (isDatePickerOpened) {
-                DatePickerModal(
-                    onDateSelected = {
-                        it?.let { date ->
+
+                CreateGoalTextFieldWithTitle(
+                    value = state.title,
+                    fieldTitle = stringResource(R.string.task_name_field),
+                    placeholderText = stringResource(R.string.task_name_placeholder),
+                    onValueChange = {
+                        tasksViewModel.processCommand(TasksCommand.InputTitle(it))
+                    }
+                )
+            }
+            item {
+
+
+                var isDatePickerOpened by remember { mutableStateOf(false) }
+                var isTimePickerOpened by remember { mutableStateOf(false) }
+                if (isDatePickerOpened) {
+                    DatePickerModal(
+                        onDateSelected = {
+                            it?.let { date ->
+                                tasksViewModel.processCommand(
+                                    TasksCommand.InputDate(date)
+                                )
+                            }
+                        }
+                    ) {
+                        isDatePickerOpened = false
+                    }
+                }
+                if (isTimePickerOpened) {
+                    TimePickerDial(
+                        onConfirm = {
                             tasksViewModel.processCommand(
-                                TasksCommand.InputDate(date)
+                                TasksCommand.InputDeadline(it)
                             )
                         }
+                    ) {
+                        isTimePickerOpened = false
+                    }
+                }
+
+                DateTimeFields(
+                    date = state.date,
+                    deadline = state.remindAtMinutesOfDay,
+                    onDateFieldClick = {
+                        isDatePickerOpened = true
                     }
                 ) {
-                    isDatePickerOpened = false
+                    isTimePickerOpened = true
                 }
             }
-            if (isTimePickerOpened) {
-                TimePickerDial(
-                    onConfirm = {
-                        tasksViewModel.processCommand(
-                            TasksCommand.InputDeadline(it)
-                        )
-                    }
+            item {
+
+                CreateGoalTextFieldWithTitle(
+                    value = state.description,
+                    fieldTitle = stringResource(R.string.tasks_description_field),
+                    placeholderText = stringResource(R.string.tasks_description_placeholder),
+                    minLines = 4
                 ) {
-                    isTimePickerOpened = false
+                    tasksViewModel.processCommand(TasksCommand.InputDescription(it))
                 }
             }
 
-            DateTimeFields(
-                date = state.date,
-                deadline = state.remindAtMinutesOfDay,
-                onDateFieldClick = {
-                    isDatePickerOpened = true
-                }
-            ) {
-                isTimePickerOpened = true
-            }
+            item {
 
-            CreateGoalTextFieldWithTitle(
-                value = state.description,
-                fieldTitle = stringResource(R.string.tasks_description_field),
-                placeholderText = stringResource(R.string.tasks_description_placeholder),
-                minLines = 4
-            ) {
-                tasksViewModel.processCommand(TasksCommand.InputDescription(it))
-            }
+                var isDialogOpened by remember { mutableStateOf(false) }
 
-            var isDialogOpened by remember { mutableStateOf(false) }
+                CategoryChooseContent { isDialogOpened = true }
 
-            CategoryChooseContent { isDialogOpened = true }
-
-            if (isDialogOpened) {
-                AddCategoryDialog(
-                    categoryName = state.newCategoryName,
-                    isAddCategoryButtonEnabled = state.isAddCategoryButtonEnabled,
-                    onDismiss = {
+                if (isDialogOpened) {
+                    AddCategoryDialog(
+                        categoryName = state.newCategoryName,
+                        isAddCategoryButtonEnabled = state.isAddCategoryButtonEnabled,
+                        onDismiss = {
+                            isDialogOpened = false
+                        },
+                        onValueChange = {
+                            tasksViewModel.processCommand(TasksCommand.InputCategoryName(it))
+                        },
+                    ) {
+                        tasksViewModel.processCommand(TasksCommand.AddNewCategory(it))
                         isDialogOpened = false
-                    },
-                    onValueChange = {
-                        tasksViewModel.processCommand(TasksCommand.InputCategoryName(it))
-                    },
+                    }
+                }
+
+                CategoryChips(
+                    categories = state.categories,
+                    selectedCategory = state.category
                 ) {
-                    tasksViewModel.processCommand(TasksCommand.AddNewCategory(it))
-                    isDialogOpened = false
+                    tasksViewModel.processCommand(TasksCommand.ChangeCategory(Category(it)))
                 }
             }
 
-            CategoryChips(
-                categories = state.categories,
-                selectedCategory = state.category
-            ) {
-                tasksViewModel.processCommand(TasksCommand.ChangeCategory(Category(it)))
-            }
 
+            item {
 
-            Text(
-                text = stringResource(R.string.priority_field)
-            )
-
-            PriorityChips(
-                selectedPriority = state.priority
-            ) { priority ->
-                tasksViewModel.processCommand(TasksCommand.ChangePriority(priority))
-            }
-
-            CreateOrEditButton(
-                isSaveButtonEnabled = state.isButtonEnabled,
-                text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(
-                    R.string.save_changes_button
+                Text(
+                    text = stringResource(R.string.priority_field)
                 )
-            ) {
-                tasksViewModel.processCommand(TasksCommand.AddTask)
-                scope.launch {
-                    sheetState.hide()
+
+                PriorityChips(
+                    selectedPriority = state.priority
+                ) { priority ->
+                    tasksViewModel.processCommand(TasksCommand.ChangePriority(priority))
                 }
             }
+
+
+            item {
+
+                CreateOrEditButton(
+                    isSaveButtonEnabled = state.isButtonEnabled,
+                    text = if (state.taskId == null) stringResource(R.string.create_new_task) else stringResource(
+                        R.string.save_changes_button
+                    )
+                ) {
+                    tasksViewModel.processCommand(TasksCommand.AddTask)
+                    scope.launch {
+                        sheetState.hide()
+                    }
+                }
+            }
+
         }
     }
 }
