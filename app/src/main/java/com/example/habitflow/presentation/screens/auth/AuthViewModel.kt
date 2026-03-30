@@ -54,6 +54,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+
     private fun clickLoginButton() {
         _state.update { it.copy(isLoading = true) }
         val currentState = _state.value

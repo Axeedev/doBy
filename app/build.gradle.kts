@@ -68,6 +68,7 @@ protobuf {
 }
 dependencies {
     implementation(libs.mockito.core)
+    implementation(libs.androidx.compose.runtime)
     testImplementation(libs.mockk)
     testImplementation(libs.kotest.runner.junit5)
     testImplementation(libs.mockk.bdd)

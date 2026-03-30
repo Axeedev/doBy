@@ -1,6 +1,5 @@
 package com.example.habitflow.presentation.navigation
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.togetherWith
@@ -44,7 +43,6 @@ import com.example.habitflow.presentation.screens.goals.edit.EditGoalScreen
 import com.example.habitflow.presentation.screens.settings.SettingsScreen
 import com.example.habitflow.presentation.screens.tasks.all.TasksScreen
 import com.example.habitflow.presentation.screens.tasks.completed.RecentlyCompletedScreen
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 
@@ -52,7 +50,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun NavigationRoot() {
 
-    val startDestination = if (FirebaseAuth.getInstance().currentUser == null) Screen.Login else Tasks
+    val startDestination = Tasks
 
     val backStack = rememberNavBackStack(startDestination)
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -265,11 +263,7 @@ fun NavigationRoot() {
                         NavEntry(key = key){
                             SettingsScreen(
                                 onSingOut = {
-                                    while (backStack.isNotEmpty()){
-                                        backStack.removeLastOrNull()
-                                    }
-                                    Log.d("Settings", backStack.joinToString(", "))
-                                    backStack.add(Screen.Login)
+
                                 }
                             ) {
                                 if (backStack.size > 1){
